@@ -1,0 +1,16 @@
+title : Hugo Zhu
+tagline: programming software
+author :
+  name : Hugo Zhu
+  email : hugozhu@gmail.com
+  github : hugozhu
+  twitter : hugozhu
+  feedburner : hugozhu
+
+navigation :
+  - archive.html
+  - tags.html
+  - categories.html
+  - pages.html
+  - about.md
+  
