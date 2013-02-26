@@ -12,4 +12,4 @@ tags:
 Linux下的调试和分析工具集
 _____________________
 
-![tools.jpg](/assets/media/tools.jpg)
+<img src="/assets/media/tools.jpg" width="600"/>
