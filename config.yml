@@ -1,12 +1,12 @@
 ---
-# Usage: http://ruhoh.com/usage/configure/ 
+# Usage: http://ruhoh.com/usage/configure/
 
 RuhohSpec: '1.0'
 theme : twitter
 production_url : http://hugozhu.myalert.info
 
 posts:
-  permalink: /:categories/:title/
+  permalink: /:year/:month/:day/:title.html
   summary_lines: 20
   latest: 10
 
