@@ -4,10 +4,7 @@ layout: post
 title: 我的第一篇博客
 permalink: '/2012/new-born.html'
 categories:
-- Gor
 - Blog
-tags:
-- Gor
 ---
 
 感谢使用Gor编写博客
