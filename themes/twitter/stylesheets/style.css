@@ -82,3 +82,9 @@ html, body {
   border:1px solid #4C964D;
   color:#FFF;
 }
+
+.brand {  
+  background:url(http://tp3.sinaimg.cn/1808008002/50/5649301600/1); 
+  background-size:40px 40px; 
+  background-repeat: no-repeat;   
+}

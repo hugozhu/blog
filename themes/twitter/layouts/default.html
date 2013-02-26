@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{ page.title }}</title>
+    <title>{{ page.title }} - When GO meets Raspberry Pi</title>
   {{# page.description }}
     <meta name="description" content="{{ . }}">
   {{/ page.description }}
@@ -15,6 +15,8 @@
 
     <!-- Le styles -->
     {{{ assets }}} 
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
 
     <!-- Le fav and touch icons -->
   <!-- Update these with your own images
@@ -30,7 +32,7 @@
     <div class="navbar">
       <div class="navbar-inner">
         <div class="container">
-          <a class="brand" href="/">{{ site.title }}</a>
+          <a class="brand" href="/" style="padding-left:46px;">{{ site.title }}</a>
           <ul class="nav">
             {{# site.navigation?to_pages }}
               {{> pages_list }}
@@ -44,10 +46,28 @@
 
       <div class="content">
         {{{ content }}}
+
+
+
+        <center>    
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-5109060569865704";
+        /* Hugo&#39;s blog 728x90, created 1/6/09 */
+        google_ad_slot = "1925751418";
+        google_ad_width = 728;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+        </center>
+
       </div>
 
       <footer>
-        <p>&copy; {{ site.author.name }} 2013 
+        <p>&copy; <a href="http://weibo.com/hugozhu">{{ site.author.name }}</a> 2013 
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a> 
           with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
 		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
@@ -57,6 +77,20 @@
     </div> <!-- /container -->
 
     {{{ google_prettify }}}
-    {{{ analytics }}}
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
   </body>
 </html>
