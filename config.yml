@@ -6,7 +6,7 @@ theme : twitter
 production_url : http://hugozhu.myalert.info
 
 posts:
-  permalink: /:year/:month/:day/:filename.html
+  permalink: /:year/:month/:day/:title.html
   summary_lines: 20
   latest: 10
 
