@@ -8,6 +8,21 @@ tags:
 - Java
 ---
 
+将Java的Proprties文件导出成环境变量
+====
+
+比如env.properties如下
+
+    MYSQL_URL = //localhost:3306/test?autoReconnect=true&useUnicode=true&characterEncoding=gbk
+    MYSQL_USER = root
+    MYSQL_PASS = 
+
+执行下面的脚本后就相当于
+
+    export MYSQL_URL="//localhost:3306/test?autoReconnect=true&useUnicode=true&characterEncoding=gbk"
+    export MYSQL_USER="root"
+    export MYSQL_PASS="" 
+
     #!/bin/bash
 
     property_file=env.properties
