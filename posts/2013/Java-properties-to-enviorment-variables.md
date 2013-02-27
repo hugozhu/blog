@@ -23,6 +23,8 @@ tags:
     export MYSQL_USER="root"
     export MYSQL_PASS="" 
 
+env.sh脚本代码
+
     #!/bin/bash
 
     property_file=env.properties
