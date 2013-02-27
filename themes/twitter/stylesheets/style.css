@@ -88,3 +88,12 @@ html, body {
   background-size:40px 40px; 
   background-repeat: no-repeat;   
 }
+.row h1 {
+  font-size: 18px;
+}
+.row h2 {
+  font-size: 16px;
+}
+.row h3 {
+  font-size: 14px;
+}
