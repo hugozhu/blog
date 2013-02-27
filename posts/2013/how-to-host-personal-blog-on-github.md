@@ -3,6 +3,7 @@ date: 2013-02-27
 layout: post
 title: 在Pi和Github上搭建自己的个人博客
 description: How to host your personal blog on raspberry pi和github
+permalink: '/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html'
 categories:
 - Blog
 tags:
