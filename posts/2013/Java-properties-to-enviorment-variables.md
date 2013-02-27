@@ -8,12 +8,12 @@ tags:
 - Java
 ---
 
-将Java的Proprties文件导出成环境变量
+将Java的Properties文件导出成环境变量
 ====
 
-比如env.properties如下
+比如env.properties如下（=附近可以有空格，也可以有空行）
 
-    MYSQL_URL = //localhost:3306/test?autoReconnect=true&useUnicode=true&characterEncoding=gbk
+    MYSQL_URL = jdbc:mysql://localhost:3306/test?autoReconnect=true&useUnicode=true&characterEncoding=gbk
     MYSQL_USER = root
     MYSQL_PASS = 
 
