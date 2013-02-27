@@ -2,7 +2,6 @@
 title: Java properties to enviorment variables
 date: '2013-02-25'
 description:
-permalink: '/2013/02/25/Java%20properties%20to%20enviorment%20variables.html'
 categories:
 - Blog
 tags:
