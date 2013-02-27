@@ -71,6 +71,11 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
 </div>
 <div style="height:250px">
+<ul><h5>最近文章</h5>  
+{{# posts_latest }}
+<li><a href="{{url}}">{{title}}</a></li>
+{{/ posts_latest }}
+</ul>
 <ul><h5>友情链接</h5>
 <li><a href="http://pi.k17.im" target="_blank">Pi with Nowa</a></li>
 <li><a href="http://kongwu.net" target="_blank">Kongwu.NET</a></li>
