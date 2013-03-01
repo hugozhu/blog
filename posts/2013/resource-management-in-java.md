@@ -1,5 +1,5 @@
 ---
-date: 2013-02-28
+date: 2013-03-01
 layout: post
 title: Java的资源管理
 categories:
