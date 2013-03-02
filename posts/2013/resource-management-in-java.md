@@ -12,7 +12,7 @@ tags:
 
 ## Overview
 
-Java程序中的常见的资源有：文件，网络Sockets，数据库连接。在使用这些资源时候要分外小心，因为操作系统可同时操作的资源是有限的，比如默认情况下系统允许同时打开的文件数为1024个，Mysql服务器默认允许的最大连接数是100，所以操作这些资源时候要注意即使在遇到错误时也要让系统能正确回收资源。如果发生错误时候，打开的文件描述符没关闭或数据库连接没关闭，积累到一定程度后，应用将会变得不可用，只能重启。
+Java程序中的常见的资源有：文件，Socket，数据库连接。在使用这些资源时候要分外小心，因为操作系统可同时操作的资源是有限的，比如默认情况下系统允许同时打开的文件数为1024个，Mysql服务器默认允许的最大连接数是100，所以操作这些资源时候要注意即使在遇到错误时也要让系统能正确回收资源。如果发生错误时候，打开的文件描述符没关闭或数据库连接没关闭，积累到一定程度后，应用将会变得不可用，只能重启。
 
 
 ## try-catch-finally
@@ -33,7 +33,12 @@ Java提供了try-catch-finally来保证程序遇到异常时总是有机会可�
         out.close();
     }
 
-一眼看上去，代码挺整齐的，逻辑也很容易理解。但其中有一个很大的问题是，如果out.write调用失败（比如磁盘空间满了），in.close()和out.close()就不会被调用！而in和out对象内部都引用了系统资源-[文件描述符](http://zh.wikipedia.org/wiki/文件描述符)。
+一眼看上去，代码挺整齐的，逻辑也容易理解。但其中有一个很大的问题是，如果out.write调用失败（比如磁盘空间满了）方法异常退出，in.close()和out.close()就不会被调用，而in和out对象内部都引用了系统资源-[文件描述符](http://zh.wikipedia.org/wiki/文件描述符)，这样会导致文件描述符没有关闭，不能被重新使用而直到整个Java进程退出。
+
+#### [File descriptor](http://en.wikipedia.org/wiki/File_descriptor)
+Linux的每个进程（如：Java进程）都有一个文件描述符表管理当前进程访问的所有的文件，文件描述符关联了系统文件表中的file entry，系统能容纳多少file entry是有限制的，如果超过限制系统会拒绝访问，抛出Too many opened files错误。
+
+<img src="https://pbs.twimg.com/media/BEUt3v3CEAAeP-m.jpg:large"/>
 
 较为正确的代码应该是：
 
@@ -45,9 +50,7 @@ Java提供了try-catch-finally来保证程序遇到异常时总是有机会可�
             out = new FileOutputStream(dest);  
             int c;  
             while ((c = in.read()) != -1)
-                out.write(c);  
-            in.close();
-            out.close();
+                out.write(c);
         } finally {
              try {
                  if (in!=null) {
@@ -61,7 +64,27 @@ Java提供了try-catch-finally来保证程序遇到异常时总是有机会可�
         }
     }
 
-但是这样的代码写起来是不是让人有点沮丧？这样写代码犯错的可能性确实比较大，让我们看看在其他语言里是怎么实现的：
+
+但是这样的代码写起来是不是让人有点沮丧？这样写代码犯错的可能性确实比较大。
+改良过后的代码阅读性好一些：
+       
+    private void copy(String src, String dest) throws IOException {
+        FileInputStream in = null;  
+        FileOutputStream out = null;  
+        try {
+            in = new FileInputStream(src);  
+            out = new FileOutputStream(dest);  
+            int c;  
+            while ((c = in.read()) != -1)
+                out.write(c);  
+        } finally {
+            FileUtils.close(in);
+            FileUtils.close(out);
+        }
+    }
+    
+
+让我们也看看在其他语言里是怎么实现的：
 
 ### Ruby：
 
@@ -120,12 +143,18 @@ Clojure通过with-open函数来保证打开的文件在异常情况下也会被�
                 out.write(c);  
     }
 
-终于Java 7较好的解决了这个问题，可以看出和Ruby，Clojure的方法类似。Java 7新增加了java.lang.AutoCloseable接口。
+终于Java 7通过自动资源管理较好的解决了这个问题，try()代码块内的变量在离开时候会自动调用AutoCloseable接口必须实现的close()方法。java.lang.AutoCloseable接口是在Java 7内新增的。
     
 
-## 连接池
-TODO；
+## 独占资源和并发访问
 
+### 锁
+
+#### 读写锁
+
+### 信号量
+
+### 连接池
 
 ### 作业
 TODO：
