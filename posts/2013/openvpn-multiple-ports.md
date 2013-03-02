@@ -10,7 +10,7 @@ tags:
 
 ---
 
-Openvpn本身不能设置多个端口，使用iptables可以解决这个问题：
+Openvpn本身不能设置多个端口，使用iptables可以解决这个问题 （假设openvpn本来56788端口）：
 
     for port in {56780..56787}
     do 
