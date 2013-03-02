@@ -35,6 +35,7 @@ env.sh脚本代码
         key=$2
         grep  "^${2}=" ${1}| sed "s%${2}=\(.*\)%\1%"
     }
+    
     trim() {
         trimmed=$1
         trimmed=${trimmed%% }
@@ -42,10 +43,10 @@ env.sh脚本代码
         echo "$trimmed"
     }
 
-    grep -v "^#" $property_file | sed -e '/^$/d' | while read line
+    `grep -v "^#" $property_file | sed -e '/^$/d' | while read line
     do
         key=$(echo $line | awk -F "=" '{print $1}')
         trimmed_key=$(trim $key)
-        export $trimmed_key=$(trim $(get_prop $property_file "$key"))
-        echo $trimmed_key=${!trimmed_key}
-    done
+        trimmed_val=$(trim $(get_prop $property_file "$key")
+        echo "export $trimmed_key=\"$trimmed_val\")"
+    done`
