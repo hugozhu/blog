@@ -156,9 +156,9 @@ Clojure通过with-open函数来保证打开的文件在异常情况下也会被�
 
 ### 连接池
 
-### 作业
+## 作业
 TODO：
 
-#### 参考链接
+## 参考链接
 
 1. [Better Resource Management with Java SE 7: Beyond Syntactic Sugar](http://www.oracle.com/technetwork/articles/java/trywithresources-401775.html)
