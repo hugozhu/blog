@@ -12,3 +12,8 @@ posts:
 
 pages:
   permalink: 'pretty'
+
+paginator:
+  layout: 'paginator'
+  per_page: 13
+  namespace: 'posts'
