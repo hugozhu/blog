@@ -2,6 +2,7 @@
 date: 2013-03-02
 layout: post
 title: OpenVPN使用多个端口
+description: 使用iptables将多个端口转发到OpenVPN的端口，防止单一端口被封
 categories:
 - Blog
 tags:

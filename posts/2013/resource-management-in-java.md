@@ -2,6 +2,7 @@
 date: 2013-03-01
 layout: post
 title: Java的资源管理
+description: Introduction of best practices for Java resource management
 categories:
 - Blog
 tags:

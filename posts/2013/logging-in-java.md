@@ -2,6 +2,7 @@
 date: 2013-02-28
 layout: post
 title: Java程序的日志
+description: Java日志最佳实践，给程序调试提供有用信息的日志
 categories:
 - Blog
 tags:

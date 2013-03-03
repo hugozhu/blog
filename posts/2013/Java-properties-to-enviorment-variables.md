@@ -1,7 +1,7 @@
 ---
-title: Java properties to enviorment variables
+title: 将Java的Properties文件转换成环境变量
 date: '2013-02-25'
-description:
+description: Convert Java properties to enviorment variables for shell scripts
 permalink: '/2013/02/25/Java%20properties%20to%20enviorment%20variables.html'
 categories:
 - Blog
@@ -9,8 +9,9 @@ tags:
 - Java
 ---
 
-将Java的Properties文件导出成环境变量
-====
+## Overview
+
+在Java程序中使用properties文件很方便，但有时候需要和脚本配合使用时，需要把properties文件内的多个变量转换成环境变量，本文提供一个转换脚本示范：
 
 比如env.properties如下（=附近可以有空格，也可以有空行）
 

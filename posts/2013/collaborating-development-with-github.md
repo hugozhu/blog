@@ -2,7 +2,7 @@
 date: 2013-02-27
 layout: post
 title: 使用Github合作开发项目
-description: 
+description: 介绍Fork + Pull Request的合作开发方法
 categories:
 - Blog
 tags:

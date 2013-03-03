@@ -2,6 +2,7 @@
 date: 2013-03-01
 layout: post
 title: 在Ubuntu上配置L2TP，PPTP和OpenVPN服务
+description: 介绍各种VPN服务的配置方法
 categories:
 - Blog
 tags:

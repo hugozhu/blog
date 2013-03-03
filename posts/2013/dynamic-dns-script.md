@@ -2,6 +2,7 @@
 date: 2013-02-26
 layout: post
 title: 动态DNS程序
+description: 动态根据宽带外网IP更新dnspod登记的域名, Go语言实现
 categories:
 - Blog
 tags:
