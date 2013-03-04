@@ -1,6 +1,6 @@
 ---
 title: Blogs
-description:
+description: My blogs
 ---
 
 {{# posts_latest }}
@@ -10,7 +10,13 @@ description:
   {{{ summary }}}
 
   <div class="more">
-    <a href="{{url}}" class="btn">read more..</a>
+    <a href="{{url}}" class="btn btn-small">阅读全文</a>
   </div>
 </div>
 {{/ posts_latest }}
+
+<div class="pagination">
+  <ul>
+      <li><a href="/posts/2/">更多文章...</a></li>
+  </ul>
+</div>
