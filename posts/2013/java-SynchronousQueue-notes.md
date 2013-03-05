@@ -21,7 +21,7 @@ Java 6的并发编程包中的[SynchronousQueue](http://docs.oracle.com/javase/6
 ## 实现原理
 
 ### 阻塞算法实现
-阻塞算法实现通常在内部采用一个锁来保证多个线程中的put()和take()方法是串行执行的，如果再多一把锁，可能还可以让其中一个生产者和一个消费者两同时执行。但采用锁的代价在并发编程中是比较大的，有一种情况是线程A持有线程B需要的锁，B必须一直等待A释放锁，即使A可能一段时间内因为B的优先级比较高而得不到时间片运行。
+阻塞算法实现通常在内部采用一个锁来保证多个线程中的put()和take()方法是串行执行的，如果再多一把锁，可能还可以让其中一个生产者和一个消费者两同时执行。但采用锁的开销是比较大的，有一种情况是线程A持有线程B需要的锁，B必须一直等待A释放锁，即使A可能一段时间内因为B的优先级比较高而得不到时间片运行。
 
 ```
 public class NativeSynchronousQueue<E> {
@@ -80,7 +80,7 @@ public class SemaphoreSynchronousQueue<E> {
     }
 }
 ```
-在多核机器上，上面方法的同步代价较高，操作系统调度器需要上千个时间片来阻塞或唤醒线程，而上面的实现即使在生产者put时，已经有一个消费者在等待的情况下，阻塞和唤醒的调用仍然需要。
+在多核机器上，上面方法的同步代价仍然较高，操作系统调度器需要上千个时间片来阻塞或唤醒线程，而上面的实现即使在生产者put()时已经有一个消费者在等待的情况下，阻塞和唤醒的调用仍然需要。
 
 ### Java 5实现
 
@@ -263,4 +263,5 @@ TransferQueue实现如下(摘自Java 6源代码)，入列和出列都基于Spin�
 
 ### 参考文章
 
-1.  [Scalable Synchronous Queues](http://www.cs.rochester.edu/u/scott/papers/2009_Scherer_CACM_SSQ.pdf)
+1.  [Javadoc of SynchronousQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html)
+2.  [Scalable Synchronous Queues](http://www.cs.rochester.edu/u/scott/papers/2009_Scherer_CACM_SSQ.pdf)
