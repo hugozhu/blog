@@ -17,6 +17,7 @@ Java 6的并发编程包中的[SynchronousQueue](http://docs.oracle.com/javase/6
 
 从集合的角度来看，SynchronousQueue是一个一直为空的集合，iterator()永远为空，size()方法永远返回0。
 
+SynchronousQueue的使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要创建新的线程，如果有空闲线程则会重复使用。
 
 ## 实现原理
 
