@@ -1,7 +1,7 @@
 ---
 date: 2013-03-05
 layout: post
-title: Java并发包中的多线程同步队列SynchronousQueue实现原理
+title: Java并发包中的同步队列SynchronousQueue实现原理
 description: Notes about non-blocking SynchronousQueue implementation
 categories:
 - Blog
@@ -13,11 +13,11 @@ tags:
 
 ## 介绍
 
-Java 6的并发编程包中的[SynchronousQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html)实现了[BlockingQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html)的接口，一个线程（发布者）对其的插入操作必须等待另一个线程（消费者）的移除操作，反过来也一样。但不像ArrayBlockingQueue或LinkedListBlockingQueue，SynchronousQueue内部并没有数据缓存空间，你不能调用peek()方法来看队列中是否有数据元素，因为数据元素只有当你试着取走的时候才可能存在，不取走而只想偷窥一下是不行的，当然遍历这个队列的操作也是不允许的。队列头元素是第一个排队要插入数据的**线程**，而不是要交换的数据。数据是在生成者和消费者线程之间直接传递的 -- 将生成者-消费者配对，而不需要先缓冲数据到队列中。可以这样来理解：生产者和消费者互相等待对方，握手，然后**一起**离开，注意生产者线程会一直阻塞到消费者线程把数据取走。
+Java 6的并发编程包中的[SynchronousQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html)实现了[BlockingQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html)的接口，一个线程（生产者）对其的插入操作必须等待另一个线程（消费者）的移除操作，反过来也一样。但不像ArrayBlockingQueue或LinkedListBlockingQueue，SynchronousQueue内部并没有数据缓存空间，你不能调用peek()方法来看队列中是否有数据元素，因为数据元素只有当你试着取走的时候才可能存在，不取走而只想偷窥一下是不行的，当然遍历这个队列的操作也是不允许的。队列头元素是第一个排队要插入数据的**线程**，而不是要交换的数据。数据是在生产者和消费者线程之间直接传递的 ---- 将生产者-消费者配对，而不需要先缓冲数据到队列中。可以这样来理解：生产者和消费者互相等待对方，握手，然后**一起**离开，注意生产者线程会一直阻塞到消费者线程把数据取走。
 
 从集合的角度来看，SynchronousQueue是一个一直为空的集合，iterator()永远为空，size()方法永远返回0。
 
-SynchronousQueue的使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要创建新的线程，如果有空闲线程则会重复使用。
+SynchronousQueue的一个使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要（新任务到来时）创建新的线程，如果有空闲线程则会重复使用，线程空闲了60秒后会被回收。
 
 ## 实现原理
 
