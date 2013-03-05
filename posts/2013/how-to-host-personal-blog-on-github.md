@@ -93,4 +93,5 @@ Raspberry Pi设置
 TODO:
 ===
 1. 实现一个简单的Web界面，可以通个Web界面来保存Blog，并重现编译和更新到Github；
+> 已部分实现：在Github的博客仓库里可以直接创建或修改文件，用Go写了一个HTTP接口，curl一下后可更新，
 2. 微博到博客的快速发布；
