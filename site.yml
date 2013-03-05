@@ -9,9 +9,9 @@ author :
 
 navigation :
   - posts.md  
-  - pages.html
   - archive.html
   - tags.html
   - categories.html
+  - pages.html  
   - about.md
   
