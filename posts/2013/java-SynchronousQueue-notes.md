@@ -2,7 +2,7 @@
 date: 2013-03-05
 layout: post
 title: Java并发包中的多线程同步队列SynchronousQueue实现原理
-description: Notes about [SynchronousQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html) design
+description: Notes about non-blocking SynchronousQueue implementation
 categories:
 - Blog
 tags:
