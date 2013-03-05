@@ -265,3 +265,4 @@ TransferQueue实现如下(摘自Java 6源代码)，入列和出列都基于Spin�
 
 1.  [Javadoc of SynchronousQueue](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html)
 2.  [Scalable Synchronous Queues](http://www.cs.rochester.edu/u/scott/papers/2009_Scherer_CACM_SSQ.pdf)
+3.  [Nonblocking Concurrent Data Structures with Condition Synchronization](http://www.cs.rochester.edu/research/synchronization/pseudocode/duals.html)
