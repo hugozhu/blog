@@ -14,7 +14,7 @@ tags:
 
 首先高清播放器功能只是Raspberry Pi的一个小功能，如果你只需要高清播放功能又不想折腾，那还是买个[山寨的](http://s.taobao.com/search?q=%B8%DF%C7%E5%B2%A5%B7%C5%C6%F7&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&initiative_id=tbindexz_20130306)的更简单。。。
 
-Raspberry Pi的图形处理器规格：Broadcom VideoCore IV, OpenGL ES 2.0, 1080p 30 h.264/MPEG-4 AVC 高清解码器，内存和CPU共享（可设置成256M），性能还是很强劲的。HDMI支持640x350和1920×1200（1080P）的分辨率。安装了[XBMC](http://xbmc.org)，基本上可以实现包括Airplay在内的Apple TV上的大部分功能，但价格只有其一半不到，可以播放下载的电源或观看在线视频，如[一搜](http://yisou.com)，优酷，搜狐视频，奇艺等。
+Raspberry Pi的图形处理器规格：Broadcom VideoCore IV, OpenGL ES 2.0, 1080p 30 h.264/MPEG-4 AVC 高清解码器，内存和CPU共享（可设置成256M），性能还是很强劲的。HDMI支持640x350和1920×1200（1080P）的分辨率。安装了[XBMC](http://xbmc.org)，基本上可以实现包括Airplay在内的Apple TV上的大部分功能，但价格只有其一半不到，可以播放下载的视频或观看在线视频，如[一搜](http://yisou.com)，优酷，搜狐视频，奇艺等。
 
 ## 外设
 除了Pi单片机外，你还需要以下外设附件：
