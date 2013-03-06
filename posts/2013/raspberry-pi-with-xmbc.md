@@ -19,9 +19,10 @@ Raspberry Pi的图形处理器规格：Broadcom VideoCore IV, OpenGL ES 2.0, 108
 ## 外设
 除了Pi单片机外，你还需要以下外设附件：
 
-1. 5V-1A左右的电源，可以用iPhone或iPad的充电电源，或手机的，电流最少要800毫安
-2. HDMI线一根，接电视机
-3. SD一张，最少2G
+1. 5V-1A左右的电源，可以用iPhone或iPad的充电电源，或手机的充电器，电流最少要800毫安
+2. micro USB线一根，和Kindle以及大多数android手机充电USB线一样
+3. HDMI线一根，接电视机
+4. SD卡一张，最少2G
 
 ## Raspbmc
 
