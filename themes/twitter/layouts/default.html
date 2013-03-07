@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>{{ page.title }} - When Go meets Raspberry Pi</title>
   {{# page.description }}
-    <meta name="description" content="{{ . }}">
+    <meta name="description" content="{{ . }} 树莓派">
   {{/ page.description }}
     <meta name="author" content="{{ site.author.name }}">
 
@@ -31,7 +31,7 @@
 
 <a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 
-    <div class="navbar">
+    <div class="navbar">      
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="/" style="padding-left:46px;">{{ site.title }}</a>
@@ -39,9 +39,15 @@
             {{# site.navigation?to_pages }}
               {{> pages_list }}
             {{/ site.navigation?to_pages }}
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
           </ul>
         </div>
-      </div>
+      </div>     
     </div>
 
     <div class="container">
