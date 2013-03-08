@@ -71,7 +71,7 @@ Java的日志框架太多了。。。
 
 ### 定义日志变量
 
-需要定义成final static
+日志变量往往不变，最好定义成final static，变量名用大写。 
 
 ### 日志分级
 Java的日志框架一般会提供以下日志级别，缺省打开info级别，也就是debug，trace级别的日志在生产环境不会输出，在开发和测试环境可以通过不同的日志配置文件打开debug级别。
@@ -86,41 +86,41 @@ Java的日志框架一般会提供以下日志级别，缺省打开info级别，
 在程序里要合理使用日志分级:
     
     //调试的时候可以知道进入了方法
-    logger.debug("entering getting content");
+    LOGGER.debug("entering getting content");
     String content = CacheManager.getCachedContent();
     if (content == null) {
         
         //使用warn，因为程序还可以继续执行，但类似警告太多可能说明缓存服务不可用了，值得引起注意
-        logger.warn("Got empty content from cache, need perform database lookup"); 
+        LOGGER.warn("Got empty content from cache, need perform database lookup"); 
         
         Connection conn = ConnectionFactory.getConnection();
         if (conn == null) {
-            logger.error("Can't get database connection, failed to return content"); //尽量提供详细的信息，知道错误的原因，而不能简单的写logger.error("failed")
+            LOGGER.error("Can't get database connection, failed to return content"); //尽量提供详细的信息，知道错误的原因，而不能简单的写logger.error("failed")
         } else {
             try {
                 content = conn.query(...);
             } catch (IOException e) {
                 //异常要记录错误堆栈
-                logger.error("Failed to perform database lookup", e);
+                LOGGER.error("Failed to perform database lookup", e);
             } finally {
                 ConnectionFactory.releaseConnection(conn);
             }
         }
     }
     //调试的时候可以知道方法返回了
-    logger.debug("returning content: "+ content);
+    LOGGER.debug("returning content: "+ content);
     return content;
 
 上面这段示范代码演示了各种级别的使用，但其中有个问题是debug日志太多后可能会影响性能？有一种改进方法是：
 
-    if (logger.isDebugEnabled()) {
-        logger.debug("returning content: "+ content);
+    if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("returning content: "+ content);
     }
 
 但更好的方法是Slf4j提供的[最佳实践](http://www.slf4j.org/faq.html#logging_performance):
 
 ```
-logger.debug("returning content: {}", content);
+LOGGER.debug("returning content: {}", content);
 ```
 一方面可以减少参数构造的开销，另一方面也不用多写两行代码；    
 
@@ -133,7 +133,7 @@ logger.debug("returning content: {}", content);
     ```        
     long startTime = System.currentTime();          
     // business logical          
-    logger.info("execution cost : " + (System.currentTime() - startTime) + "ms");　      
+    LOGGER.info("execution cost : " + (System.currentTime() - startTime) + "ms");　      
     ```
 3. 耗时程序的执行进度，不然程序开始运行后半天没一点输出挺让人着急啊~
 4. 重要变量的状态变化。
@@ -141,16 +141,23 @@ logger.debug("returning content: {}", content);
 ### 日志安全
 日志中尽量不要包含敏感信息，对于敏感信息如用户身份证号码，密码可以加密后存储；以防止日志文件不慎外泄时保全用户的数据安全；日志通常不允许修改，必要时还可以通过校验位来鉴别日志是否正确。
 
-### 日志可靠性
+## 日志监控方法
+错误日志需要设置监控才能及时发现问题，所以在程序里记录日志的时候也需要考虑这点。
+
+1. 错误次数
+2. 错误等级
+3. 错误关联的数据
+ 	1. 应用名
+ 	2. 用户ID
+ 	3. 时间
+ 	4. IP
+ 	5. 发生错误的页面
+
+
+## 作业
 TODO：
 
-### 日志监控方法
-TODO：
-
-### 作业
-TODO：
-
-#### 参考链接
+### 参考链接
 
 1. http://www.slf4j.org/manual.html
 2. http://commons.apache.org/proper/commons-logging//guide.html#JCL_Best_Practices
