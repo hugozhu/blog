@@ -208,75 +208,35 @@ System Benchmarks Index Score                                          76.3
     ```
     pacman -S wireless_tools
     ```
-
-3. 设置需要连接的无线SSID和密码
-
-    ```
-    wpa_passphrase <MyWirelessSSID> <MyWirelessPassword> > /etc/wpa_supplicant/wpa_supplicant.conf
-    ```
-
-4.  启动网卡并建立连接
+    
+3. 设置开机启动无线网络
+    
+    使用`wifi-menu`手动连上wifi ap，可以连多个，相应的输入会保存在：/etc/network.d/，在下面的文件里输入相应的文件名
+    
+    修改/etc/conf.d/netcfg
     
     ```
-    ifconfig wlan0 up
-    wpa_supplicant -B -Dwext -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
-    ```
-
-5. 获取IP，如果获取成功了就说明连上了
-
-    ```
-    dhcpcd wlan0
+    DHCP_TIMEOUT=30 
+    AUTO_PROFILES=("wlan0-Hugo2" "wlan0-hugo")
     ```
     
-6. `wifi-menu`命令可以通过命令交互式建立连接
-
-7. 设置开机启动无线网络
+    如果是隐藏SSID的要加一行"HIDDEN=YES"
     
-    使用systemd服务
-    
+    执行一下命令在重启时自动连上wifi
     ```
-    touch /etc/rc.local
-    chmod +x /etc/rc.local    
-    ```    
-    
-    rc.local文件里保存下面两行
-    
-    ```
-    wpa_supplicant -B -Dwext -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
-    dhcpcd wlan0
-    ```
-    
-    新建 /usr/lib/systemd/system/rc-local.service
-    
-    ```
-    [Unit]
-    Description=/etc/rc.local Compatibility
-    ConditionPathExists=/etc/rc.local
-      
-    [Service]
-    Type=forking
-    ExecStart=/etc/rc.local start
-    TimeoutSec=0
-    StandardOutput=tty
-    RemainAfterExit=yes
-    SysVStartPriority=99
-     
-    [Install]
-    WantedBy=multi-user.target
-    ```
-    
-    建立软连接    
-    
-    ```
-    cd /etc/systemd/system/multi-user.target.wants
-    ln -s /usr/lib/systemd/system/rc-local.service rc-local.service
-    ```
-    
-    用下面命令启用服务，并先通过`systemctl start rc-local.service`验证一下，然后就可以重启看是否正常工作了
-    
-    ```
-    systemctl enable rc-local.service
-    
+    systemctl enable net-auto-wireless
     ```
 
-8. 有条件的可以在路由器里设置好根据MAC地址总是分配同一个ip给Pi，这样就可以拔掉网线的束缚了~
+4. 有条件的可以在路由器里设置好根据MAC地址总是分配同一个ip给Pi，这样就可以拔掉网线的束缚了~
+
+5. 测试了断开后可以自动重连
+
+6. 用scp测试从Mac通过无线传大文件到Raspberry Pi，传输速度只有1.6MB/s，如果通过网线传则有4MB/s
+
+#
+# Samba
+
+1. 安装相关包： `pacman -S samba` 
+2. 生成一个配置文件： `cp /etc/samba/smb.conf.default /etc/samba/smb.conf` 
+3. 加到启动脚本里： `systemctl enable smbd.service`
+4. 增加一个samba用户： `smbpasswd -a hugo`
