@@ -145,7 +145,7 @@ System Benchmarks Index Score                                          99.9
 
 
 ========================================================================
-   BYTE UNIX Benchmarks (Version 5.1.2)
+   BYTE UNIX Bench  marks (Version 5.1.2)
 
    System: raspberrypi2: GNU/Linux
    OS: GNU/Linux -- 3.6.11-8-ARCH+ -- #1 PREEMPT Sat Mar 9 00:38:58 UTC 2013
@@ -187,8 +187,96 @@ System Call Overhead                          15000.0     314659.8    209.8
 System Benchmarks Index Score                                          76.3
 
 ```
-
+看上去ArchLinux性能差了一节，看来官方推荐Raspian确实做了不少优化，我觉得介绍一下系统方面的优化，也是非常不错的内容。
                                                                    
 
-## Faq
-...
+## 无线网络
+我买的是基于RT5370芯片组的腾达W311MI，Raspberry Pi支持的很好。
+
+1. 确认系统已经识别USB网卡，如下`RT5370 Wireless Adapter`就代表已经识别成功
+
+    ```
+    [root@raspberrypi2 ~]# lsusb
+    Bus 001 Device 002: ID 0424:9512 Standard Microsystems Corp. LAN9500 Ethernet 10/100 Adapter
+    Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+    Bus 001 Device 003: ID 0424:ec00 Standard Microsystems Corp. 
+    Bus 001 Device 004: ID 148f:5370 Ralink Technology, Corp. RT5370 Wireless Adapter
+    ```    
+
+2. 安装无线工具
+
+    ```
+    pacman -S wireless_tools
+    ```
+
+3. 设置需要连接的无线SSID和密码
+
+    ```
+    wpa_passphrase <MyWirelessSSID> <MyWirelessPassword> > /etc/wpa_supplicant/wpa_supplicant.conf
+    ```
+
+4.  启动网卡并建立连接
+    
+    ```
+    ifconfig wlan0 up
+    wpa_supplicant -B -Dwext -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+    ```
+
+5. 获取IP，如果获取成功了就说明连上了
+
+    ```
+    dhcpcd wlan0
+    ```
+    
+6. `wifi-menu`命令可以通过命令交互式建立连接
+
+7. 设置开机启动无线网络
+    
+    使用systemd服务
+    
+    ```
+    touch /etc/rc.local
+    chmod +x /etc/rc.local    
+    ```    
+    
+    rc.local文件里保存下面两行
+    
+    ```
+    wpa_supplicant -B -Dwext -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+    dhcpcd wlan0
+    ```
+    
+    新建 /usr/lib/systemd/system/rc-local.service
+    
+    ```
+    [Unit]
+    Description=/etc/rc.local Compatibility
+    ConditionPathExists=/etc/rc.local
+      
+    [Service]
+    Type=forking
+    ExecStart=/etc/rc.local start
+    TimeoutSec=0
+    StandardOutput=tty
+    RemainAfterExit=yes
+    SysVStartPriority=99
+     
+    [Install]
+    WantedBy=multi-user.target
+    ```
+    
+    建立软连接    
+    
+    ```
+    cd /etc/systemd/system/multi-user.target.wants
+    ln -s /usr/lib/systemd/system/rc-local.service rc-local.service
+    ```
+    
+    用下面命令启用服务，并先通过`systemctl start rc-local.service`验证一下，然后就可以重启看是否正常工作了
+    
+    ```
+    systemctl enable rc-local.service
+    
+    ```
+
+8. 有条件的可以在路由器里设置好根据MAC地址总是分配同一个ip给Pi，这样就可以拔掉网线的束缚了~
