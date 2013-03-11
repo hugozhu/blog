@@ -10,10 +10,13 @@ tags:
 
 ---
 
-## 介绍
+{:toc}
+
+# 介绍
 之前买的Raspberry Pi因为要跑[这个网站](http://hugozhu.myalert.info)，不能经常拔下来玩别的，所以又买了一个，这次安装的是[Arch Linux](https://www.archlinux.org)。这个发行版安装好后非常基础，占用的空间也只有600M不到，比较合适已有Linux基础的同学玩。初学者可以玩官方推荐的[Raspbian](http://www.raspbian.org)。
 
 Arch Linux特点：
+
 1. 启动快，上电后只要3s完成启动
 2. 安装完没有图形界面，干净
 3. 面向开发者的系统
@@ -21,7 +24,7 @@ Arch Linux特点：
 5. ArchLinux缺省账号和密码是root/root，弄好了后要记得修改root密码
 6. 从中国用下载包很快，比Raspbian的源快多了
 
-## 增加管理员用户
+# 增加sudo用户
 ```
    useradd hugo
    passwd hugo
@@ -37,7 +40,7 @@ Arch Linux特点：
     hugo ALL=(ALL) NOPASSWD: ALL
 ```
 
-## USB盘
+# USB盘
 插上USB盘后，ArchLinux并不会自动mount，手动mount的过程如下:
 插上USB前后执行两次 `lsblk -o name,kname,uuid`，那么输出上多出的那行就是该USB的设备名，或UUID，找到该行后就可以执行mount命令了（注意sda这个符号不同机器可能不一样）
 
@@ -77,7 +80,7 @@ Arch Linux特点：
  
 等多信息可参考[Wiki](https://wiki.archlinux.org/index.php/USB_Storage_Devices#Auto-mounting_with_udev)
 
-## Pacman
+# Pacman
 ArchLinux的包管理软件是pacman，类似apt-get, yum等，这里有所有的包：[http://archlinuxarm.org/packages](http://archlinuxarm.org/packages)
 
 [使用方法](https://wiki.archlinux.org/index.php/Pacman)
@@ -87,7 +90,7 @@ ArchLinux的包管理软件是pacman，类似apt-get, yum等，这里有所有�
 3. pacman -R package_name --nosave #删除干净某个包
 3. pacman -Scc #完全清理包缓存
 
-## UnixBench
+# UnixBench
 
 了解一下性能基准测试非常有必要。
 
@@ -190,7 +193,7 @@ System Benchmarks Index Score                                          76.3
 看上去ArchLinux性能差了一节，看来官方推荐Raspian确实做了不少优化，我觉得介绍一下系统方面的优化，也是非常不错的内容。
                                                                    
 
-## 无线网络
+# 无线网络
 我买的是基于RT5370芯片组的腾达W311MI，Raspberry Pi支持的很好。
 
 1. 确认系统已经识别USB网卡，如下`RT5370 Wireless Adapter`就代表已经识别成功
@@ -233,7 +236,7 @@ System Benchmarks Index Score                                          76.3
 
 6. 用scp测试从Mac通过无线传大文件到Raspberry Pi，传输速度只有1.6MB/s，如果通过网线传则有4MB/s
 
-## Samba
+# Samba
 
 1. 安装相关包： `pacman -S samba` 
 2. 生成一个配置文件： `cp /etc/samba/smb.conf.default /etc/samba/smb.conf` 
@@ -241,5 +244,5 @@ System Benchmarks Index Score                                          76.3
 4. 增加一个samba用户： `smbpasswd -a hugo`
 
 
-## 注意事项
+# 注意事项
 1. 因为Pi没有实时时钟，ntpd 或 openntpd在无线网络下可能先于wifi开始工作启动，造成服务不工作，系统日期未初始化成功。我的解决方案是系统启动完成后延时10s执行ntpdate设置时间（期望这个时候wifi已经工作了），并且重启samba服务（好像日期不正常samba也不正常，这块还没仔细研究）
