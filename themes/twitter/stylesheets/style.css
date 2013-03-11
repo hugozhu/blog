@@ -36,12 +36,12 @@ html, body {
 }
 
 /* posts index */
-.post > h3.title {
+.post > h1.title {
   position:relative;
   padding-top:10px;
   border-top:3px solid #eee;
 }
-.post > h3.title span.date { 
+.post > h1.title span.date { 
   position:absolute;
   right:0;
   font-size:0.9em;
