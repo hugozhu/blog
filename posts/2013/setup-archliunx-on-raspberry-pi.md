@@ -233,10 +233,13 @@ System Benchmarks Index Score                                          76.3
 
 6. 用scp测试从Mac通过无线传大文件到Raspberry Pi，传输速度只有1.6MB/s，如果通过网线传则有4MB/s
 
-#
-# Samba
+## Samba
 
 1. 安装相关包： `pacman -S samba` 
 2. 生成一个配置文件： `cp /etc/samba/smb.conf.default /etc/samba/smb.conf` 
 3. 加到启动脚本里： `systemctl enable smbd.service`
 4. 增加一个samba用户： `smbpasswd -a hugo`
+
+
+## 注意事项
+1. 因为Pi没有实时时钟，ntpd 或 openntpd在无线网络下可能先于wifi开始工作启动，造成服务不工作，系统日期未初始化成功。我的解决方案是系统启动完成后延时10s执行ntpdate设置时间（期望这个时候wifi已经工作了），并且重启samba服务（好像日期不正常samba也不正常，这块还没仔细研究）
