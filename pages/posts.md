@@ -5,7 +5,7 @@ description: My blogs
 
 {{# posts_latest }}
 <div class="post">
-  <h3 class="title"><a href="{{url}}">{{title}}</a> <span class="date">{{ date }}</span></h3>
+  <h1 class="title"><a href="{{url}}">{{title}}</a> <span class="date">{{ date }}</span></h1>
 
   {{{ summary }}}
 
