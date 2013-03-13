@@ -1,7 +1,7 @@
 ---
 date: 2013-03-13
 layout: post
-title: 如何使在Raspberry Pi上用LED闪烁提示网站首页新访客
+title: 如何在Raspberry Pi上用LED闪烁提示网站首页新访客
 description: 客人来了发光二极管会闪0.2秒
 categories:
 - Blog
