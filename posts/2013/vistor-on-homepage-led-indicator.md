@@ -25,7 +25,7 @@ tags:
  
 ## GPIO接口
 
-<img src="http://s4.sinaimg.cn/mw690/53ed87c1gd42b927f5b23&690" width="630"/>
+<img src="http://ww1.sinaimg.cn/large/6bc40342gw1e2o2uls7wlj.jpg" width="630"/>
 
 用杜邦线将上图的3.3V输出和GPIO 23引出（板子正面朝上，GPIO引脚在左上角），将电阻和LED串联起来（电阻防止LED电流过大烧掉），注意二极管的两根脚不一样长，长脚的接正级，这样GPIO 23如果输出高电平，二极管就不发光了，输出低电平就亮啦！
  
