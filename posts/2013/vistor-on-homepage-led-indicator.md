@@ -112,7 +112,7 @@ while True:
 
 安装好后，用命令`python -m webiopi`启动，用浏览器打开 http://webiopi:raspberry@raspberrypi2:8000/webiopi/ 可以看到控制界面，其中有GPIO 26个引脚的状态（输入输出，高电平或低电平），用鼠标点端口还可以修改数据：
 
-<img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png"/>
+<img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png" width="630"/>
 
 
 # 完成的代码
