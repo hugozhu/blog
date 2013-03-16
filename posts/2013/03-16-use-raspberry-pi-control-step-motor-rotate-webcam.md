@@ -204,9 +204,9 @@ webiopi.runLoop()
 server.stop()
 ```
 
-执行`python webiopi_custom.py` 后启动GPIO REST API服务器；
+执行`python webiopi_custom.py` 后启动GPIO REST API服务器
 
-转动命令是：`curl --data "" "http://pi:pi@raspberrypi2:8001/macros/turnWebcam/90,0`来顺时针转动摄像头啦。
+转动命令是：`curl --data "" "http://pi:pi@raspberrypi2:8001/macros/turnWebcam/90,0`
 
 拍照命令是：`/usr/bin/fswebcam -v -r 640x480 --no-banner /var/www/fswebcam/foo.jpg`
 
