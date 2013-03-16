@@ -109,7 +109,7 @@ for x in range(0,steps):
 
 # 连续转动拍摄代码实现
 
-这次使用webipi把控制程序转换成REST API，这样方便网页调用。
+这次使用[webiopi](http://code.google.com/p/webiopi/)把控制程序转换成REST API，这样方便网页调用。
 
 ```
 root@raspberrypi2 ~/projects/gpio_server # cat webiopi_custom.py
@@ -222,6 +222,8 @@ server.stop()
 将命令通过网页执行后，就可以在外面看房间里的情况了，今天出去外面采草莓在iPhone上试了一下，结果符合预期。
 
 # 拍摄图片效果
+
+在手机上看到的页面：点Reload会重新连拍三张
 <img src="http://ww3.sinaimg.cn/large/6bc40342jw1e2r069hyhsj.jpg"/>
 
 
