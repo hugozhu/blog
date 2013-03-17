@@ -138,7 +138,7 @@ root@raspberrypi2 /home/hugo/projects/dht11 # ./sensor
 ```
 
 # 记录曲线图
-这里我使用[cosm.com](http://cosm.com/)的服务，注册申请好账号后，可以建立一个datafeed和两个data stream，分别是温度和湿度，相应的Tag ID为1，和2,利用下来的脚本就可以上传数据了
+这里我使用[cosm.com](http://cosm.com/)的服务，注册申请好账号后，可以建立一个data feed和两个data stream，分别是温度和湿度，相应的Tag ID为1，和2,利用下来的脚本就可以上传数据了
 
 ```
 #!/bin/bash
@@ -166,6 +166,8 @@ curl -v --request PUT --header "X-ApiKey: $API_KEY" --data-binary @$LOCATION/cos
 <img src="https://api.cosm.com/v2/feeds/119331/datastreams/2.png?width=340&height=180&colour=%23f15a24&duration=2days&title=室内湿度&show_axis_labels=false&detailed_grid=true&scale=&timezone=8"/>
 
 ```
+
+下面是我的曲线图：
 
 <img src="https://api.cosm.com/v2/feeds/119331/datastreams/2.png?width=340&height=180&colour=%23f15a24&duration=2days&title=室内湿度&show_axis_labels=false&detailed_grid=true&scale=&timezone=8"/>
 
