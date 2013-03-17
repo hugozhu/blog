@@ -66,7 +66,7 @@ tags:
 
 # 驱动示例代码
 
-这里使用的是Python GPIO库，注意这里的端口命名是按树莓派的叫法（Pin 11, 12, 13, 15）
+这里使用的是Python GPIO库，注意这里的端口命名是按树莓派的Board叫法（Pin 11, 12, 13, 15）
 
 ```
 root@raspberrypi2 ~/projects/step_motor # cat motor.py
