@@ -1,5 +1,5 @@
 ---
-date: 2013-03-16
+date: 2013-03-17        
 layout: post
 title: 如何使用Raspberry Pi测量室内温度和湿度并绘制曲线
 description: Interfacing Temperature and Humidity Sensor with Raspberry Pi
