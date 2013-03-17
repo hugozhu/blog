@@ -123,7 +123,7 @@ while True:
 hugo@raspberrypi ~/bin $ cat traffic_led.sh 
 #!/bin/sh
 
-tail -f  /mnt/usb/logs/nginx/access.log  | grep --line-buffered "GET / HTTP" | while read LINE; do  {
+tail -F /mnt/usb/logs/nginx/access.log  | grep --line-buffered "GET / HTTP" | while read LINE; do  {
    #echo $LINE
    curl -s --data "" "http://webiopi:raspberry@raspberrypi2:8000/GPIO/23/value/0"
    sleep 0.2

@@ -35,18 +35,19 @@ tags:
 <img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png" width="600"/>
 
 ## 步进电机驱动线路
-驱动板上有IN1, IN2, IN3, IN4四个接口，根据资料得知这四个接口依次设置为低电平就可以驱动，我们分别用杜邦线将GPIO 17（Pin 11），GPIO 18（Pin 12）, GPIO 21（Pin 13）, GPIO 22（Pin 15）和IN1，IN2，IN3，IN4一一相连。 **注意不同的GPIO驱动对端口的编号不一定一样。**
+驱动板上有IN1, IN2, IN3, IN4四个接口，根据资料得知这四个接口依次设置为低电平就可以驱动，我们分别用杜邦线将GPIO 17（Pin 11），GPIO 18（Pin 12）, GPIO 21（Pin 13）, GPIO 22（Pin 15）和IN1，IN2，IN3，IN4一一相连。 **注意不同的GPIO驱动程序对端口的编号不一定一样（至少有三种叫法：Board，Broadcom，GPIO）**
 
 驱动原理：（每次将四个GPIO端口按下表依次设置好电平后，可以sleep几十毫秒来控制转速）
 
-**序列**    | **GPIO 17** | **GPIO 18** | **GPIO 21**|**GPIO 22**  
------------- | ------------- | ------------ | ------------
-0            | **LOW**       | HIGH      | HIGH | HIGH
-1            | HIGH          | **LOW**   | HIGH | HIGH
-2            | HIGH          | HIGH      | **LOW**  | HIGH
-3            | HIGH          | HIGH      | HIGH | **LOW**
-4            | **LOW**       | HIGH      | HIGH | HIGH
-5|…
+**序列** | **GPIO 17**   | **GPIO 18** | **GPIO 21** | **GPIO 22**  
+-------- | ------------- | ---------- | ------------ | ----------
+0       | **LOW**       | HIGH      | HIGH | HIGH
+1       | HIGH          | **LOW**   | HIGH | HIGH
+2       | HIGH          | HIGH      | **LOW**  | HIGH
+3       | HIGH          | HIGH      | HIGH | **LOW**
+4       | **LOW**       | HIGH      | HIGH | HIGH
+…|           
+
 
 ## 安装摄像头
 
