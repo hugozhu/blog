@@ -1,5 +1,5 @@
 ---
-date: 2013-03-16
+date: 2013-03-23
 layout: post
 title: 如何使用Raspberry Pi在1602液晶屏上显示当前时间--电子钟
 description: 当然也可以用来显示温度，CPU Load等数据了
@@ -16,7 +16,7 @@ tags:
 
 需要以下硬件：
 
-1. 树莓派
+1. [树莓派](http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&id=17337394004&is_b=1&cat_id=2&q=%CA%F7%DD%AE%C5%C9&rn=4004716f9ba818c1d69b5eb7818891b5)
 2. [面包板](http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all)
 3. [1602液晶屏](http://s.taobao.com/search?spm=a230r.1.8.2.RvXL2p&q=1602+%D2%BA%BE%A7&commend=all&source=haiwaigou&ssid=s5-e&pid=mm_14507416_2297358_8935934&newpre=null&tab=mall)一块
 4. [10K电位器](http://s.taobao.com/search?source=suggest&haiwaifrom=1&q=%B5%E7%CE%BB%C6%F7+10k&initiative_id=staobaoz_20130323&suggest_query=%B5%E7%CE%BB%C6%F7+10k&sb_id=10&suggest=0_2&wq=%B5%E7%CE%BB%C6%F7&tab=mall)
@@ -24,8 +24,7 @@ tags:
 6. [排针](http://s.taobao.com/search?source=haiwaigou&haiwaifrom=1&q=%C5%C5%D5%EB&initiative_id=staobaoz_20130323&tab=mall)
 7. [面包板电源](http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all)
 
-#
- 1602 LCD液晶屏
+# 1602 LCD液晶屏
 
 LCD1602液晶屏提供了16列x2行的ASCII字符显示能力，工作电压5V，提供4位数据与8位数据两种工作模式，因为Raspberry Pi的GPIO口数量很有限，所以使用4位数据模式。LCD1602液晶屏模块提供了16个引脚，我们只需接其中的12个即可--请参考[GPIO命名规则](http://hugozhu.myalert.info/2013/03/22/19-raspberry-pi-gpio-port-naming.html)：
 
