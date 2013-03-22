@@ -15,7 +15,7 @@ tags:
 # 命名方法
 1. Pin names：引脚号Pin 1 - 26等
 2. Raspberry Pi names: GPIO 0, 1, 2, 3, 4 , 5 , 6 , 7等
-3. Broadcom names: GPIO 17, 18, 21/27,22,23,24,25等
+3. Broadcom names: GPIO 17, 18, 21(树莓派第二版)或27(树莓派第一版), 22, 23, 24, 25等
 
 <img src="http://elinux.org/images/2/2a/GPIOs.png"/>
 <img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png" width="600"/>
@@ -62,7 +62,7 @@ tags:
 ------------ | ------------- |  ------------- 
 0           |  11 | 17        
 1           |  12  | 18        
-2           |  13 | 21        
+2           |  13 | 21 / 27        
 3           |  15 | 22       
 4           |  16 | 23        
 5           |  18 | 24
