@@ -9,6 +9,21 @@ layout : default
 
 <div class="row">
   <div class="span12">
+
+    <div class="pagination">
+      <ul>
+      {{# posts.paginator_navigation }}
+        {{#is_active_page}}
+          <li class="active"><a href="{{url}}">{{name}}</a></li>
+        {{/is_active_page}}
+        {{^is_active_page}}
+          <li><a href="{{url}}">{{name}}</a></li>
+        {{/is_active_page}}
+      {{/ posts.paginator_navigation }}
+      </ul>
+    </div>
+
+
     {{# posts.paginator }}
       <div class="post">
         <h1 class="title"><a href="{{url}}">{{title}}</a> <span class="date">{{ date }}</span></h1>
