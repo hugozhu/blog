@@ -19,8 +19,8 @@ tags:
 1. 可以工作的[树莓派](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW)一个
 2. [1P杜邦线2条](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHoWKV0kwS8Wy16Cg6qBM%2BZAOnJCqNG%2BPJAy9U15g8TwJiq5U3GGcJ8eTvC7%2F6APShw%3D%3D)
 3. [面包板](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxiNm9RKSkRargJCPYP6KVEIQUWKzMUFn1hvlcbkMSKk3m2pVJo%2BqQDYKVz%2Bt1%2FjL7Iywe7g%3D%3D)一个
-4. [面包板跳线](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHKxVk7v382jKYSyD7qi5ltcqvLWmWBL7lxLB2%2BsaWLuet8Ik65QHyGWV5mRTheUA) 或 [单排针](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHKxVk7v382jKYSyD7qi5ltcqvLWmWBL7lxLB2%2BsaWLuet8Ik65QHyGWV5mRTheUA) 两根
-5. [发光二极管](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHKxVk7v382jKYSyD7qi5ltcqvLWmWBL7lxLB2%2BsaWLuet8Ik65QHyGWV5mRTheUA)一个
+4. [面包板跳线](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHKxVk7v382jKYSyD7qi5ltcqvLWmWBL7lxLB2%2BsaWLuet8Ik65QHyGWV5mRTheUA) 或 [单排针](http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.166.XlEzyw&id=15208013820&_u=nqa35596&is_b=1&cat_id=2&q=%C5%C5%D5%EB&rn=bb53adf333ca7517208da34346ac3ffb) 两根
+5. [发光二极管](http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.30.wnPTNf&id=14576731464&_u=nqa35af3&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=b12ffd48699547ed9cb982a88014a0aa)一个
 6. 300欧姆的[电阻](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxiNm80QgaIDkojjQIBhc4L8WmRpaGVVBVD9DpAt8wKPZTmbzvVp4EIdCD2Ow2DOQmdPtlV8g%3D)一个
  
 ## GPIO接口
