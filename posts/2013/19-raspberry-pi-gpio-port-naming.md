@@ -36,8 +36,8 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 12         |MOSI      | 19            | 10
 13         |MOSO      | 21            | 9
 14         |SCLK      | 23            | 11
-15         |TxD       | 8             | 14
-16         |RxD       | 10            | 15
+15         |TXD       | 8             | 14
+16         |RXD       | 10            | 15
 
 
 # 编号方法
@@ -45,8 +45,11 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 2. Raspberry Pi names: GPIO 0, 1, 2, 3, 4 , 5 , 6 , 7等
 3. Broadcom names: GPIO 17, 18, 21(树莓派第二版)或27(树莓派第一版), 22, 23, 24, 25等
 
-<img src="http://elinux.org/images/2/2a/GPIOs.png"/>
-<img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png" width="600"/>
+<img src="https://pbs.twimg.com/media/BGBhJ4LCAAA50eS.jpg:large"/>
+
+## 使用GPIO转接板
+<img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg"/>
+如果使用GPIO转接板, 板上的编号对应为下表
 
 
 ## 左排针脚
@@ -69,7 +72,7 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 
 ## 右排针脚
 
-**Pin**    | **Raspberry Pi ** | **Broadcom names**
+**Pin**    | **Raspberry Pi** | **Broadcom names**
 ------------ | ------------- | ------------
 2           |   5V        | 5V
 4           |   DNC        | DNC
@@ -93,3 +96,4 @@ Notes:
 
 # 参考
 1. http://elinux.org/RPi_Low-level_peripherals
+2. https://projects.drogon.net/raspberry-pi/wiringpi/pins/
