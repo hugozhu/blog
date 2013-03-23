@@ -17,9 +17,9 @@ tags:
 需要以下硬件：
 
 1. 可以工作的[树莓派](http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW)一个
-2. 面包板和杜邦线
-3. 10K 电位器一个
-4. [DHT11温度和湿度传感器]一个
+2. [面包板](http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all&ali_trackid=2:mm_12926928_3484851_11423971:1364041941_4k1_1171281511&upsid=8daf4a561f161cd669d949c6bf367733&clk1=8daf4a561f161cd669d949c6bf367733)和[杜邦线](http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all)
+3. [10K 电位器](http://list.tmall.com/search_product.htm?q=10K+%B5%E7%CE%BB%C6%F7&user_action=initiative&at_topsearch=1&sort=st&type=p&cat=&style=)一个
+4. [DHT11](http://list.tmall.com//search_product.htm?q=DHT11&type=p&style=&cat=all)温度和湿度传感器一个或[DHT22](http://s.taobao.com/search?q=DHT22&keyword=&commend=all&ssid=s5-e&search_type=item&atype=&tracelog=&sourceId=tb.index&rt=1364041904459&source=haiwaigou&pid=mm_14507416_2297358_8935934&unid=)
 
 # 传感器电路及原理
 
