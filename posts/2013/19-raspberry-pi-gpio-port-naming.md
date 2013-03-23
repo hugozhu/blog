@@ -1,7 +1,7 @@
 ---
 date: 2013-03-22
 layout: post
-title: Raspberry Pi GPIO的编号规则
+title: Raspberry Pi GPIO的编号规范
 description: Raspberry Pi GPIO naming
 categories:
 - Blog
@@ -10,16 +10,21 @@ tags:
 
 ---
 
-树莓派和普通电脑不一样的地方在于它还带了[GPIO](http://en.wikipedia.org/wiki/General_Purpose_Input/Output)（General Purpose Input/Output），可以用来驱动各种外设（如传感器，步进电机等）。但GPIO的编号方法有些混乱，不同的API（如wiringPi，RPi.GPIO等）对GPIO的端口号编号并不一样，下面则用图表标明了对应的叫法。
+树莓派和普通电脑不一样的地方在于它还带了17个可编程的[GPIO](http://en.wikipedia.org/wiki/General_Purpose_Input/Output)（General Purpose Input/Output），可以用来驱动各种外设（如传感器，步进电机等）。但GPIO的编号方法有些混乱，不同的API（如wiringPi，RPi.GPIO等）对GPIO的端口号编号并不一样，下面则用图表标明了对应的叫法，这样在看程序例子的时候可以确定物理是哪个接口。
 
+# GPIO库
+1. [wiringPi](https://github.com/WiringPi/WiringPi) C，有Perl, PHP, Ruby, Node.JS和**[Golang](http://github.com/hugozhu/rpi)**的扩展，支持wiringPi Pin和BCM GPIO两种编号
+2. [RPi.GPIO](https://pypi.python.org/pypi/RPi.GPIO) Python，支持Board Pin和BCM GPIO两种编号
+3. [Webiopi](http://code.google.com/p/webiopi/)，Python, 使用BCM GPIO编号
+4. [WiringPi-Go](http://github.com/hugozhu/rpi), Go语言，支持以上三种编号
 
-# wiringPi和RPi.GPIO中编号
-1. 第一列是wiringPi API中的缺省编号，相当于调用了`wiringPiSetup()`
+# 编号规范
+1. 第一列是wiringPi API中的缺省编号，`wiringPiSetup()`采用这列编号
 2. 第二列（Name）往往是转接板的编号
-3. 树莓派板子上的编号是第三列，相当于调用了`RPi.GPIO.setmode(GPIO.BOARD)`
-4. 树莓派主芯片提供商Broadcom的编号方法，相当于调用了`WiringPiSetupGpio()`或`RPi.GPIO.setmode(GPIO.BCM)`
+3. 第三列是树莓派板子上的自然编号（左边引脚为1-15，右边引脚为2-26），`RPi.GPIO.setmode(GPIO.BOARD)`采用这列编号
+4. 树莓派主芯片提供商Broadcom的编号方法，相当于调用了`WiringPiSetupGpio()`或`RPi.GPIO.setmode(GPIO.BCM)`采用这列编号
 
-wiringPi   | Name     | Pin           | GPIO
+wiringPi Pin  | Name     | Board Pin     | BCM GPIO
 ---------- | -------- | ------------  | ------------ 
 0          |GPIO 0    | 11            | 17 
 1          |GPIO 1    | 12            | 18
@@ -40,27 +45,24 @@ wiringPi   | Name     | Pin           | GPIO
 16         |RXD       | 10            | 15
 
 
+Rev.2 新增的引脚：
 
-wiringPi   | Name     | Pin           | GPIO
+wiringPi Pin | Name     | Board Pin     | BCM GPIO
 ---------- | -------- | ------------  | ------------ 
 17         |GPIO 8    |             | 28   
 18         |GPIO 9    |             | 29   
 19         |GPIO10    |             | 30   
 20         |GPIO11    |             | 31   
 
-# 编号方法
-1. Pin names：引脚号Pin 1 - 26等
-2. Raspberry Pi names: GPIO 0, 1, 2, 3, 4 , 5 , 6 , 7等
-3. Broadcom names: GPIO 17, 18, 21(树莓派第二版)或27(树莓派第一版), 22, 23, 24, 25等
 
 <img src="https://pbs.twimg.com/media/BGBhJ4LCAAA50eS.jpg:large"  width="600"/>
 
-## 使用GPIO转接板
+## GPIO转接板
+GPIO转接板通过彩虹排线可将树莓派的GPIO引脚转接到面包板上，方便试验，下图是一个相应的产品，可以看到每个引脚标都已标注好了名称，查上表就知道代码里该用哪个编号做参数了。
+
 <img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg"/>
-如果使用GPIO转接板, 板上的编号对应为下表
 
-
-## 左排针脚
+## 物理左排针脚说明
 
 **Pin**    | **Raspberry Pi** | **Broadcom names**
 ------------ | ------------- | ------------
@@ -78,7 +80,7 @@ wiringPi   | Name     | Pin           | GPIO
 23           |   SPI SCLK    | SPI SCLK
 25           |   DNC         | DNC
 
-## 右排针脚
+## 物理左排针脚说明
 
 **Pin**    | **Raspberry Pi** | **Broadcom names**
 ------------ | ------------- | ------------
