@@ -2,13 +2,15 @@
 date: 2013-03-22
 layout: post
 title: Raspberry Pi GPIO的编号规范
-description: Raspberry Pi GPIO naming
+description: Raspberry Pi GPIO numbering
 categories:
 - Blog
 tags:
 - Raspberry Pi
 
 ---
+
+{:toc}
 
 树莓派和普通电脑不一样的地方在于它还带了17个可编程的[GPIO](http://en.wikipedia.org/wiki/General_Purpose_Input/Output)（General Purpose Input/Output），可以用来驱动各种外设（如传感器，步进电机等）。但GPIO的编号方法有些混乱，不同的API（如wiringPi，RPi.GPIO等）对GPIO的端口号编号并不一样，下面则用图表标明了对应的叫法，这样在看程序例子的时候可以确定物理是哪个接口。
 
