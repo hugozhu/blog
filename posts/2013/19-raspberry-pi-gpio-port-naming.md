@@ -45,10 +45,10 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 2. Raspberry Pi names: GPIO 0, 1, 2, 3, 4 , 5 , 6 , 7等
 3. Broadcom names: GPIO 17, 18, 21(树莓派第二版)或27(树莓派第一版), 22, 23, 24, 25等
 
-<img src="https://pbs.twimg.com/media/BGBhJ4LCAAA50eS.jpg:large"/>
+<img src="https://pbs.twimg.com/media/BGBhJ4LCAAA50eS.jpg:large"  width="600"/>
 
 ## 使用GPIO转接板
-<img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg" width="600"/>
+<img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg"/>
 如果使用GPIO转接板, 板上的编号对应为下表
 
 
