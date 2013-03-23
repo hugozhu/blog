@@ -48,7 +48,7 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 <img src="https://pbs.twimg.com/media/BGBhJ4LCAAA50eS.jpg:large"/>
 
 ## 使用GPIO转接板
-<img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg"/>
+<img src="http://img03.taobaocdn.com/imgextra/i3/21288305/T23BjrXfJaXXXXXXXX_!!21288305.jpg" width="600"/>
 如果使用GPIO转接板, 板上的编号对应为下表
 
 
