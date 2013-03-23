@@ -14,12 +14,12 @@ tags:
 
 
 # wiringPi和RPi.GPIO中编号
-1. 第一列是wiringPi API中的编号
+1. 第一列是wiringPi API中的缺省编号，相当于调用了`wiringPiSetup()`
 2. 第二列（Name）往往是转接板的编号
-3. 树莓派板子上的编号是第三列，相当于调用了RPi.GPIO.setmode(GPIO.BOARD)
-4. 树莓派主芯片提供商Broadcom的编号方法，相当于调用了RPi.GPIO.setmode(GPIO.BCM)
+3. 树莓派板子上的编号是第三列，相当于调用了`RPi.GPIO.setmode(GPIO.BOARD)`
+4. 树莓派主芯片提供商Broadcom的编号方法，相当于调用了`WiringPiSetupGpio()`或`RPi.GPIO.setmode(GPIO.BCM)`
 
-wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
+wiringPi   | Name     | Pin           | GPIO
 ---------- | -------- | ------------  | ------------ 
 0          |GPIO 0    | 11            | 17 
 1          |GPIO 1    | 12            | 18
@@ -39,6 +39,14 @@ wiringPi   | Name     | GPIO.BOARD    | GPIO.BCM
 15         |TXD       | 8             | 14
 16         |RXD       | 10            | 15
 
+
+
+wiringPi   | Name     | Pin           | GPIO
+---------- | -------- | ------------  | ------------ 
+17         |GPIO 8    |             | 28   
+18         |GPIO 9    |             | 29   
+19         |GPIO10    |             | 30   
+20         |GPIO11    |             | 31   
 
 # 编号方法
 1. Pin names：引脚号Pin 1 - 26等
