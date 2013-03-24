@@ -14,6 +14,7 @@ tags:
 
 
 Nokia 5110屏比前面介绍过的[1602液晶屏](http://hugozhu.myalert.info/2013/03/23/19-raspberry-pi-drive-1602-lcd.html)功能好很多，淘宝上买价格相差不大（二手5110 12块左右, 全新1602 8块左右），Nokia 5110最少只需要占用4个GPIO引脚：
+
 1. 带蓝色背光
 2. 使用Philips PCD8544 LCD控制器（通过SPI接口）
 3. 84x84点阵，可显示100多个字符
@@ -45,7 +46,7 @@ PS. 编号规范看[这里](http://hugozhu.myalert.info/2013/03/22/19-raspberry-
 
 # 代码
 
-## 显示 Hello RASPBERRY PI
+## 显示字符
 需要安装[RPi.GPIO](https://pypi.python.org/pypi/RPi.GPIO)库
 
 ```
@@ -176,7 +177,7 @@ if __name__ == "__main__":
   main()
 ```
 
-## 显示树莓派Logo
+## 显示图形-树莓派Logo
 需要安装[wiringPi](https://github.com/WiringPi/WiringPi)和[PCD8544](https://github.com/binerry/RaspberryPi/tree/master/libraries/c/PCD8544)库
 
 
