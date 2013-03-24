@@ -334,3 +334,4 @@ if __name__ == '__main__':
 
 # 参考链接
 1. http://learn.adafruit.com/drive-a-16x2-lcd-directly-with-a-raspberry-pi/wiring
+2. http://www.freemindworld.com/blog/tag/树莓派
