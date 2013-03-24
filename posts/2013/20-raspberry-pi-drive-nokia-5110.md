@@ -20,7 +20,7 @@ Nokia 5110屏比前面介绍过的[1602液晶屏](http://hugozhu.myalert.info/20
 
 # 硬件准备
 1. [树莓派](http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&id=17337394004&is_b=1&cat_id=2&q=%CA%F7%DD%AE%C5%C9&rn=4004716f9ba818c1d69b5eb7818891b5)
-2. [Nokia 5110 拆机屏](http://item.taobao.com/item.htm?id=3125173573&ali_trackid=2:mm_12926928_3484851_11423954:1364118594_4k1_653822857&clk1=0b755dfca67112cd1b605914b40146e7&spm=a230z.1.5634029.2.foR1Yu) 或 [全新的?](http://item.taobao.com/item.htm?spm=a230r.1.10.154.SdjftL&id=13361097288&_u=oqa31997) 注意不要买裸屏，需要带电路板的
+2. [Nokia 5110 拆机屏](http://item.taobao.com/item.htm?id=3125173573&ali_trackid=2:mm_12926928_3484851_11423954:1364118594_4k1_653822857&clk1=0b755dfca67112cd1b605914b40146e7&spm=a230z.1.5634029.2.foR1Yu) 或 [焊好的？](http://item.taobao.com/item.htm?spm=a230r.1.10.154.SdjftL&id=13361097288&_u=oqa31997) 注意不要买裸屏，需要带电路板的
 3. [杜邦线](http://list.tmall.com/search_product.htm?q=%B6%C5%B0%EE%CF%DF&user_action=initiative&at_topsearch=1&sort=st&type=p&cat=&style=) 母对母8条
 4. 8P排针 用来焊接5110屏幕PCB板
 5. [电烙铁](http://detail.tmall.com/item.htm?id=22096296909&ali_trackid=2:mm_12926928_3484851_11423954:1364118800_4k4_1229281314&clk1=c7335b2dcbad93f47eaf5cd4d1cc140b&spm=a230z.1.5634029.66.6xxdfN)
