@@ -177,7 +177,7 @@ if __name__ == "__main__":
 ```
 
 ## 显示树莓派Logo
-需要安装wiringPi[https://github.com/WiringPi/WiringPi]和[PCD8544](https://github.com/binerry/RaspberryPi/tree/master/libraries/c/PCD8544)库
+需要安装[wiringPi](https://github.com/WiringPi/WiringPi)和[PCD8544](https://github.com/binerry/RaspberryPi/tree/master/libraries/c/PCD8544)库
 
 
 ```
