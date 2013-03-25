@@ -1,8 +1,8 @@
 ---
 date: 2013-03-24
 layout: post
-title: 升级版电子钟 - Raspberry Pi和Nokia 5110
-description: Nokia 5110 
+title: 升级版电子钟 - 如何使用Raspberry Pi驱动Nokia 5110液晶屏
+description: Nokia 5110比前面介绍过的1602液晶屏功能好很多 
 categories:
 - Blog
 tags:
