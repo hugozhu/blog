@@ -32,4 +32,4 @@ curl -s "http://online.cnzz.com/online/online.php?id=[your_cnzz_id]&h=[your_cnzz
 
 ```
 
-于是先通过上面的脚本提取在线人数并上传到: https://cosm.com/feeds/92372，Cosm有个触发器功能可以当在线人数超过某个值后发Twitter或HTTP Post到指定URL，并通过程序显示在液晶屏上。
+于是先通过上面的脚本提取在线人数并上传到[Cosm](https://cosm.com/feeds/92372)，Cosm有个触发器功能可以当在线人数超过某个值后发Twitter或HTTP Post到指定URL，并通过程序显示在液晶屏上。
