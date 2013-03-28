@@ -1,5 +1,5 @@
 ---
-date: 2013-03-27
+date: 2013-03-28
 layout: post
 title: 并发编程之内存屏障
 description: Memory Barriers/Fences：一组处理器指令，用来实现内存数据对CPU的可见性。
@@ -12,7 +12,7 @@ tags:
 
 ---
 
-原文地址：http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html 或 http://ifeve.com/memory-barriersfences/
+原文地址：`http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html` 或 `http://ifeve.com/memory-barriersfences/`
 
 关键词：Load Barrier, Save Barrier, Full Barrier
 
@@ -45,7 +45,7 @@ CPU核－>寄存器->执行单元-->Load/Store缓冲区->L1 Cache  ------+-->L3 
 
 大多数的内存屏障都是复杂的主题。在不同的CPU架构上实现非常不一样。在这一系列中Intel CPU的强内存模型比DEC Alpha的弱复杂内存模型（缓存不仅分层了，还分区了）更简单。因为x86处理器是在多线程编程中最常见的，厦门我尽量用x86的架构来阐述。
 
-## Store Barrier
+# Store Barrier
 
 Store屏障，是x86的"**sfence**"指令，强制在屏障指令之前的指令在其之前（"happen-before"）被处理，并把store缓冲区的数据都刷到CPU缓存。这会使得程序状态对其它CPU可见，这样其它CPU可以根据需要介入。一个实际的好例子是Disruptor中的[BatchEventProcessor](http://code.google.com/p/disruptor/source/browse/trunk/code/src/main/com/lmax/disruptor/BatchEventProcessor.java)。当序列Sequence被一个消费者更新时，其它消费者(Consumers)和生产者（Producers）知道该消费者的进度，因此可以采取合适的动作。所以屏障之前发生的内存更新都可见了。
 
