@@ -12,7 +12,7 @@ tags:
 
 ---
 
-原文地址：`http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html` 或 `http://ifeve.com/memory-barriersfences/`
+原文地址：[`http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html`](http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html) 或 [`http://ifeve.com/memory-barriersfences/`](http://ifeve.com/memory-barriersfences/)
 
 关键词：Load Barrier, Save Barrier, Full Barrier
 
@@ -32,9 +32,15 @@ CPU核内部包含了多个执行单元。例如，现代Intel CPU包含了6个�
 <img src="http://ifeve.com/wp-content/uploads/2013/03/cpu.png"/>
 
 ```
-CPU核－>寄存器->执行单元-->Load/Store缓冲区->L1 Cache  ------+-->L3 Cache-->内存控制器-->主存
-                     |                                   |
-                     +-> Write Combine缓冲区->L2 Cache ---+
+CPU核
+  |
+  V
+寄存器
+  |
+  V
+执行单元 -> Load/Store缓冲区->L1 Cache --->L3 Cache-->内存控制器-->主存
+       |                                   |
+       +-> Write Combine缓冲区->L2 Cache ---+
 ```
 
 代码顺序并不是真正的执行顺序，CPU和编译器可以各种优化只要有空间提高性能。缓存和主存的读取会利用load, store和write-combining缓冲区来缓冲和重排。这些缓冲区是查找速度很快的关联队列，当一个后来发生的load需要读取上一个store的值，而该值还没有到达缓存，查找是必需的，上图描绘的是一个简化的现代多核CPU，从上图可以看出执行单元可以利用本地寄存器和缓冲区来管理和缓存子系统的交互。
