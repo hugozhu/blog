@@ -14,7 +14,7 @@ tags:
 
 原文地址：[`http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html`](http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html) 或 [`http://ifeve.com/memory-barriersfences/`](http://ifeve.com/memory-barriersfences/)
 
-关键词：Load Barrier, Save Barrier, Full Barrier
+关键词：Load Barrier, Store Barrier, Full Barrier
 
 {:toc}
 
