@@ -118,7 +118,7 @@ handlers:
 将该应用发布到GAE后，可以通过在页面底部放置`<img src="http://<your_app_name>.appspot.com/beacon.gif/>" `标签来将网站的流量引到GAE，并通过Channel发布出去。
 
 ## 接收实时消息
-毕竟遗憾的是Google只提供了Javascript库来供浏览器接收实时消息，相应的使用代码如下。
+比较遗憾的是Google只提供了Javascript库来供浏览器接收实时消息，相应的使用代码如下。
 
 ```
 <html>
