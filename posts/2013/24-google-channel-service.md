@@ -100,6 +100,8 @@ func handler_new_token(w http.ResponseWriter, r *http.Request) {
 ```
 代码最后一行是将访问日志实时通过Channel发送出去，该通道有一个指定的主题，这样订阅该主题的客户端都可以收到相应的消息。
 
+app.yaml
+
 ```
 application: <your_app_name>
 version: 1
@@ -158,13 +160,16 @@ handlers:
     </body>
 </html>
 ```
-显然Javascript是不能满足统计网站实时流量的需求，我们需要一个服务器端能接收消息的方法，经过对Javascript的逻辑分析，我实现了一个同样能接收消息的[Go语言客户端](https://github.com/hugozhu/gae-rpi-webapp/tree/master/src/google/appengine/channel), 再完善一下后可以发布出来用`go get github.com/hugo/gae-channel`安装。
+显然Javascript是不能满足统计网站实时流量的需求，我们需要一个服务器端能接收消息的方法，经过对Javascript的逻辑分析，我实现了一个同样能接收消息的[Go语言客户端](https://github.com/hugozhu/gae-channel)
+
+使用方法如下：
+`go get github.com/hugozhu/gae-channel`
 
 ```
 package main
 
 import (
-	. "google/appengine/channel"
+	. "github.com/hugozhu/gae-channel"
 	"log"
 )
 
