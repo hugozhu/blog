@@ -202,8 +202,100 @@ func main() {
 ## 实时分析日志
 在Pi上利用Channel客户端库，脚本可以实时获取访问日志，可以通过最近15分钟内的日志计算出每分钟独立访客数和PV数，最后可以在Pi的液晶屏幕用柱状图显示出来。
 
+```
+package main
 
-（实现部分待续。。。）
+import (
+	"analytics"
+	"encoding/json"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+	
+	. "github.com/hugozhu/gae-channel"
+	. "github.com/hugozhu/rpi"
+	"github.com/hugozhu/rpi/pcd8544"
+)
+
+// pin setup
+const (
+	_din     = 3
+	_sclk    = 5
+	_dc      = 2
+	_rst     = 0
+	_cs      = 1
+	contrast = 43
+)
+
+var pv = analytics.NewPV(5, 60)
+var uv = analytics.NewUV(5 * 60)
 
 
+func init() {
+	//must be called before everything else!
+	WiringPiSetup()
+	pcd8544.LCDInit(_sclk, _din, _dc, _cs, _rst, contrast)
+}
+
+
+func main() {
+
+	log.Println("started")
+	stop_chan := make(chan bool)
+
+	channel := NewChannel("http://<your_app_name>.appspot.com/new_token")
+	socket := channel.Open()
+	socket.OnOpened = func() {
+		log.Println("socket opened!")
+	}
+
+	socket.OnClose = func() {
+		log.Println("socket closed!")
+		stop_chan <- true
+	}
+
+	socket.OnMessage = func(msg *Message) {
+		if msg.Level() >= 3 && msg.Child.Key == "c" {
+			v1 := *msg.Child.Child.Val
+			if len(v1) > 0 {
+				s := "[" + v1[0].Key + "]"
+				var v []string
+				json.Unmarshal([]byte(s), &v)
+				if len(v) == 2 && v[0] == "ae" {
+					s = v[1]
+					v = strings.Split(s, "\n")
+					zcookie := v[0]
+					t := time.Now()
+					pv.AddOne(t)
+					uv.AddOne(zcookie, t)
+				}
+			}
+		}
+	}
+
+	socket.OnError = func(err error) {
+		log.Println("error:", err)
+	}
+
+	go func() {
+		for {
+			pcd8544.LCDclear()
+			pcd8544.LCDdrawstring(0, 0, time.Now().Format("06-01-02 15:04"))
+			// pcd8544.LCDdrawline(0, 10, 83, 10, pcd8544.BLACK)
+			pcd8544.LCDdrawstring(0, 14, fmt.Sprintf("UV: %d", uv.Sum()))
+			pcd8544.LCDdrawstring(0, 24, fmt.Sprintf("PV: %d", pv.Sum()))
+			pcd8544.LCDdisplay()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
+	<-stop_chan
+}
+
+```
+
+## 实际效果
+
+<img src="http://ww4.sinaimg.cn/bmiddle/6bc40342jw1e3dzagtsl6j.jpg"/>
 
