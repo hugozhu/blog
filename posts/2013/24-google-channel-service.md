@@ -187,7 +187,7 @@ func main() {
 		stop_chan <- true
 	}
 
-	socket.OnMessage = func(msg *Element) {
+	socket.OnMessage = func(msg *Message) {
 		log.Println(msg.ToString())
 	}
 

@@ -41,7 +41,7 @@ wiringPi Pin  | Name     | Board Pin     | BCM GPIO
 10         |CE0       | 24            | 8
 11         |CE1       | 26            | 7
 12         |MOSI      | 19            | 10
-13         |MOSO      | 21            | 9
+13         |MISO      | 21            | 9
 14         |SCLK      | 23            | 11
 15         |TXD       | 8             | 14
 16         |RXD       | 10            | 15

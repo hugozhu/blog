@@ -1,7 +1,7 @@
 ---
 date: 2013-04-05
 layout: post
-title: 在Raspberry Pi上使用SPI
+title: 在Raspberry Pi上使用硬件SPI
 description: Getting SPI working on Raspberry Pi
 categories:
 - Blog
@@ -23,7 +23,29 @@ SPI (Serial Peripheral Interface)，是一种高速，全双工，同步的通�
 
 通过CS，主设备可以控制和哪个从设备通信。
 
-# 测试Pi的SPI
+## Bit Banging
+
+Bit-banging是一种用软件替代专职硬件的串行通信的技术。软件直接对微处理器的管脚的状态进行设置和采样，其功能涵盖诸如：时钟，电平，同步等所有参数。与此不同的是（传统的串行通信技术中），专职硬件诸如 modem、UART 或者 位移寄存器等一般是用来处理这些参数并且提供一个（缓存）的数据接口，软件在这种情况下同信号处理无关。
+
+bit-banging 具有明显优点诸如：让相同的设备运行不同的协议而只需很小的（甚至不需）硬件的改动。借助很少的额外设备，我们也许可以从数字管脚（数字终端）可以得到视频信号。
+
+bit-banging 也有一些明显的缺点。在软件仿真的过程中消耗的能量比同样功能的专职硬件大。微处理器过忙地从管脚采样和发送采样信号到管脚。在同等微处理器处理能力下，系统常常会有些噪音。
+
+在Rasperry Pi上使用Bit Banging在实际情况下有可能因为操作系统调度造成时钟信号不稳定而使设备收到错误的消息，具体的表现就是Nokia 5110屏在长时间运行过程中出现白屏或花屏现象，如下图：
+
+<img src="http://ww2.sinaimg.cn/bmiddle/6bc40342jw1e3dzvsfxblj.jpg"/>
+
+采用硬件SPI，由Pi的管脚14号Pin（左边倒数第二个）SCLK发出一定频率的时钟信号。经过测试，这种方法产生的时钟信号比Big Banging软件模拟产生的信号要稳定很多。
+
+
+<img src="http://ww1.sinaimg.cn/small/6bc40342jw1e3f1s62pnuj.jpg"/>
+软件模拟时钟信号波形
+
+<img src="http://ww1.sinaimg.cn/small/6bc40342jw1e3f6d4wsjij.jpg"/>
+硬件SPI时钟信号波形
+
+
+# 测试Pi的硬件SPI
 
 ## 确认内核支持
 ```
@@ -249,10 +271,10 @@ int main(int argc, char *argv[])
 }
 ```
 
-用一根杜邦线将Pi的MISO （GPIO 9）和MOSI (GPIO 10)短接，运行上面的代码应该得到如下输出（如果输出不是这样的，那一定是哪里不对了）
+用一根杜邦线将Pi的MISO （GPIO 9）和MOSI (GPIO 10)短接，运行上面的代码应该得到如下输出（如果输出不是这样的，那一定是哪里不对了，重启一下看看行不行）
 
 ```
-root@raspberrypi2 ~/projects/spi_test # ./a.out 
+root@raspberrypi2 ~/projects/spi_test # ./a.out -D /dev/spidev0.0
 spi mode: 0
 bits per word: 8
 max speed: 500000 Hz (500 KHz)
@@ -266,8 +288,42 @@ DE AD BE EF BA AD
 F0 0D 
 ```
 
+## wiringPiSPI
+[wiringPi](https://projects.drogon.net/raspberry-pi/wiringpi/) 软件包提供了SPI使用的帮助类，接口定义如下：
+
+```
+int wiringPiSPISetup  (int channel, int speed) ;
+int wiringPiSPIDataRW (int channel, unsigned char *data, int len) ;
+
+```
+
+使用则非常简单，下面的代码每秒从Pi的MOSI针脚（第13号，左边倒数第三个）发送1个字节：
+
+```
+#include <wiringPi.h>
+#include <wiringPiSPI.h>
+
+int main (void)
+{
+
+    if (wiringPiSPISetup(0, 5000000) == -1) 
+    {
+       return -1;
+    }
+    
+    for (;;) 
+    {
+        uint8_t c = 0x00
+        wiringPiSPIDataRW(0, &c, 1);
+        delay(1000);
+    }
+    
+}
+```
+
 
 # 参考链接
 1. http://www.brianhensley.net/2012/07/getting-spi-working-on-raspberry-pi.html
 2. 百度百科 - http://baike.baidu.com/view/245026.htm
 3. https://zh.wikipedia.org/zh/串行通信
+4. https://projects.drogon.net/understanding-spi-on-the-raspberry-pi/
