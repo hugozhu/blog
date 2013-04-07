@@ -30,3 +30,9 @@ function decode() {
 
 # JSON Pretty Print
 
+<form method="POST" action="http://go.myalert.info/json.php">
+<textarea name="json" cols="200" rows="5" id="json" style="width:500px;height:50px"></textarea>    
+<div>
+<input type="submit" value="Pretty Print">
+</div>
+</form>
