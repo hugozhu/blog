@@ -17,7 +17,7 @@ Nokia 5110屏比前面介绍过的[1602液晶屏](http://hugozhu.myalert.info/20
 
 1. 带蓝色背光
 2. 使用Philips PCD8544 LCD控制器（通过SPI接口）
-3. 84x84点阵，可显示100多个字符
+3. 84x48点阵，可显示100多个字符
 
 # 硬件准备
 1. [树莓派](http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&id=17337394004&is_b=1&cat_id=2&q=%CA%F7%DD%AE%C5%C9&rn=4004716f9ba818c1d69b5eb7818891b5)
