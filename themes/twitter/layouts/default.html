@@ -117,8 +117,10 @@ win.alimamatk_onload.push(o);
 })(window,document);
 </script>
 <script>
-  document.write('<img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
-+"&"+Math.random().toString(36).substring(7)+'"/>')
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
 </script>
-  </body>
+</body>
 </html>
