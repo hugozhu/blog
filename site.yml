@@ -12,6 +12,7 @@ navigation :
   - archive.html
   - tags.html
   - categories.html
-  - pages.html  
+  - pages.html
+  - tools.md
   - about.md
   
