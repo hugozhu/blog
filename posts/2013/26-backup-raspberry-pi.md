@@ -47,8 +47,10 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 执行备份
 
 ```
-cd /mnt/backup
-dd if=/dev/mmcblk0 of=raspberrypi2.img bs=2M
+root@raspberrypi2 /mnt/backup # dd if=/dev/mmcblk0 of=raspberrypi2.img bs=2M
+941+0 records in
+941+0 records out
+1973420032 bytes (2.0 GB) copied, 786.555 s, 2.5 MB/s
 ```
 
 # 增量备份
