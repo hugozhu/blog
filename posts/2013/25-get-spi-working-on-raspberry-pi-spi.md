@@ -35,7 +35,7 @@ bit-banging 也有一些明显的缺点。在软件仿真的过程中消耗的�
 
 <img src="http://ww2.sinaimg.cn/bmiddle/6bc40342jw1e3dzvsfxblj.jpg"/>
 
-采用硬件SPI，由Pi的管脚14号Pin（左边倒数第二个）SCLK发出一定频率的时钟信号。经过测试，这种方法产生的时钟信号比Big Banging软件模拟产生的信号要稳定很多。
+采用硬件SPI，由Pi的管脚14号Pin（左边倒数第二个）SCLK发出一定频率的时钟信号。经过测试，这种方法产生的时钟信号比Bit Banging软件模拟产生的信号要稳定很多。
 
 
 <img src="http://ww1.sinaimg.cn/small/6bc40342jw1e3f1s62pnuj.jpg"/>
@@ -320,6 +320,11 @@ int main (void)
     
 }
 ```
+
+# 实际应用
+
+前面介绍过的Nokia 5110是采用飞利浦PC8544芯片驱动的，就是采用SPI协议的。
+采用软件模拟的驱动不是很稳定，改成硬件SPI后就好了，[基于wiringPi的实现](https://github.com/hugozhu/rpi/tree/master/lib/PCD8544), [Go的封装](https://github.com/hugozhu/rpi/tree/master/pcd8544)
 
 
 # 参考链接
