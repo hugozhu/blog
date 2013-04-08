@@ -47,7 +47,7 @@ root@raspberrypi2 ~/projects/interrupt_test #
 ```
 int wiringPiISR (int pin, int edgeType,  void (*function)(void)) ;
 ```
-其最主要的部分的代码是：
+其最主要的部分的实现代码是：
 
 ```
 int waitForInterruptSys (int pin, int mS)
