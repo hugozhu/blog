@@ -24,9 +24,11 @@ GPIO 25和VCC（3.3V）之间通过R1（10K欧姆）和R2（1K欧姆）[上拉�
 
 如果我们需要根据GPIO 25的值来控制树莓派，比如按下按钮时希望点亮某个LED或在液晶上显示当前时间，就需要通过程序来获取状态的变化。
 
-一种常见的做法是在循环里不断读取该引脚的状态，当发生对应的变化的时执行控制逻辑，但显而易见，这种做法很消耗CPU，如果在循环增加`sleep(1000)`这样的调用，又很容易错过按键变化。较好的做法则是通过[中断](http://zh.wikipedia.org/wiki/中断)来实现。常见的树莓派的Linux发行版内核对此已有支持。
+一种常见的做法是在循环里不断读取该引脚的状态，当发生对应的变化的时执行控制逻辑，但显而易见，这种做法很消耗CPU，如果在循环增加`sleep(1000)`这样的调用，又很容易错过按键变化。较好的做法则是通过[中断](http://zh.wikipedia.org/wiki/中断)来实现。
 
-首先可以通过命令`echo 25 > /sys/class/gpio/export`导出GPIO 25端口，执行成功后在相应的目录下看到以下文件，得益于Linux下一切都是文件的设计理念，GPIO的状态可以通过`value`文件来获取，这样就可以利用Linux的poll/epoll来获取`value`文件的变化(这点和Linux高性能网络编程是类似的)。
+最新的树莓派Raspbian和Arch Linux内核都已经包含了GPIO的中断处理支持。但使用前需要将指定GPIO引脚输出，方法如下：
+
+首先可以通过命令`echo 25 > /sys/class/gpio/export`导出GPIO 25端口，执行成功后在相应的目录下看到以下文件，得益于Linux下**一切都是文件**的设计理念，GPIO的状态可以通过`value`文件来获取，这样就可以利用Linux的poll/epoll来获取`value`文件的变化(这点和Linux高性能网络编程是类似的)。
 
 ```
 root@raspberrypi2 ~/projects/interrupt_test # ls -l /sys/class/gpio/gpio25/
