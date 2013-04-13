@@ -10,7 +10,7 @@ tags:
 
 ---
 
-夏天到了，树莓派的CPU温度也开始节节攀升，虽然我们也可以用云服务[Coms](http://hugozhu.myalert.info/2013/03/17/03-17-interfacing-temperature-and-humidity-sensor-with-raspberry-pi.html)来监控，但每5分钟采样一次精度不够高，每分钟采样一次则上传次数又太多了点。最好的方法还是使用[tsar](http://github.com/alibaba/tsar)这样的工具本地高频（如每1分钟）采样，然后再定时将5分钟的均值上传到Coms绘图。
+夏天到了，树莓派的CPU温度也开始节节攀升，虽然我们也可以用云服务[cosm](https://cosm.com)来监控，但每5分钟采样一次精度不够高，每分钟采样一次则上传次数又太多了点。最好的方法还是使用[tsar](http://github.com/alibaba/tsar)这样的工具本地高频（如每1分钟）采样，然后再定时将5分钟的均值上传到cosm绘图。
 
 Tsar是淘宝的一个用来收集服务器系统和应用信息的采集报告工具，如收集服务器的系统信息（cpu，mem等），以及应用数据（nginx、swift等），收集到的数据存储在服务器磁盘上，可以随时查询历史信息，也可以将数据发送到nagios报警。Tsar能够比较方便的增加模块，只需要按照tsar的要求编写数据的采集函数和展现函数，就可以把自定义的模块加入到tsar中。
 
@@ -142,7 +142,7 @@ MIN              1.67     7.82     0.00     0.00    0.00     3.14     0.00     3
 
 tsar很方便吧？ 室温，湿度，网站在线人数等也可以用同样的方法记录。
 
-利用下面的脚本我们还可以把tsar的数据上传到coms:
+利用下面的脚本我们还可以把tsar的数据上传到cosm:
 
 ```
 #!/bin/bash
@@ -163,3 +163,6 @@ echo $STR > $LOCATION/cosm.json
 curl -v --request PUT --header "X-ApiKey: $API_KEY" --data-binary @$LOCATION/cosm.json $COSM_URL
 
 ```
+
+# 参考链接
+1. http://hugozhu.myalert.info/2013/03/17/03-17-interfacing-temperature-and-humidity-sensor-with-raspberry-pi.html
