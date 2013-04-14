@@ -16,7 +16,7 @@ Tsar是淘宝的一个用来收集服务器系统和应用信息的采集报告�
 
 
 # **更新** 
-[2013-04-14] mod_rpi已经被merge到了主干代码：https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c 只需要增加文件：`/etc/tsar/conf.d/rpi.conf`，内容为以下即可打开：
+[2013-04-14] mod_rpi已经被合并到了主干代码：[https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c](https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c)  只需要增加文件：`/etc/tsar/conf.d/rpi.conf`，内容为以下即可开始使用mod_rpi模块：
 
 ```
 mod_rpi on
