@@ -14,6 +14,19 @@ tags:
 
 Tsar是淘宝的一个用来收集服务器系统和应用信息的采集报告工具，如收集服务器的系统信息（cpu，mem等），以及应用数据（nginx、swift等），收集到的数据存储在服务器磁盘上，可以随时查询历史信息，也可以将数据发送到nagios报警。Tsar能够比较方便的增加模块，只需要按照tsar的要求编写数据的采集函数和展现函数，就可以把自定义的模块加入到tsar中。
 
+
+# **更新** 
+[2013-04-14] mod_rpi已经被merge到了主干代码：https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c 只需要增加文件：`/etc/tsar/conf.d/rpi.conf`，内容为以下即可打开：
+
+```
+mod_rpi on
+
+####add it to tsar default output
+output_stdio_mod mod_rpi
+```
+
+
+# mod_rpi模块开发方法
 首先按照安装说明，见[https://github.com/alibaba/tsar](https://github.com/alibaba/tsar)将tsar和tsardevel安装好。
 
 首先运行下面的命令生成mod_rpi模块：
@@ -154,9 +167,13 @@ FEED_ID='<your_feed_id>'
 ####################################################
 COSM_URL=http://api.cosm.com/v2/feeds/$FEED_ID?timezone=+8
 
-cpu_t=`tsar --rpi | tail -n 5 | awk 'NR==1 {print $2}'`
+eval `tsar --cpu --rpi --load --check | awk '{print $8,$10,$14}' | sed -e 's/:/_/g' | sed -e 's/ /\n/g'`
 
-STR=`awk 'BEGIN{printf "{\"datastreams\":[ {\"id\":\"<your_datapoint_id>\",\"current_value\":\"%.1f\"}]} ",'$cpu_t'}'`
+STR=`awk 'BEGIN {printf "{\"datastreams\":[\
+{\"id\":\"1\",\"current_value\":\"%.2f\"},\
+{\"id\":\"2\",\"current_value\":\"%.2f\"},\
+{\"id\":\"3\",\"current_value\":\"%.2f\"}]}",\
+'$load_load5','$rpi_temp','$cpu_util'}'`
 
 echo $STR
 echo $STR > $LOCATION/cosm.json
