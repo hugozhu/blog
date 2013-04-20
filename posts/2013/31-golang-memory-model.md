@@ -20,7 +20,7 @@ tags:
 # 背景介绍
 内存模型的目的是为了定义清楚变量的读写在不同执行体里的可见性。理解内存模型在并发编程中非常重要，因为代码的执行顺序和书写的逻辑顺序并不会完全一致，甚至在编译期间编译器也有可能重排代码以最优化CPU执行, 另外还因为有CPU缓存的存在，内存的数据不一定会及时更新，这样对内存中的同一个变量读和写也不一定和期望一样。
 
-和[Java的内存模型规范](http://www.infoq.com/cn/articles/java-memory-model-1?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_articles_clk)类似，Go语言也有一个内存模型，相对JMM来说，Go的内存模型比较简单，Go的并发模型是基于CSP（[Communicating Sequential Process](http://en.wikipedia.org/wiki/Communicating_sequential_processes)）的，不同的Goroutine通过一种叫Channel的数据结构来通信，Java的并发模型基于多线程和共享内存，有较多的概念（violatie, lock, final, construct, thread, atomic等）和场景，当然java.util.concurrent并发工具包大大简化了Java并发编程。
+和[Java的内存模型规范](http://ifeve.com/java-memory-model-1/)类似，Go语言也有一个内存模型，相对JMM来说，Go的内存模型比较简单，Go的并发模型是基于CSP（[Communicating Sequential Process](http://en.wikipedia.org/wiki/Communicating_sequential_processes)）的，不同的Goroutine通过一种叫Channel的数据结构来通信，Java的并发模型基于多线程和共享内存，有较多的概念（violatie, lock, final, construct, thread, atomic等）和场景，当然java.util.concurrent并发工具包大大简化了Java并发编程。
 
 Go内存模型规范了一个Goroutine对某个变量的修改一定对其它Goroutine可见。
 
@@ -250,4 +250,4 @@ func twoprint() {
 1. http://golang.org/ref/mem
 2. http://en.wikipedia.org/wiki/Java_Memory_Model
 3. http://ifeve.com/java-memory-model-1/
-4. http://code.google.com/p/golang-china/wiki/go_mem#Channel_communication_管道通信
+4. http://code.google.com/p/golang-china/wiki/go_mem
