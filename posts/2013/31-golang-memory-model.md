@@ -190,7 +190,7 @@ func main() {
 ```
 根据规则3），因为c是不带缓冲的Channel，`a = "hello, world"` happens-before `<-c` happens-before `c <- 0` happens-before `print(a)`， 但如果c是缓冲队列，那结果就不确定了。
 
-# 锁
+## 锁
 `sync` 包实现了两种锁数据结构:
 
 1. sync.Mutex -> java.util.concurrent.ReentrantLock
@@ -218,7 +218,7 @@ func main() {
 ```
 `a = "hello, world"` happens-before `l.Unlock()` happens-before 第二个 `l.Lock()` happens-before `print(a)`
 
-# Once
+## Once
 `sync`包还提供了一个安全的初始化工具Once。还记得Java的Singleton设计模式，double-check，甚至triple-check的各种单例初始化方法吗？Go则提供了一个标准的方法。
 
 1. `once.Do(f)`中的`f()` happens-before 任何多个once.Do(f)调用的返回，且f()有且只有一次调用。
