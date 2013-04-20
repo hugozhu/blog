@@ -86,7 +86,7 @@ Happens-before用来指明Go程序里的内存操作的局部顺序。如果一�
 
 **要保证并行执行体对共享变量的顺序访问方法就是用锁**。Java和Go在这点上是一致的。
 
-以下是具体的可被利用的Go语言的happens-before规则，从本质上来讲，happens-before规则确定了CPU缓冲和主存的同步时间点（通过[内存屏障](http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html)），从而使得对变量的读写可被确定完成。
+以下是具体的可被利用的Go语言的happens-before规则，从本质上来讲，happens-before规则确定了CPU缓冲和主存的同步时间点（通过[内存屏障](http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html)等指令），从而使得对变量的读写可确定顺序--同步。
 
 # 同步方法
 
