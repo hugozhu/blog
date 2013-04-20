@@ -221,7 +221,7 @@ func main() {
 ## Once
 `sync`包还提供了一个安全的初始化工具Once。还记得Java的Singleton设计模式，double-check，甚至triple-check的各种单例初始化方法吗？Go则提供了一个标准的方法。
 
-1. `once.Do(f)`中的`f()` happens-before 任何多个once.Do(f)调用的返回，且f()有且只有一次调用。
+1. **`once.Do(f)`中的`f()` happens-before 任何多个once.Do(f)调用的返回，且f()有且只有一次调用。**
 
 ```
 var a string
