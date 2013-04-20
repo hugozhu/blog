@@ -14,7 +14,7 @@ tags:
 
 {:toc}
 
-# 名称定义
+# 名词定义
 执行体 - Go里的Goroutine或Java中的Thread
 
 # 背景介绍
@@ -95,7 +95,7 @@ Happens-before用来指明Go程序里的内存操作的局部顺序。如果一�
 1. 如果package p 引用了package q，q的init()方法 happens-before p （Java工程师可以对比一下[final变量的happens-before规则](http://www.infoq.com/cn/articles/java-memory-model-6?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_articles_clk)）
 2. main.main()方法 happens-after所有package的init()方法结束。
 
-## Goroutine创建
+## 创建Goroutine
 
 1. **go语句创建新的goroutine happens-before 该goroutine执行**（这个应该很容易理解）
 
@@ -133,7 +133,7 @@ func main() {
 }
 ```
 
-## Goroutine销毁
+## 销毁Goroutine
 
 1. **Goroutine的退出并不保证happens-before任何事件**。
 
