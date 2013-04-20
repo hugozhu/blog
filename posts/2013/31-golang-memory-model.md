@@ -1,7 +1,7 @@
 ---
 date: 2013-04-20
 layout: post
-title: Go语言内容模型
+title: Go语言内存模型
 description: Go memory model
 categories:
 - Blog
