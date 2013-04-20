@@ -92,8 +92,8 @@ Happens-before用来指明Go程序里的内存操作的局部顺序。如果一�
 
 ## 初始化
 
-1. 如果package p 引用了package q，q的init()方法 happens-before p （Java工程师可以对比一下[final变量的happens-before规则](http://www.infoq.com/cn/articles/java-memory-model-6?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_articles_clk)）
-2. main.main()方法 happens-after所有package的init()方法结束。
+1. **如果package p 引用了package q，q的init()方法 happens-before p** （Java工程师可以对比一下[final变量的happens-before规则](http://www.infoq.com/cn/articles/java-memory-model-6?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_articles_clk)）
+2. **main.main()方法 happens-after所有package的init()方法结束。**
 
 ## 创建Goroutine
 
