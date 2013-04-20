@@ -242,7 +242,7 @@ func twoprint() {
 }
 ```
 
-上面的代码虽然调用两次`doprint()`，但实际上setup只会执行一次，并且并发的`once.Do(setup)`都会等待setup返回后再继续执行。
+上面的代码虽然调用两次`doprint()`，但实际上`setup`只会执行一次，并且并发的`once.Do(setup)`都会等待`setup`返回后再继续执行。
 
 
 # 参考链接
