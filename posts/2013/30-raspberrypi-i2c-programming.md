@@ -10,6 +10,8 @@ tags:
 
 ---
 
+(！未完！)
+
 除了[SPI](http://hugozhu.myalert.info/2013/04/05/25-get-spi-working-on-raspberry-pi-spi.html)协议外，树莓派还支持[I2C](http://zh.wikipedia.org/wiki/I²C)。I2C是为了连接低速周边装置设计的，只需要用两根线（SDA和SCL，也就是树莓派的端口8和9-wiringPi编号）。
 
 # I2C
