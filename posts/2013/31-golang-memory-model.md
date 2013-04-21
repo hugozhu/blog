@@ -152,9 +152,9 @@ Goroutine对变量的修改需要让对其它Goroutine可见，除了使用锁�
 ## Channel通信
 在Go编程中，Channel是被推荐的执行体间通信的方法，Go的编译器和运行态都会尽力对其优化。
 
-1. **对一个Channel的发送事件(send) happens-before 相应Channel的接收事件完成**
+1. **对一个Channel的发送操作(send) happens-before 相应Channel的接收操作完成**
 2. **关闭一个Channel happens-before 从该Channel接收返回0**
-3. **不带缓冲的Channel的接收 happens-before 相应Channel的发送事件完成**
+3. **不带缓冲的Channel的接收操作（receive） happens-before 相应Channel的发送操作完成**
 
 ```
 var c = make(chan int, 10)
@@ -174,7 +174,7 @@ func main() {
 上述代码可以确保输出`hello, world`，因为`a = "hello, world"` happens-before `c <- 0`，`print(a)` happens-after `<-c`， 根据上面的规则1）以及happens-before的可传递性，`a = "hello, world"` happens-before`print(a)`。
 
 ```
-var c = make(chan int, 1)
+var c = make(chan int)
 var a string
 
 func f() {
@@ -188,7 +188,7 @@ func main() {
 	print(a)
 }
 ```
-根据规则3），因为c是不带缓冲的Channel，`a = "hello, world"` happens-before `<-c` happens-before `c <- 0` happens-before `print(a)`， 但如果c是缓冲队列，那结果就不确定了。
+根据规则3），因为c是不带缓冲的Channel，`a = "hello, world"` happens-before `<-c` happens-before `c <- 0` happens-before `print(a)`， 但如果c是缓冲队列，如定义`c = make(chan int, 1)`, 那结果就不确定了。
 
 ## 锁
 `sync` 包实现了两种锁数据结构:
