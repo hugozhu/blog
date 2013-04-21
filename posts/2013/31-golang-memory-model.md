@@ -153,7 +153,7 @@ Goroutine对变量的修改需要让对其它Goroutine可见，除了使用锁�
 在Go编程中，Channel是被推荐的执行体间通信的方法，Go的编译器和运行态都会尽力对其优化。
 
 1. **对一个Channel的发送操作(send) happens-before 相应Channel的接收操作完成**
-2. **关闭一个Channel happens-before 从该Channel接收返回0**
+2. **关闭一个Channel happens-before 从该Channel接收到最后的返回值0**
 3. **不带缓冲的Channel的接收操作（receive） happens-before 相应Channel的发送操作完成**
 
 ```
@@ -172,6 +172,8 @@ func main() {
 }
 ```
 上述代码可以确保输出`hello, world`，因为`a = "hello, world"` happens-before `c <- 0`，`print(a)` happens-after `<-c`， 根据上面的规则1）以及happens-before的可传递性，`a = "hello, world"` happens-before`print(a)`。
+
+根据规则2）把`c<-0`替换成`close(c)`也能保证输出`hello,world`，因为关闭操作在`<-c`接收到0之前发送。
 
 ```
 var c = make(chan int)
