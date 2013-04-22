@@ -1,5 +1,5 @@
 ---
-date: 2013-04-21
+date: 2013-04-22
 layout: post
 title: 树莓派个人网站容灾：DNSPod，利用Google App Engine和Github
 description: Use Google App Engine to failover your blog between Raspberry Pi and Github
