@@ -18,7 +18,7 @@ tags:
 # DNSPod
 
 首先需要在DNSPod里设置好需要failover的域名CNAME：比如`hugozhu.myalert.info`
-<img src="https://www.evernote.com/shard/s26/sh/70d9eb43-ff76-4d7f-b6a3-34411eca53cd/a89cccd32eeccae3b6ca3627693f2c9a/res/a8eb9052-9bfa-4b64-9e71-150d0c6b13c9/skitch.png?resizeSmall&width=832"/>
+<img src="https://www.evernote.com/shard/s26/sh/70d9eb43-ff76-4d7f-b6a3-34411eca53cd/a89cccd32eeccae3b6ca3627693f2c9a"/>
 其中｀默认｀指向`pi.myalert.info`,这是一个域名的A Record，会由运行在树莓派上的[脚本](http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html)来更新动态IP，｀国外｀则指向github。当停电时我们需要自动把｀默认｀这条纪录修改成github。
 
 使用下面命令获得相应CNAME的domain_id：
@@ -84,7 +84,7 @@ func Update(client *http.Client, cname string) string {
 ```
 
 ## 检测接口
-部署一个web应用到Google App Engine上，该应用接受树莓派上的一个URL（注意这里不应该用需failver的域名），并请求该域名以看返回是否正常。也可以使用监控宝来监控，但只有付费专业版才支持出错后回调URL。
+部署一个web应用到Google App Engine上，该应用接受树莓派上的一个URL（注意这里不应该用需failver的域名），并请求该域名以检查网站是否正常。这里也可以使用监控宝来监控，但只有付费专业版才支持出错后回调URL。
 
 ```
 func ping(w http.ResponseWriter, r *http.Request) {
