@@ -19,7 +19,7 @@ tags:
 
 首先需要在DNSPod里设置好需要failover的域名CNAME：比如`hugozhu.myalert.info`
 
-<img src="https://www.evernote.com/shard/s26/sh/a3ed7623-3156-47d4-b541-091746fe6569/e2e2c6e50976b009a67ac9d97ecb2a46/deep/0/Screenshot%204/22/13%204:42%20PM.png" alt="Screenshot%204/22/13%204:42%20PM" />
+<img src="https://www.evernote.com/shard/s26/sh/95d90628-5c74-4773-aaff-c2110e1863a6/6b592609ef02c42e46664d1fa1493e1c/deep/0/Screenshot%204/22/13%204:57%20PM.png" width="528"/>
 
 其中`默认`指向`pi.myalert.info`, 这是一个域名的A Record，会由运行在树莓派上的[脚本](http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html)来更新动态IP，`国外`则指向github。当停电时我们需要自动把｀默认｀这条纪录修改成github。
 
