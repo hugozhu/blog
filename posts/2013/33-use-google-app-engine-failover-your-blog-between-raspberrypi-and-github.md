@@ -26,7 +26,7 @@ tags:
 使用下面命令获得相应CNAME的domain_id：
 
 ```
-curl curl -k https://dnsapi.cn/Domain.List -d "login_email=xxx&login_password=xxx" 
+curl -k https://dnsapi.cn/Domain.List -d "login_email=xxx&login_password=xxx" 
 ```
 
 使用下面命令获得相应CNAME的record_id：
