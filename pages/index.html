@@ -85,6 +85,21 @@ description: When Go meets Raspberry Pi
 </ul>
 </div>
 
+
+<!-- jquery required -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<!-- petal begin -->
+<link rel="stylesheet" href="http://hit9.org/petal/css/petal.min.css" type="text/css" />
+<script src="http://hit9.org/petal/build/petal.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    $(document).ready(function(){  // important!
+        $.petal.init("hugozhu/blog", 1) // $.petal.init(repo, issue_id)
+    })
+</script>
+<div class="petal"></div>
+<!-- petal end -->
+
+
 <hr/>
 <a href="https://cosm.com/users/hugozhu"><div align="center">
 <img src="https://api.cosm.com/v2/feeds/92372/datastreams/1.png?width=340&height=180&colour=%23f15a24&duration=2days&title=Raspberry%20Pi%E7%9A%84CPU%20Load&show_axis_labels=false&detailed_grid=true&scale=&timezone=8"/>
