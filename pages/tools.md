@@ -36,3 +36,17 @@ function decode() {
 <input type="submit" value="Pretty Print">
 </div>
 </form>
+
+
+<!-- jquery required -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<!-- petal begin -->
+<link rel="stylesheet" href="http://hit9.org/petal/css/petal.min.css" type="text/css" />
+<script src="http://hit9.org/petal/build/petal.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    $(document).ready(function(){  // important!
+        $.petal.init("hugozhu/blog", 1) // $.petal.init(repo, issue_id)
+    })
+</script>
+<div class="petal"></div>
+<!-- petal end -->
