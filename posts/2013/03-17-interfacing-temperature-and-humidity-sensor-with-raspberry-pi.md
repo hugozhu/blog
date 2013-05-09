@@ -38,7 +38,7 @@ tags:
 
 ## 电路图
 
-DHT11一共4根引脚，左边第一根接电源5V (Pin 1)，第二根为数据接口，接 Pin 7，第三根不接，第四根接地；在Pin 1和Pin7 直接还需要并联10K的电阻，以保持读数稳定。
+DHT11一共4根引脚，左边第一根接电源5V (Pin 1)，第二根为数据接口，接 Pin 7，第三根不接，第四根接地；在Pin 1和Pin7 之间还需要并联10K的电阻，以保持读数稳定。
 
 <img src="http://learn.adafruit.com/system/assets/assets/000/001/860/original/dht11wiring.gif?1345831788"/>
 
