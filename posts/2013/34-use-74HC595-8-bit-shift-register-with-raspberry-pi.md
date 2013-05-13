@@ -61,6 +61,9 @@ Pin 13还有高阻关断的第三态输出功能。
 
 <img src="https://www.evernote.com/shard/s26/sh/392c6eda-a41a-49ee-b2ec-db61a8dbd94d/353eaa84ddc75fda7b92cdce1a48f293/deep/0/Screenshot%205/12/13%2010:14%20PM.png" width="540"/>
 
+
+<img src="http://ww2.sinaimg.cn/bmiddle/6bc40342jw1e4luoggxabj20vk0nodm9.jpg"/>
+
 [<img src="http://ww3.sinaimg.cn/bmiddle/6bc40342jw1e4lzscegezj20vk0noqai.jpg"/>](http://photo.weibo.com/1808008002/wbphotos/large/photo_id/3577295178801052?refer=weibofeedv5)
 
 引脚连接
