@@ -46,12 +46,108 @@ Qx (15，1-7)         |data output       | Qx (15，1-7)            | data outpu
 
 Pin 13还有高阻关断的第三态输出功能。
 
+下面我们使用一片74HC595来同时控制8个发光二极管的状态，只需要占用树莓派的3个GPIO；否则的话，则需要占用8个。如果需要同时控制16个发光二极管，则可以通过串联两个74HC595来实现。
+
 # 材料
 1. [74HC595](http://item.taobao.com/item.htm?spm=a1z0d.1.1000638.45.bTo9PZ&id=3136071980) 因为价格便宜，建议一次买3~10片
-2. 面包板
-3. 面包板跳线 14根
-4. LCD 8个
-5. 300欧姆电阻 8个
+2. [面包板](http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all)
+3. [面包板跳线](http://re.taobao.com/eauction?e=WZUyNh6fV9rghojqVNxKsQRl3vWzxAV13G1s8WRbfpWLltG5xFicOSFINJCCZ52POOqhJP6qr9i9NE9AQxtQk3S1BzvCCF6OuLrQdcbQlR6B3ujUJI0OeA%3D%3D&ptype=100011&clk1=ebe7f36b49064c26364fbf2d12bbd3da&upsid=ebe7f36b49064c26364fbf2d12bbd3da) 14根
+4. [发光二极管](http://re.taobao.com/eauction?e=NW2xGTCNV2%2FghojqVNxKsRoUGnN%2F%2FLrYlWsbAjdmP56LltG5xFicOSFINJCCZ52POOqhJP6qr9i9NE9AQxtQk3S1BzvCCF6OuLrQdcbQlR6B3ujUJI0OeA%3D%3D&ptype=100011&clk1=231682cf5123eea41a361c2c62bbf6d8&upsid=231682cf5123eea41a361c2c62bbf6d8) 8个
+5. [300欧姆电阻](http://re.taobao.com/search?e=NW2xGTCNV2%252FghojqVNxKsRoUGnN%252F%252FLrYlWsbAjdmP56LltG5xFicOSFINJCCZ52POOqhJP6qr9i9NE9AQxtQk3S1BzvCCF6OuLrQdcbQlR6B3ujUJI0OeA%253D%253D&keyword=%B5%E7%D7%E8%B0%FC&type=taoke&refpid=mm_12926928_3484851_11423971&refpos=&unid=0&clk1=231682cf5123eea41a361c2c62bbf6d8&ismall=&catid=&frcatid=) 8个
+
+# 电路图
+
+<img src="https://www.evernote.com/shard/s26/sh/392c6eda-a41a-49ee-b2ec-db61a8dbd94d/353eaa84ddc75fda7b92cdce1a48f293/deep/0/Screenshot%205/12/13%2010:14%20PM.png" width="540"/>
+
+[<img src="http://ww3.sinaimg.cn/bmiddle/6bc40342jw1e4lzscegezj20vk0noqai.jpg"/>](http://photo.weibo.com/1808008002/wbphotos/large/photo_id/3577295178801052?refer=weibofeedv5)
+
+引脚连接
+
+1. 596 Pin 14 -> Raspberry Pi GPIO4
+2. 596 Pin 12 -> Raspberry Pi GPIO5
+3. 596 Pin 11 -> Raspberry Pi GPIO6
+
+# 代码
+
+```
+#include <wiringPi.h>
+#include <stdio.h>
+
+int SER   = 4;
+int RCLK  = 5;
+int SRCLK = 6;
+
+unsigned char LED[8]={0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+
+void SIPO(unsigned char byte);
+void pulse(int pin);
+
+void init() {
+    pinMode(SER, OUTPUT);
+    pinMode(RCLK, OUTPUT);
+    pinMode(SRCLK, OUTPUT);
+
+    digitalWrite(SER, 0);
+    digitalWrite(SRCLK, 0);
+    digitalWrite(RCLK, 0);    
+}
+
+void delayMS(int x) {
+  usleep(x * 1000);
+}
+
+int main (void)
+{
+    if (-1 == wiringPiSetup()) {
+        printf("Setup wiringPi failed!");
+        return 1;
+    }    
+
+    init();
+    int i;
+    while(1) {  
+      for(i = 0; i < 8; i++)
+      {
+       SIPO(LED[i]);
+       pulse(RCLK);
+       delayMS(50);
+       printf(" i = %d", i);
+      }
+      printf("\n");
+      delayMS(500); // 500 ms
+      
+      for(i = 7; i >= 0; i--)
+      {
+       SIPO(LED[i]);
+       pulse(RCLK);
+       delayMS(50);
+       printf(" i = %d", i);
+      }
+      delayMS(500); // 500 ms
+    }
+
+    usleep(1000);
+    digitalWrite(RCLK, 1);
+}
+
+void SIPO(unsigned char byte) 
+{
+    int i;
+    for (i=0;i<8;i++) 
+    {
+        digitalWrite(SER,((byte & (0x80 >> i)) > 0));
+        pulse(SRCLK);
+    }
+}
+
+void pulse(int pin) 
+{
+    digitalWrite(pin, 1);
+    digitalWrite(pin, 0);
+}
+
+```
+编译执行上面的代码后可以看到LED从左到有一次依次点亮后灭掉，再反向点亮一遍，循环执行，有点像钟摆的效果。
 
 # 参考链接
 1. http://baike.baidu.com/view/1309513.htm
