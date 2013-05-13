@@ -1,5 +1,5 @@
 ---
-date: 2013-04-14
+date: 2013-05-13
 layout: post
 title: 使用8位移位寄存器74HC595扩展树莓派的IO端口
 description: Use 74HC595 8bit shift register with Rapsberry Pi
