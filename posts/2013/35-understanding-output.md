@@ -27,7 +27,7 @@ tags:
 
 <img src="https://www.evernote.com/shard/s26/sh/11008332-acac-4625-9b6a-963c97ec7498/1e6d153774b7e95214fe0c2bba9121d8/deep/0/Screenshot%205/14/13%2010:22%20PM.png"/>
 
-通过计算后，下表是当输出电流为2，4 … 16mA时，对应的阻抗大小以及短路电流大小。
+通过计算后，下表是当输出电流为2，4 … 16mA时，对应的阻抗大小以及如果发生短路时的短路电流大小。
 
 <img src="https://www.evernote.com/shard/s26/sh/7a411df0-56b1-4f76-bce5-54961bcfcfc7/4e46d9e28d7d01a34eb9e66ee28a5ba8/deep/0/Screenshot%205/14/13%2010:39%20PM.png"/>
 
