@@ -31,6 +31,8 @@ tags:
 
 <img src="https://www.evernote.com/shard/s26/sh/7a411df0-56b1-4f76-bce5-54961bcfcfc7/4e46d9e28d7d01a34eb9e66ee28a5ba8/deep/0/Screenshot%205/14/13%2010:39%20PM.png"/>
 
+可以看出短路电流都是超过16mA的。
+
 GPIO引脚的电流是通过板上的3.3V电压调整器输出的，树莓派是按平均每个引脚3mA来设计的，所以总的电流不能超过17 * 3 = 51mA。
 
 # 结论
