@@ -24,7 +24,7 @@ export PATH=/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 ping_count() {
   count=0
-  `timeout 5 ping 192.168.1.3 | while read LINE; do
+  `timeout 5 ping 192.168.1.1 | while read LINE; do
   {
         if [[ "${LINE}" =~ "64 bytes from" ]]; then
                 let "count = $count + 1"
