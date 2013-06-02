@@ -14,23 +14,47 @@ tags:
 
 假设无线路由器IP是192.168.1.1，于是每隔15分钟检查一下，是否能从树莓派上ping通路由器；如果不能则重启无线网络，脚本如下：
 
+
+**network.sh**
+
 ```
 #!/bin/bash
 
 export PATH=/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-count=0
-`timeout 5 ping 192.168.1.1 | while read LINE; do
-{
+
+ping_count() {
+  count=0
+  `timeout 5 ping 192.168.1.3 | while read LINE; do
+  {
         if [[ "${LINE}" =~ "64 bytes from" ]]; then
                 let "count = $count + 1"
                 echo "export count=$count"
         fi
+  }
+  done`
+  echo $count
 }
-done`
 
-if [[ $count < 1 ]]; then
+
+if [[ $(ping_count) < 1 ]]; then
+        ifconfig wlan0
+        ifconfig wlan0 down
+        sleep 1
+        ifconfig wlan0 up
+        sleep 1
         netcfg -r wlan0-Hugo-Nas
+        sleep 5
+        if [[ $(ping_count) < 1 ]]; then
+                echo "Fatal error: wifi is down, rebooting now..."
+                reboot
+        fi
 fi
 ```
 
-这样出差不在家也不用通知家里的人插拔电源了。。。
+可以用ifconfig wlan0 down && ./network.sh来测试脚本是否能正常工作，测试完成后就可以放到crontab里执行了。
+
+```
+*/60 * * * * /home/hugo/bin/network.sh >> /mnt/usb/logs/network.log 2>&1
+```
+
+这样出差不在家也不用通知家里的人拔插树莓派电源了。。。
