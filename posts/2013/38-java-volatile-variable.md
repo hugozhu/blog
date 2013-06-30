@@ -113,7 +113,7 @@ x并不需要定义为`volatile`, 程序里可以有需要类似x的变量，我
 延伸阅读： [JSR-133: JavaTM Memory Model and Thread Specification](http://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf)， [The JSR-133 Cookbook for Compiler Writers](http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
 
 
-#参考链接
+# 参考链接
 
 1. http://2011.lucene-eurocon.org/attachments/0002/8787/Busch_twitter_realtime_search_eurocon_11.pdf
 2. http://www.rossbencina.com/code/lockfree
