@@ -2,11 +2,14 @@
 date: 2013-06-30
 layout: post
 title: Java并发中正确使用volatile
-description: Concurrency Problems
+description: Use volatile for safe publication
 categories:
 - Blog
 tags:
 - Concurrency
+
+---
+
 
 前几天并发编程群里有同学对volatile的用法提出了疑问，刚好我记得Twitter有关实时搜索的这个[PPT](http://2011.lucene-eurocon.org/attachments/0002/8787/Busch_twitter_realtime_search_eurocon_11.pdf)对这个问题解释的很清晰并有一个实际的应用场景，于是周末把这个问题摘录了一些和并发相关的内容如下：
 
