@@ -13,6 +13,7 @@ tags:
 除了SD卡上的存储，树莓派还可以使用U盘来做存储，有时候我们可能需要替换已有的U盘为更大容量的。在Mac上可以采用下面的方法：
 
 1. 备份已有的U盘，把U盘从树莓派上拔下来插在Mac上，找出U盘对应的盘符（下例为`/dev/disk2`）
+
     ```
     20:51:19 hugozhu-mac-mini ~ $ diskutil list
     /dev/disk0
