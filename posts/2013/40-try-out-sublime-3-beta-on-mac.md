@@ -45,16 +45,25 @@ git checkout python3
 
 1. 我的Sublime配置
 
-```
-{
-	"font_face": "Microsoft YaHei",
-	"font_options":
-	[
-	],
-	"font_size": 18.0,
-    "line_padding_top": 0
-}
-```
+	```
+	{
+		"font_face": "Microsoft YaHei",
+		"font_options":
+		[
+		],
+		"font_size": 18.0,
+	    "line_padding_top": 0
+	}
+	```
 
 2. 按快捷键`Shift + Command + L`可以按列编辑
+
+3. 创建`~/bin/subl`软连接
+
+	```
+	ln -s /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl 
+	```
+	在终端里就可以直接用`subl 文件名|目录` 操作文件和目录了
+
+
 
