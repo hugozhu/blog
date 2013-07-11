@@ -10,7 +10,7 @@ tags:
 
 ---
 
-<img src="http://www.sublimetext.com/anim/rename2_packed.png"/>
+<img src="http://www.sublimetext.com/anim/rename2_packed.png" width="540"/>
 
 [Sublime](http://www.sublimetext.com) 是一个相当好用的文本编辑器，界面简洁，功能强大。最近[Sublime 3 Beta](http://www.sublimetext.com/3) 出来了, 体验了一下，发现启动速度比之前快了很多。
 
