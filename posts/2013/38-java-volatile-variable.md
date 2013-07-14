@@ -103,7 +103,7 @@ class VolatileExample {
 
 x并不需要定义为`volatile`, 程序里可以有需要类似x的变量，我们只需要一个volatile变量b来确保线程a能看到线程1对x的修改：
 
-1. 根据代码顺序规则，线程1的`b=1;` happens-before `x=5;`; 线程2的`while(x!=5);` happens-before `int dummy = b;`
+1. 根据代码顺序规则，线程1的`x=5;` happens-before `b=1;`; 线程2的`while(x!=5);` happens-before `int dummy = b;`
 2. 根据volatile变量规则，线程2的`int dummy=b;` happens-before `b=1;`
 3. 根据传递性，`while(x!=5);` happens-before `x=5;`
 
