@@ -31,7 +31,7 @@ var page = require('webpage').create(),
 var weibo_userid = system.args[1]
 var weibo_passwd = system.args[2]
 
-var startUrl = "https://api.weibo.com/oauth2/authorize?client_id=<your_app_key>&redirect_uri=http://hugozhu.myalert.info/&response_type=token";
+var startUrl = "https://api.weibo.com/oauth2/authorize?client_id=<your_app_key>&redirect_uri=<your_return_url>/&response_type=token";
 
 var verify_weibo_freeze = false;
 
