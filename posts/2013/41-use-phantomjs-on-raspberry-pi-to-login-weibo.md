@@ -15,6 +15,8 @@ tags:
 使用过新浪开放平台的朋友都知道用户对小应用（用户数较少的）的授权Token很容易[过期]（http://open.weibo.com/wiki/授权机制说明#.E6.8E.88.E6.9D.83.E6.9C.89.E6.95.88.E6.9C.9F），自动续期要求授权过的用户在过期前重新打开授权页。如果你想实现一个自动备份自己微博的App，就不得每天（周）自己去访问授权页（想死的心都有了吧？）。这里介绍一种通过脚本自动登录微博获取最新oAuth token的方法（需要微博登录名和密码），合适自己玩。将脚本部署在树莓派上后，我再也不用每周都去登录一次授权页了，只是收到报警消息后（经常是帐号被冻结了）需要手动处理一下。
 
 # Phantomjs
+<img src="http://phantomjs.org/images/phantomjs-logo.png"/>
+
 [Phantomjs](http://phantomjs.org/) 是一个开源的，没有界面可运行在命令行，跨平台，基于WebKit的全功能浏览器，可以用来做网站自动化测试。从源代码[编译](http://phantomjs.org/build.html)比较费时间，可以直接下载[二进制版本](http://phantomjs.org/download.html)，树莓派的版本在[这里](https://github.com/aeberhardo/phantomjs-linux-armv6l)可下载。Phantomjs下载好了后就一个可执行文件，依赖非常少，我很喜欢这种方式。
 
 
