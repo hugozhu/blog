@@ -89,7 +89,7 @@ page.open(startUrl, function(status) {
 
 ```
 
-＃ 执行方法
+# 执行方法
 
 `timeout 120 phantomjs weibo_login.js <your_weibo_login_id> <your_weibo_login_password>`
 
