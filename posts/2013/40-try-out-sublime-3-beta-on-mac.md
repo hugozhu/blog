@@ -65,5 +65,6 @@ git checkout python3
 	```
 	在终端里就可以直接用`subl 文件名|目录` 操作文件和目录了
 
+4. 按快捷键`Control + Command + G`可以把选中的文本In Place替换成新的
 
 
