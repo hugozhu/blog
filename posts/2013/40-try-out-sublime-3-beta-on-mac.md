@@ -67,4 +67,5 @@ git checkout python3
 
 4. 按快捷键`Control + Command + G`可以把选中的文本In Place替换成新的
 
+5. 安装[AStyleFormatter](https://github.com/timonwong/SublimeAStyleFormatter)后按`Ctrl+Alt+F`: Format current file
 
