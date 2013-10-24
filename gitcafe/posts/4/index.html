@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>使用Ping来检查网络连通性 - When Go meets Raspberry Pi</title>
+    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use ping to check network connectivity 树莓派">
+    <meta name="description" content="Use volatile for safe publication 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -267,6 +267,36 @@ done
       </div>
     
       <div class="post">
+        <h1 class="title"><a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html">在Ubuntu上配置L2TP，PPTP和OpenVPN服务</a> <span class="date">2013-03-01</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>MacOS, Windows, iOS都内置支持PPTP，L2TP；OpenVPN需要安装客户端，手机上一般不支持。</p>
+
+<p>先打开内核的IP转发，修改 /etc/sysctl.conf</p>
+
+<pre><code>net.ipv4.ip_forward=1
+</code></pre>
+
+<p>执行下面命令以生效</p>
+
+<pre><code>sudo sysctl -p
+</code></pre>
+
+<h2><a style="display: block;" name="pptp" href="#pptp"></a>PPTP</h2>
+
+<p>安装pptpd</p>
+
+<pre><code>apt-get install pptpd
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
         <h1 class="title"><a href="/2013/03/01/resource-management-in-java.html">Java的资源管理</a> <span class="date">2013-03-01</span></h1>
 
         <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
@@ -295,36 +325,6 @@ done
 
         <div class="more">
           <a href="/2013/03/01/resource-management-in-java.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html">在Ubuntu上配置L2TP，PPTP和OpenVPN服务</a> <span class="date">2013-03-01</span></h1>
-
-        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
-
-<p>MacOS, Windows, iOS都内置支持PPTP，L2TP；OpenVPN需要安装客户端，手机上一般不支持。</p>
-
-<p>先打开内核的IP转发，修改 /etc/sysctl.conf</p>
-
-<pre><code>net.ipv4.ip_forward=1
-</code></pre>
-
-<p>执行下面命令以生效</p>
-
-<pre><code>sudo sysctl -p
-</code></pre>
-
-<h2><a style="display: block;" name="pptp" href="#pptp"></a>PPTP</h2>
-
-<p>安装pptpd</p>
-
-<pre><code>apt-get install pptpd
-</code></pre>
-
-
-        <div class="more">
-          <a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     

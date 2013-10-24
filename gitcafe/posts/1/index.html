@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>使用Ping来检查网络连通性 - When Go meets Raspberry Pi</title>
+    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use ping to check network connectivity 树莓派">
+    <meta name="description" content="Use volatile for safe publication 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -146,6 +146,31 @@
 
     
       <div class="post">
+        <h1 class="title"><a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html">使用夏普GP2Y1010AU0F灰尘传感器检测空气质量</a> <span class="date">2013-07-21</span></h1>
+
+        <p>夏普<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.1.X4yMiN&amp;id=25584528001&amp;_u=oqa3375a">GP2Y1010AU0F</a>灰尘传感器价格较便宜，能检测出室内空气中的灰尘和烟尘含量。另外还有韩国SYHITECH生产的<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.9.NNhRMO&amp;id=15543884159">DSM501A</a>粉尘传感器也有类似功能。</p>
+
+<h1><a style="display: block;" name="检测原理" href="#检测原理"></a>检测原理</h1>
+
+<p>其原理如下图，传感器中心有个洞可以让空气自由流过，定向发射LED光，通过检测经过空气中灰尘折射过后的光线来判断灰尘的含量。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/50d1faab-e7fc-45c6-9a0f-2b5f6743ce7f/4422cbee4a324b25d1ebaabba3eb350f/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
+
+<h1><a style="display: block;" name="电路图" href="#电路图"></a>电路图</h1>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/d34f08d5-0a93-44cc-b360-0b0686efa11d/e8548764c41977130e79b645e8b82cc3/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
+
+<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e6x61e41ykj218g0xcamc.jpg" width="500"/></p>
+
+<p>因为数据是通过pin 5的电压模拟信号输出的，而树莓派的引脚不支持模拟信号直接读取（需要增加数模转换芯片），所以先用Arduino来实验。</p>
+
+
+        <div class="more">
+          <a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
         <h1 class="title"><a href="/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html">在树莓派上使用Phantomjs自动登录微博</a> <span class="date">2013-07-21</span></h1>
 
         <p>使用过新浪开放平台的朋友都知道用户对小应用（用户数较少的）的授权Token很容易<a href="http://open.weibo.com/wiki/授权机制说明#.E6.8E.88.E6.9D.83.E6.9C.89.E6.95.88.E6.9C.9F">过期</a>，自动续期要求授权过的用户在过期前重新打开授权页。如果你想实现一个自动备份自己微博的App，就不得每天（周）自己去访问授权页（想死的心都有了吧？）。这里介绍一种通过脚本自动登录微博获取最新oAuth token的方法（需要微博登录名和密码），合适自己玩。将脚本部署在树莓派上后，我再也不用每周都去登录一次授权页了，只是收到报警消息后（经常是帐号被冻结了）需要手动处理一下。</p>
@@ -229,31 +254,6 @@ page.open(startUrl, function(status) {
 
         <div class="more">
           <a href="/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html">使用夏普GP2Y1010AU0F灰尘传感器检测空气质量</a> <span class="date">2013-07-21</span></h1>
-
-        <p>夏普<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.1.X4yMiN&amp;id=25584528001&amp;_u=oqa3375a">GP2Y1010AU0F</a>灰尘传感器价格较便宜，能检测出室内空气中的灰尘和烟尘含量。另外还有韩国SYHITECH生产的<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.9.NNhRMO&amp;id=15543884159">DSM501A</a>粉尘传感器也有类似功能。</p>
-
-<h1><a style="display: block;" name="检测原理" href="#检测原理"></a>检测原理</h1>
-
-<p>其原理如下图，传感器中心有个洞可以让空气自由流过，定向发射LED光，通过检测经过空气中灰尘折射过后的光线来判断灰尘的含量。</p>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/50d1faab-e7fc-45c6-9a0f-2b5f6743ce7f/4422cbee4a324b25d1ebaabba3eb350f/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
-
-<h1><a style="display: block;" name="电路图" href="#电路图"></a>电路图</h1>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/d34f08d5-0a93-44cc-b360-0b0686efa11d/e8548764c41977130e79b645e8b82cc3/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
-
-<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e6x61e41ykj218g0xcamc.jpg" width="500"/></p>
-
-<p>因为数据是通过pin 5的电压模拟信号输出的，而树莓派的引脚不支持模拟信号直接读取（需要增加数模转换芯片），所以先用Arduino来实验。</p>
-
-
-        <div class="more">
-          <a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
