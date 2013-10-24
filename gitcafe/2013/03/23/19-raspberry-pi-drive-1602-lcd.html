@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>如何使用Raspberry Pi在1602液晶屏上显示当前时间--电子钟 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="当然也可以用来显示温度，CPU Load等数据了 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>如何使用Raspberry Pi在1602液晶屏上显示当前时间--电子钟 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">硬件准备</a></li>
+<li><a href="#toc_1">1602 LCD液晶屏</a></li>
+<li><a href="#toc_2">注意事项</a></li>
+<li><a href="#toc_3">电路图</a></li>
+<li><a href="#toc_4">代码</a></li>
+<li><a href="#toc_5">完成后的效果</a></li>
+<li><a href="#toc_6">参考链接</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">硬件准备</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&amp;id=17337394004&amp;is_b=1&amp;cat_id=2&amp;q=%CA%F7%DD%AE%C5%C9&amp;rn=4004716f9ba818c1d69b5eb7818891b5">树莓派</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5&amp;type=p&amp;style=&amp;cat=all">面包板</a></li>
+<li><a href="http://s.taobao.com/search?spm=a230r.1.8.2.RvXL2p&amp;q=1602+%D2%BA%BE%A7&amp;commend=all&amp;source=haiwaigou&amp;ssid=s5-e&amp;pid=mm_14507416_2297358_8935934&amp;newpre=null&amp;tab=mall">1602液晶屏</a>一块</li>
+<li><a href="http://s.taobao.com/search?source=suggest&amp;haiwaifrom=1&amp;q=%B5%E7%CE%BB%C6%F7+10k&amp;initiative_id=staobaoz_20130323&amp;suggest_query=%B5%E7%CE%BB%C6%F7+10k&amp;sb_id=10&amp;suggest=0_2&amp;wq=%B5%E7%CE%BB%C6%F7&amp;tab=mall">10K电位器</a></li>
+<li><a href="http://list.tmall.com/search_product.htm?q=%B6%C5%B0%EE%CF%DF&amp;user_action=initiative&amp;at_topsearch=1&amp;sort=st&amp;type=p&amp;cat=&amp;style=">杜邦线</a></li>
+<li><a href="http://s.taobao.com/search?source=haiwaigou&amp;haiwaifrom=1&amp;q=%C5%C5%D5%EB&amp;initiative_id=staobaoz_20130323&amp;tab=mall">排针</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&amp;type=p&amp;style=&amp;cat=all">面包板电源</a></li>
+</ol>
+
+<h1 id="toc_1">1602 LCD液晶屏</h1>
+
+<p>LCD1602液晶屏提供了16列x2行的ASCII字符显示能力，工作电压5V，提供4位数据与8位数据两种工作模式，因为Raspberry Pi的GPIO口数量很有限，所以使用4位数据模式。LCD1602液晶屏模块提供了16个引脚，我们只需接其中的12个即可&ndash;请参考<a href="http://hugozhu.myalert.info/2013/03/22/19-raspberry-pi-gpio-port-naming.html">GPIO命名规则</a>：</p>
+
+<ol>
+<li>VSS，接地，RPi PIN 6</li>
+<li>VDD，接5V电源，PRi PIN 2</li>
+<li>VO，液晶对比度调节，接电位器中间的引脚</li>
+<li>RS，寄存器选择，接GPIO 14，RPi PIN 8</li>
+<li>RW，读写选择，接地，表示写模式，PRi PIN 6</li>
+<li>EN，使能信号，接GPIO 15，RPi PIN 10</li>
+<li>D0，数据位0，4位工作模式下不用，不接</li>
+<li>D1，数据位1，4位工作模式下不用，不接</li>
+<li>D2，数据位2，4位工作模式下不用，不接</li>
+<li>D3，数据位3，4位工作模式下不用，不接</li>
+<li>D4，数据位4，接GPIO 17，RPi PIN 11</li>
+<li>D5，数据位5，接GPIO 18，RPi PIN 12</li>
+<li>D6，数据位6，接GPIO 27，RPi PIN 13</li>
+<li>D7，数据位7，接GPIO 22，RPi PIN 15</li>
+<li>A，液晶屏背光+，接5V，RPi PIN 2</li>
+<li>K，液晶屏背光-，接地，RPi PIN 6</li>
+</ol>
+
+<h1 id="toc_2">注意事项</h1>
+
+<ol>
+<li>电源VDD最后接上</li>
+<li>排针焊接在液晶屏时注意不要虚焊，也可以用万用表测量一下</li>
+<li>RW脚注意一定要接地</li>
+<li>调节电位器可以调节液晶对比度</li>
+</ol>
+
+<h1 id="toc_3">电路图</h1>
+
+<p><img src="http://learn.adafruit.com/system/assets/assets/000/001/729/medium640/pi-char-lcd.gif?1345220594"/></p>
+
+<h1 id="toc_4">代码</h1>
+
+<pre><code>#!/usr/bin/python
+
+#
+# based on code from lrvick and LiquidCrystal
+# lrvic - https://github.com/lrvick/raspi-hd44780/blob/master/hd44780.py
+# LiquidCrystal - https://github.com/arduino/Arduino/blob/master/libraries/LiquidCrystal/LiquidCrystal.cpp
+#
+
+from time import sleep
+from datetime import datetime
+from time import sleep
+
+class Adafruit_CharLCD:
+
+    # commands
+    LCD_CLEARDISPLAY        = 0x01
+    LCD_RETURNHOME          = 0x02
+    LCD_ENTRYMODESET        = 0x04
+    LCD_DISPLAYCONTROL      = 0x08
+    LCD_CURSORSHIFT         = 0x10
+    LCD_FUNCTIONSET         = 0x20
+    LCD_SETCGRAMADDR        = 0x40
+    LCD_SETDDRAMADDR        = 0x80
+
+    # flags for display entry mode
+    LCD_ENTRYRIGHT      = 0x00
+    LCD_ENTRYLEFT       = 0x02
+    LCD_ENTRYSHIFTINCREMENT     = 0x01
+    LCD_ENTRYSHIFTDECREMENT     = 0x00
+
+    # flags for display on/off control
+    LCD_DISPLAYON       = 0x04
+    LCD_DISPLAYOFF      = 0x00
+    LCD_CURSORON        = 0x02
+    LCD_CURSOROFF       = 0x00
+    LCD_BLINKON         = 0x01
+    LCD_BLINKOFF        = 0x00
+
+    # flags for display/cursor shift
+    LCD_DISPLAYMOVE         = 0x08
+    LCD_CURSORMOVE      = 0x00
+
+    # flags for display/cursor shift
+    LCD_DISPLAYMOVE         = 0x08
+    LCD_CURSORMOVE      = 0x00
+    LCD_MOVERIGHT       = 0x04
+    LCD_MOVELEFT        = 0x00
+
+    # flags for function set
+    LCD_8BITMODE        = 0x10
+    LCD_4BITMODE        = 0x00
+    LCD_2LINE           = 0x08
+    LCD_1LINE           = 0x00
+    LCD_5x10DOTS        = 0x04
+    LCD_5x8DOTS         = 0x00
+
+
+
+    def __init__(self, pin_rs=8, pin_e=10, pins_db=[11,12,13,15], GPIO = None):
+    # Emulate the old behavior of using RPi.GPIO if we haven't been given
+    # an explicit GPIO interface to use
+    if not GPIO:
+        import RPi.GPIO as GPIO
+        GPIO.setwarnings(False)
+
+    self.GPIO = GPIO
+        self.pin_rs = pin_rs
+        self.pin_e = pin_e
+        self.pins_db = pins_db
+
+        self.GPIO.setmode(GPIO.BOARD)
+        self.GPIO.setup(self.pin_e, GPIO.OUT)
+        self.GPIO.setup(self.pin_rs, GPIO.OUT)
+
+        for pin in self.pins_db:
+            self.GPIO.setup(pin, GPIO.OUT)
+
+    self.write4bits(0x33) # initialization
+    self.write4bits(0x32) # initialization
+    self.write4bits(0x28) # 2 line 5x7 matrix
+    self.write4bits(0x0C) # turn cursor off 0x0E to enable cursor
+    self.write4bits(0x06) # shift cursor right
+
+    self.displaycontrol = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
+
+    self.displayfunction = self.LCD_4BITMODE | self.LCD_1LINE | self.LCD_5x8DOTS
+    self.displayfunction |= self.LCD_2LINE
+
+    &quot;&quot;&quot; Initialize to default text direction (for romance languages) &quot;&quot;&quot;
+    self.displaymode =  self.LCD_ENTRYLEFT | self.LCD_ENTRYSHIFTDECREMENT
+    self.write4bits(self.LCD_ENTRYMODESET | self.displaymode) #  set the entry mode
+
+        self.clear()
+
+
+    def begin(self, cols, lines):
+
+    if (lines &gt; 1):
+        self.numlines = lines
+            self.displayfunction |= self.LCD_2LINE
+        self.currline = 0
+
+
+    def home(self):
+
+    self.write4bits(self.LCD_RETURNHOME) # set cursor position to zero
+    self.delayMicroseconds(3000) # this command takes a long time!
+    
+
+    def clear(self):
+
+    self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
+    self.delayMicroseconds(3000)    # 3000 microsecond sleep, clearing the display takes a long time
+
+
+    def setCursor(self, col, row):
+
+    self.row_offsets = [ 0x00, 0x40, 0x14, 0x54 ]
+
+    if ( row &gt; self.numlines ): 
+        row = self.numlines - 1 # we count rows starting w/0
+
+    self.write4bits(self.LCD_SETDDRAMADDR | (col + self.row_offsets[row]))
+
+
+    def noDisplay(self): 
+    &quot;&quot;&quot; Turn the display off (quickly) &quot;&quot;&quot;
+
+    self.displaycontrol &amp;= ~self.LCD_DISPLAYON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def display(self):
+    &quot;&quot;&quot; Turn the display on (quickly) &quot;&quot;&quot;
+
+    self.displaycontrol |= self.LCD_DISPLAYON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def noCursor(self):
+    &quot;&quot;&quot; Turns the underline cursor on/off &quot;&quot;&quot;
+
+    self.displaycontrol &amp;= ~self.LCD_CURSORON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def cursor(self):
+    &quot;&quot;&quot; Cursor On &quot;&quot;&quot;
+
+    self.displaycontrol |= self.LCD_CURSORON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def noBlink(self):
+    &quot;&quot;&quot; Turn on and off the blinking cursor &quot;&quot;&quot;
+
+    self.displaycontrol &amp;= ~self.LCD_BLINKON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def noBlink(self):
+    &quot;&quot;&quot; Turn on and off the blinking cursor &quot;&quot;&quot;
+
+    self.displaycontrol &amp;= ~self.LCD_BLINKON
+    self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
+
+
+    def DisplayLeft(self):
+    &quot;&quot;&quot; These commands scroll the display without changing the RAM &quot;&quot;&quot;
+
+    self.write4bits(self.LCD_CURSORSHIFT | self.LCD_DISPLAYMOVE | self.LCD_MOVELEFT)
+
+
+    def scrollDisplayRight(self):
+    &quot;&quot;&quot; These commands scroll the display without changing the RAM &quot;&quot;&quot;
+
+    self.write4bits(self.LCD_CURSORSHIFT | self.LCD_DISPLAYMOVE | self.LCD_MOVERIGHT);
+
+
+    def leftToRight(self):
+    &quot;&quot;&quot; This is for text that flows Left to Right &quot;&quot;&quot;
+
+    self.displaymode |= self.LCD_ENTRYLEFT
+    self.write4bits(self.LCD_ENTRYMODESET | self.displaymode);
+
+
+    def rightToLeft(self):
+    &quot;&quot;&quot; This is for text that flows Right to Left &quot;&quot;&quot;
+    self.displaymode &amp;= ~self.LCD_ENTRYLEFT
+    self.write4bits(self.LCD_ENTRYMODESET | self.displaymode)
+
+
+    def autoscroll(self):
+    &quot;&quot;&quot; This will 'right justify' text from the cursor &quot;&quot;&quot;
+
+    self.displaymode |= self.LCD_ENTRYSHIFTINCREMENT
+    self.write4bits(self.LCD_ENTRYMODESET | self.displaymode)
+
+
+    def noAutoscroll(self): 
+    &quot;&quot;&quot; This will 'left justify' text from the cursor &quot;&quot;&quot;
+
+    self.displaymode &amp;= ~self.LCD_ENTRYSHIFTINCREMENT
+    self.write4bits(self.LCD_ENTRYMODESET | self.displaymode)
+
+
+    def write4bits(self, bits, char_mode=False):
+        &quot;&quot;&quot; Send command to LCD &quot;&quot;&quot;
+
+    self.delayMicroseconds(1000) # 1000 microsecond sleep
+
+        bits=bin(bits)[2:].zfill(8)
+
+        self.GPIO.output(self.pin_rs, char_mode)
+
+        for pin in self.pins_db:
+            self.GPIO.output(pin, False)
+
+        for i in range(4):
+            if bits[i] == &quot;1&quot;:
+                self.GPIO.output(self.pins_db[::-1][i], True)
+
+    self.pulseEnable()
+
+        for pin in self.pins_db:
+            self.GPIO.output(pin, False)
+
+        for i in range(4,8):
+            if bits[i] == &quot;1&quot;:
+                self.GPIO.output(self.pins_db[::-1][i-4], True)
+
+    self.pulseEnable()
+
+
+    def delayMicroseconds(self, microseconds):
+    seconds = microseconds / float(1000000) # divide microseconds by 1 million for seconds
+    sleep(seconds)
+
+
+    def pulseEnable(self):
+    self.GPIO.output(self.pin_e, False)
+    self.delayMicroseconds(1)       # 1 microsecond pause - enable pulse must be &gt; 450ns 
+    self.GPIO.output(self.pin_e, True)
+    self.delayMicroseconds(1)       # 1 microsecond pause - enable pulse must be &gt; 450ns 
+    self.GPIO.output(self.pin_e, False)
+    self.delayMicroseconds(1)       # commands need &gt; 37us to settle
+
+
+    def message(self, text):
+        &quot;&quot;&quot; Send string to LCD. Newline wraps to second line&quot;&quot;&quot;
+
+        for char in text:
+            if char == '\n':
+                self.write4bits(0xC0) # next line
+            else:
+                self.write4bits(ord(char),True)
+
+
+if __name__ == '__main__':
+
+    lcd = Adafruit_CharLCD()
+    lcd.noBlink()
+
+    while True:
+        sleep(1)
+        lcd.clear()        
+        lcd.message(datetime.now().strftime('  %I : %M : %S \n%a %b %d %Y'))
+        
+</code></pre>
+
+<h1 id="toc_5">完成后的效果</h1>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/6bc40342jw1e2xngyc634j.jpg"/></p>
+
+<h1 id="toc_6">参考链接</h1>
+
+<ol>
+<li><a href="http://learn.adafruit.com/drive-a-16x2-lcd-directly-with-a-raspberry-pi/wiring">http://learn.adafruit.com/drive-a-16x2-lcd-directly-with-a-raspberry-pi/wiring</a></li>
+<li><a href="http://www.freemindworld.com/blog/tag/树莓派">http://www.freemindworld.com/blog/tag/树莓派</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/03/24/20-raspberry-pi-drive-nokia-5110.html" title="升级版电子钟 - 如何使用Raspberry Pi驱动Nokia 5110液晶屏">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/22/19-raspberry-pi-gpio-port-naming.html" title="Raspberry Pi GPIO的编号规范">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-23</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>43</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Raspberry-Pi-ref">Raspberry Pi <span>14</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>使用Ping来检查网络连通性 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Use ping to check network connectivity 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Blogs</h1>
+</div>
+
+
+<div class="row">
+  <div class="span12">
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/4/">4</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+
+
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/06/raspberry-pi-with-xmbc.html">Raspberry Pi做BT下载机+高清播放器</a> <span class="date">2013-03-06</span></h1>
+
+        <h2><a style="display: block;" name="介绍" href="#介绍"></a>介绍</h2>
+
+<p>首先高清播放器功能只是Raspberry Pi的一个小功能，如果你只需要高清播放功能又不想折腾，那还是买个<a href="http://s.taobao.com/search?q=%B8%DF%C7%E5%B2%A5%B7%C5%C6%F7&amp;commend=all&amp;ssid=s5-e&amp;search_type=item&amp;sourceId=tb.index&amp;initiative_id=tbindexz_20130306">山寨的</a>的更简单。。。</p>
+
+<p>Raspberry Pi的图形处理器规格：Broadcom VideoCore IV, OpenGL ES 2.0, 1080p 30 h.264/MPEG-4 AVC 高清解码器，内存和CPU共享（可设置成256M），性能还是很强劲的。HDMI支持640x350和1920×1200（1080P）的分辨率。安装了<a href="http://xbmc.org">XBMC</a>，基本上可以实现包括Airplay在内的Apple TV上的大部分功能，但价格只有其一半不到，可以播放下载的视频或观看在线视频，如<a href="http://yisou.com">一搜</a>，优酷，搜狐视频，奇艺等。</p>
+
+<h2><a style="display: block;" name="外设" href="#外设"></a>外设</h2>
+
+<p>除了Pi单片机外，你还需要以下外设附件：</p>
+
+<ol>
+<li>5V-1A左右的电源，可以用iPhone或iPad的充电电源，或手机的充电器，电流最少要800毫安</li>
+<li>micro USB线一根，和Kindle以及大多数android手机充电USB线一样</li>
+<li>HDMI线一根，接电视机</li>
+<li>SD卡一张，最少2G</li>
+</ol>
+
+<h2><a style="display: block;" name="raspbmc" href="#raspbmc"></a>Raspbmc</h2>
+
+<p><a href="http://www.raspbmc.com/">Raspbmc</a> 是专为在Raspberry Pi上运行<a href="http://xbmc.org">XBMC</a>的定制Linux。最小化的安装，减少了不必要的软件和资源占用，简化了安装和配置，没有Linux知识也可以上手。这个版本的维护者是一个19岁的小朋友Sam Nazarko。有时间折腾的同学可以自己编译XMBC安装。</p>
+
+<h3>特点：</h3>
+
+<ol>
+<li>免费，开源</li>
+<li>支持多语言</li>
+<li>支持1080P回放</li>
+<li>支持直接播放NFS，SMB，FTP,HTTP或USB硬盘的有视频文件，支持大多数格式</li>
+<li>支持AirPlay或AirTune功能，可以把iPhone/iPad上的视频或音乐通过Pi投放到电视上，这点和Apple TV功能一样</li>
+<li>支持GPIO</li>
+<li>基于Debian，可以从Debian的软件源安装其它软件</li>
+<li>支持1080P DTS软解，这个不少播放器是不支持的，需要额外License</li>
+<li>内置了以下服务:
+
+<ol>
+<li>Samba</li>
+<li>TVHeadend Server</li>
+<li>FTP Server</li>
+<li>SSH Server</li>
+</ol></li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/03/06/raspberry-pi-with-xmbc.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/05/java-SynchronousQueue-notes.html">Java并发包中的同步队列SynchronousQueue实现原理</a> <span class="date">2013-03-05</span></h1>
+
+        <h2><a style="display: block;" name="介绍" href="#介绍"></a>介绍</h2>
+
+<p>Java 6的并发编程包中的<a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html">SynchronousQueue</a>是一个没有数据缓冲的<a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html">BlockingQueue</a>，生产者线程对其的插入操作put必须等待消费者的移除操作take，反过来也一样。</p>
+
+<p>不像ArrayBlockingQueue或LinkedListBlockingQueue，SynchronousQueue内部并没有数据缓存空间，你不能调用peek()方法来看队列中是否有数据元素，因为数据元素只有当你试着取走的时候才可能存在，不取走而只想偷窥一下是不行的，当然遍历这个队列的操作也是不允许的。队列头元素是第一个排队要插入数据的<strong>线程</strong>，而不是要交换的数据。数据是在配对的生产者和消费者线程之间直接传递的，并不会将数据缓冲数据到队列中。可以这样来理解：生产者和消费者互相等待对方，握手，然后<strong>一起</strong>离开。</p>
+
+<p>SynchronousQueue的一个使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要（新任务到来时）创建新的线程，如果有空闲线程则会重复使用，线程空闲了60秒后会被回收。</p>
+
+<h2><a style="display: block;" name="实现原理" href="#实现原理"></a>实现原理</h2>
+
+<p>同步队列的实现方法有许多：</p>
+
+<h3>阻塞算法实现</h3>
+
+<p>阻塞算法实现通常在内部采用一个锁来保证多个线程中的put()和take()方法是串行执行的。采用锁的开销是比较大的，还会存在一种情况是线程A持有线程B需要的锁，B必须一直等待A释放锁，即使A可能一段时间内因为B的优先级比较高而得不到时间片运行。所以在高性能的应用中我们常常希望规避锁的使用。</p>
+
+<pre><code>public class NativeSynchronousQueue&lt;E&gt; {
+    boolean putting = false;
+    E item = null;
+
+    public synchronized E take() throws InterruptedException {
+        while (item == null)
+            wait();
+        E e = item;
+        item = null;
+        notifyAll();
+        return e;
+    }
+
+    public synchronized void put(E e) throws InterruptedException {
+        if (e==null) return;
+        while (putting)
+            wait();
+        putting = true;
+        item = e;
+        notifyAll();
+        while (item!=null)
+            wait();
+        putting = false;
+        notifyAll();
+    }
+}
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/05/java-SynchronousQueue-notes.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/02/openvpn-multiple-ports.html">OpenVPN使用多个端口</a> <span class="date">2013-03-02</span></h1>
+
+        <p>Openvpn本身不能设置多个端口，使用iptables可以解决这个问题 （假设openvpn本来56788端口）：</p>
+
+<pre><code>for port in {56780..56787}
+do 
+    iptables -t nat -A PREROUTING -p tcp -d &lt;your_external_ip&gt; --dport $port -j REDIRECT --to-port 56788
+done
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/02/openvpn-multiple-ports.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/01/resource-management-in-java.html">Java的资源管理</a> <span class="date">2013-03-01</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>Java程序中的常见的资源有：文件，Socket，数据库连接。在使用这些资源时候要分外小心，因为操作系统可同时操作的资源是有限的，比如默认情况下系统允许同时打开的文件数为1024个，Mysql服务器默认允许的最大连接数是100，所以操作这些资源时候要注意即使在遇到错误时也要让系统能正确回收资源。如果发生错误时候，打开的文件描述符没关闭或数据库连接没关闭，积累到一定程度后，应用将会变得不可用，只能重启。</p>
+
+<h2><a style="display: block;" name="try-catch-finally" href="#try-catch-finally"></a>try-catch-finally</h2>
+
+<p>Java提供了try-catch-finally来保证程序遇到异常时总是有机会可以处理资源的关闭 &ndash; 调用资源对象的close()方法。但经验不足的Java程序员还是会错误的管理资源，而造成资源的泄露，静态代码分析工具，如<a href="http://findbugs.sourceforge.net"><strong>FindBugs</strong></a>可以帮助发现此类问题。</p>
+
+<p>首先我们来看一段文件操作代码：</p>
+
+<pre><code>private void copy(String from, String to) throws IOException {
+    FileInputStream in = null;  
+    FileOutputStream out = null;  
+    in = new FileInputStream(from);  
+    out = new FileOutputStream(to);  
+    int c;  
+    while ((c = in.read()) != -1)
+        out.write(c);  
+    in.close();
+    out.close();
+}
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/01/resource-management-in-java.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html">在Ubuntu上配置L2TP，PPTP和OpenVPN服务</a> <span class="date">2013-03-01</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>MacOS, Windows, iOS都内置支持PPTP，L2TP；OpenVPN需要安装客户端，手机上一般不支持。</p>
+
+<p>先打开内核的IP转发，修改 /etc/sysctl.conf</p>
+
+<pre><code>net.ipv4.ip_forward=1
+</code></pre>
+
+<p>执行下面命令以生效</p>
+
+<pre><code>sudo sysctl -p
+</code></pre>
+
+<h2><a style="display: block;" name="pptp" href="#pptp"></a>PPTP</h2>
+
+<p>安装pptpd</p>
+
+<pre><code>apt-get install pptpd
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/28/the-evolution-of-online-advertsing-system.html">在线广告系统架构变迁</a> <span class="date">2013-02-28</span></h1>
+
+        <h1><a style="display: block;" name="overview" href="#overview"></a>Overview</h1>
+
+<p><strong><em>（未完）</em></strong></p>
+
+<p>广告按业务划分有以下几类：</p>
+
+<ol>
+<li>展示广告（Banner广告）</li>
+<li>搜索广告（关键词广告）</li>
+</ol>
+
+<p>按计费模式有：</p>
+
+<ol>
+<li>CPT: 按有效广告展示天数计费，可定价或竞价；</li>
+<li>CPM: 按有效广告展现次数计费，可定价或竞价；</li>
+<li>CPC: 按有效点击次数计费；</li>
+<li>CPS: 按效果计费，如，按成交订单额，按流量带来的有效下载或安装次数计费；</li>
+</ol>
+
+<p>广告系统按结构可划分为以下子系统：</p>
+
+
+        <div class="more">
+          <a href="/2013/02/28/the-evolution-of-online-advertsing-system.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/28/logging-in-java.html">Java程序的日志</a> <span class="date">2013-02-28</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>一个在生产环境里运行的程序如果没有日志是很让维护者提心吊胆的，有太多杂乱又无意义的日志也是令人伤神。程序出现问题时候，从日志里如果发现不了问题可能的原因是很令人受挫的。本文想讨论的是如何在Java程序里写好日志。大多数的Web服务器（如Apache，Nginx）都有access日志和error日志，分别记录在不同的文件内；我们使用的服务器操作系统Linux有Syslog日志, /var/log目录下也有很多基础应用和服务的日志文件；桌面Windows有事件查看器, Mac有Console应用可以查看和管理日志；这些成熟的系统及工具方法都值得我们学习并在自己的项目中应用。</p>
+
+<p>一般来说日志分为两种：业务日志和异常日志。使用日志我们希望能达到以下目标：</p>
+
+<ol>
+<li>对程序运行情况的记录和监控；</li>
+<li>在必要时可详细了解程序内部的运行状态；</li>
+<li>对系统性能的影响尽量小；</li>
+</ol>
+
+<h2><a style="display: block;" name="日志规范" href="#日志规范"></a>日志规范</h2>
+
+<p>程序框架应该提供统一的日志记录接口，日志格式也需要有一定的规范，方便利用日志工具来分析日志。
+首先我们有必要了解一下Linux普遍使用的<a href="http://en.wikipedia.org/wiki/Syslog">Syslog</a>标准协议，协议规定日志中应包含产生日志的模块(Facility)，严重性（Severity Level），时间，主机名或IP，进程名，进程ID和日志内容，根据模块和严重性可以配置相应的动作：是否需要记录，日志存储路径（文件或网络）。</p>
+
+<p>下面是部分常见的Syslog模块类型：</p>
+
+<table>
+<thead>
+<tr>
+<td><strong>模块ID</strong></td>
+<td><strong>关键词</strong></td>
+<td><strong>描述</strong></td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>kern</td>
+<td>内核消息</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>user</td>
+<td>用户级别消息</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>mail</td>
+<td>邮件系统</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>daemon</td>
+<td>系统后台守护程序</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>auth</td>
+<td>安全/鉴权消息</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>syslog</td>
+<td>syslogd内部产生的日志消息</td>
+</tr>
+
+<tr>
+<td>…</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+        <div class="more">
+          <a href="/2013/02/28/logging-in-java.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html">在Pi和Github上搭建自己的个人博客</a> <span class="date">2013-02-27</span></h1>
+
+        <h1>方法如下：</h1>
+
+<p>本站同时托管在家里的<a href="http://www.raspberrypi.org">Raspberry Pi</a>和<a href="http://pages.github.com/">Github Pages</a>上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名<strong>hugozhu.myalert.info</strong>到不同的服务器是通过<a href="http://dnspod.cn">DnsPod</a>的服务实现的，这么好的服务还是免费的，这里推荐一下。</p>
+
+<p>因为Github Pages只能支持静态网页，你需要一个能生成静态网页的博客生成引擎。我使用的是<a href="http://github.com/wendal/gor">gor</a> ， 也可以使用<a href="http://ruhoh.com">ruhoh</a>，<a href="https://www.google.com/search?q=static+blog+generator&amp;hl=en&amp;newwindow=1&amp;client=safari&amp;rls=en&amp;biw=1238&amp;bih=868&amp;ei=msAuUY-vDMKO2AWQ7IHoBQ&amp;sqi=2&amp;start=10&amp;sa=N">Google一下还有很多</a>。</p>
+
+<h2>静态页面博客的好处：</h2>
+
+<ol>
+<li>性能是最好的，很合适用Raspberry Pi来做服务器，节省资源；</li>
+<li>文章可以用Markdown格式来编写，采用Github来做版本控制，我的Blog仓库在 <a href="http://github.com/hugozhu/blog">http://github.com/hugozhu/blog</a> ，数据安全很好，误删除也不担心了；</li>
+<li>很容易找到托管环境，方便迁移；</li>
+<li>用Gor在Pi上生成速度很快；再用Nginx提供Web服务，可以直接在Pi上写Blog；</li>
+<li>大繁至简</li>
+</ol>
+
+<h2>Github设置</h2>
+
+<ol>
+<li>在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是<a href="https://github.com/hugozhu/hugozhu.github.com">hugozhu.github.com</a>，这个仓库也就是网站的根目录了，在这里放生成好的静态文件</li>
+<li>如果你需要用自己的域名，而不是Github提供的，可以在根目录下增加一个<a href="https://github.com/hugozhu/hugozhu.github.com/blob/master/CNAME">CNAME</a>文件,文件内容则是你的域名，在DnsPod上需要建一个CNAME记录，将你的域名指向your_github_id.github.com. 也就是github原来分配给你的，完成这个设置后，访问your_github_id.github.com会跳转到你的域名；</li>
+<li>每次更新后，Github会在10分钟内生效。</li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/27/collaborating-development-with-github.html">使用Github合作开发项目</a> <span class="date">2013-02-27</span></h1>
+
+        <p>本文大部分内容来自： <a href="https://help.github.com/categories/63/articles">https://help.github.com/categories/63/articles</a></p>
+
+<p>Github上合作开发最好的方式是“<strong>Fork + Pull Request</strong>”。比如我最近需要一个静态Blog生成器，市面上有很多Ruby实现的，但我想要一个Go语言的实现，Github上找到了一个 <a href="https://github.com/wendal/gor">https://github.com/wendal/gor</a> ，测试了一下已有的功能基本能满足了，就用上了。</p>
+
+<p>但实际使用过程中发现了一个问题，如果在URL中有中文，生成的URL如下没有做URL安全编码：</p>
+
+<pre><code>http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html
+</code></pre>
+
+<p>还有一种情况是如果URL中有空格，如：</p>
+
+<pre><code>http://hugozhu.myalert.info//2013//02/25/Java properties to enviorment variables.html
+</code></pre>
+
+<p>浏览器遇到这种URL时，会主动进行编码，但这里有两个问题：</p>
+
+<ol>
+<li>遇到中文时，浏览器是用GBK还是UTF-8还是其它字符集编码后再发送给服务器呢？</li>
+<li>遇到空格时，编码成+还是%20呢？
+不同浏览器实现可能不一样，在不同操作系统上也可能不一样（可能和用户设置的缺省语言有关），这样有些用户可能会遭遇404错误了，实际上我在服务器的错误日志上的确看到这样的错误</li>
+</ol>
+
+<p>日志：</p>
+
+
+        <div class="more">
+          <a href="/2013/02/27/collaborating-development-with-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/26/dynamic-dns-script.html">动态DNS程序</a> <span class="date">2013-02-26</span></h1>
+
+        <h2>动态根据宽带public ip更新dnspod登记的域名</h2>
+
+<p>按照 <a href="https://gist.github.com/833369">https://gist.github.com/833369</a> 逻辑重新用Go实现了，用更少的内存开销在Raspberry Pi上跑。</p>
+
+<p>替换上你的Email，密码，域名ID，记录ID等参数，就可以运行了。 会在后台一直运行，每隔30秒检查一遍IP，如果修改了就更新IP。</p>
+
+<p>获得domain_id可以用：</p>
+
+<pre><code>curl curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
+</code></pre>
+
+<p>获得record_id：</p>
+
+<pre><code>curl -k https://dnsapi.cn/Record.List -d &quot;login_email=xxx&amp;login_password=xxx&amp;domain_id=xxx&quot;
+</code></pre>
+
+<script src="https://gist.github.com/hugozhu/6506189.js"></script>
+
+
+        <div class="more">
+          <a href="/2013/02/26/dynamic-dns-script.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/4/">4</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

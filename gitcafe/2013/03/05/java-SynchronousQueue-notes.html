@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Java并发包中的同步队列SynchronousQueue实现原理 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Notes about non-blocking SynchronousQueue implementation 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>Java并发包中的同步队列SynchronousQueue实现原理 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2><a style="display: block;" name="介绍" href="#介绍"></a>介绍</h2>
+
+<p>Java 6的并发编程包中的<a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html">SynchronousQueue</a>是一个没有数据缓冲的<a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html">BlockingQueue</a>，生产者线程对其的插入操作put必须等待消费者的移除操作take，反过来也一样。</p>
+
+<p>不像ArrayBlockingQueue或LinkedListBlockingQueue，SynchronousQueue内部并没有数据缓存空间，你不能调用peek()方法来看队列中是否有数据元素，因为数据元素只有当你试着取走的时候才可能存在，不取走而只想偷窥一下是不行的，当然遍历这个队列的操作也是不允许的。队列头元素是第一个排队要插入数据的<strong>线程</strong>，而不是要交换的数据。数据是在配对的生产者和消费者线程之间直接传递的，并不会将数据缓冲数据到队列中。可以这样来理解：生产者和消费者互相等待对方，握手，然后<strong>一起</strong>离开。</p>
+
+<p>SynchronousQueue的一个使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要（新任务到来时）创建新的线程，如果有空闲线程则会重复使用，线程空闲了60秒后会被回收。</p>
+
+<h2><a style="display: block;" name="实现原理" href="#实现原理"></a>实现原理</h2>
+
+<p>同步队列的实现方法有许多：</p>
+
+<h3>阻塞算法实现</h3>
+
+<p>阻塞算法实现通常在内部采用一个锁来保证多个线程中的put()和take()方法是串行执行的。采用锁的开销是比较大的，还会存在一种情况是线程A持有线程B需要的锁，B必须一直等待A释放锁，即使A可能一段时间内因为B的优先级比较高而得不到时间片运行。所以在高性能的应用中我们常常希望规避锁的使用。</p>
+
+<pre><code>public class NativeSynchronousQueue&lt;E&gt; {
+    boolean putting = false;
+    E item = null;
+
+    public synchronized E take() throws InterruptedException {
+        while (item == null)
+            wait();
+        E e = item;
+        item = null;
+        notifyAll();
+        return e;
+    }
+
+    public synchronized void put(E e) throws InterruptedException {
+        if (e==null) return;
+        while (putting)
+            wait();
+        putting = true;
+        item = e;
+        notifyAll();
+        while (item!=null)
+            wait();
+        putting = false;
+        notifyAll();
+    }
+}
+</code></pre>
+
+<h3>信号量实现</h3>
+
+<p>经典同步队列实现采用了三个信号量，代码很简单，比较容易理解：</p>
+
+<pre><code>public class SemaphoreSynchronousQueue&lt;E&gt; {
+    E item = null;
+    Semaphore sync = new Semaphore(0);
+    Semaphore send = new Semaphore(1);
+    Semaphore recv = new Semaphore(0);
+
+    public E take() throws InterruptedException {
+        recv.acquire();
+        E x = item;
+        sync.release();
+        send.release();
+        return x;
+    }
+
+    public void put (E x) throws InterruptedException{
+        send.acquire();
+        item = x;
+        recv.release();
+        sync.acquire();
+    }
+}
+</code></pre>
+
+<p>在多核机器上，上面方法的同步代价仍然较高，操作系统调度器需要上千个时间片来阻塞或唤醒线程，而上面的实现即使在生产者put()时已经有一个消费者在等待的情况下，阻塞和唤醒的调用仍然需要。</p>
+
+<h3>Java 5实现</h3>
+
+<pre><code>public class Java5SynchronousQueue&lt;E&gt; {
+    ReentrantLock qlock = new ReentrantLock();
+    Queue waitingProducers = new Queue();
+    Queue waitingConsumers = new Queue();
+    
+    static class Node extends AbstractQueuedSynchronizer {
+        E item;
+        Node next;
+        
+        Node(Object x) { item = x; }
+        void waitForTake() { /* (uses AQS) */ }
+           E waitForPut() { /* (uses AQS) */ }
+    }
+    
+    public E take() {
+        Node node;
+        boolean mustWait;
+        qlock.lock();
+        node = waitingProducers.pop();
+        if(mustWait = (node == null))
+           node = waitingConsumers.push(null);
+         qlock.unlock();
+    
+        if (mustWait)
+           return node.waitForPut();
+        else
+            return node.item;
+    }
+    
+    public void put(E e) {
+         Node node;
+         boolean mustWait;
+         qlock.lock();
+         node = waitingConsumers.pop();
+         if (mustWait = (node == null))
+             node = waitingProducers.push(e);
+         qlock.unlock();
+        
+         if (mustWait)
+             node.waitForTake();
+         else
+            node.item = e;
+    }
+}
+</code></pre>
+
+<p>Java 5的实现相对来说做了一些优化，只使用了一个锁，使用队列代替信号量也可以允许发布者直接发布数据，而不是要首先从阻塞在信号量处被唤醒。</p>
+
+<h3>Java6实现</h3>
+
+<p>Java 6的SynchronousQueue的实现采用了一种性能更好的<strong>无锁算法</strong> &ndash; 扩展的“<a href="http://www.cs.rochester.edu/research/synchronization/pseudocode/duals.html">Dual stack and Dual queue</a>”算法。性能比Java5的实现有较大提升。竞争机制支持公平和非公平两种：非公平竞争模式使用的数据结构是后进先出栈(Lifo Stack)；公平竞争模式则使用先进先出队列（Fifo Queue），性能上两者是相当的，一般情况下，Fifo通常可以支持更大的吞吐量，但Lifo可以更大程度的保持线程的本地化。</p>
+
+<p>代码实现里的Dual Queue或Stack内部是用链表(LinkedList)来实现的，其节点状态为以下三种情况：</p>
+
+<ol>
+<li>持有数据 - put()方法的元素</li>
+<li>持有请求 - take()方法</li>
+<li>空</li>
+</ol>
+
+<p>这个算法的特点就是任何操作都可以根据节点的状态判断执行，而不需要用到锁。</p>
+
+<p>其核心接口是Transfer，生产者的put或消费者的take都使用这个接口，根据第一个参数来区别是入列（栈）还是出列（栈）。</p>
+
+<pre><code>    /**
+     * Shared internal API for dual stacks and queues.
+     */
+    static abstract class Transferer {
+        /**
+         * Performs a put or take.
+         *
+         * @param e if non-null, the item to be handed to a consumer;
+         *          if null, requests that transfer return an item
+         *          offered by producer.
+         * @param timed if this operation should timeout
+         * @param nanos the timeout, in nanoseconds
+         * @return if non-null, the item provided or received; if null,
+         *         the operation failed due to timeout or interrupt --
+         *         the caller can distinguish which of these occurred
+         *         by checking Thread.interrupted.
+         */
+        abstract Object transfer(Object e, boolean timed, long nanos);
+    }
+</code></pre>
+
+<p>TransferQueue实现如下(摘自Java 6源代码)，入列和出列都基于Spin和CAS方法：</p>
+
+<pre><code>        /**
+         * Puts or takes an item.
+         */
+        Object transfer(Object e, boolean timed, long nanos) {
+            /* Basic algorithm is to loop trying to take either of
+             * two actions:
+             *
+             * 1. If queue apparently empty or holding same-mode nodes,
+             *    try to add node to queue of waiters, wait to be
+             *    fulfilled (or cancelled) and return matching item.
+             *
+             * 2. If queue apparently contains waiting items, and this
+             *    call is of complementary mode, try to fulfill by CAS'ing
+             *    item field of waiting node and dequeuing it, and then
+             *    returning matching item.
+             *
+             * In each case, along the way, check for and try to help
+             * advance head and tail on behalf of other stalled/slow
+             * threads.
+             *
+             * The loop starts off with a null check guarding against
+             * seeing uninitialized head or tail values. This never
+             * happens in current SynchronousQueue, but could if
+             * callers held non-volatile/final ref to the
+             * transferer. The check is here anyway because it places
+             * null checks at top of loop, which is usually faster
+             * than having them implicitly interspersed.
+             */
+
+            QNode s = null; // constructed/reused as needed
+            boolean isData = (e != null);
+
+            for (;;) {
+                QNode t = tail;
+                QNode h = head;
+                if (t == null || h == null)         // saw uninitialized value
+                    continue;                       // spin
+
+                if (h == t || t.isData == isData) { // empty or same-mode
+                    QNode tn = t.next;
+                    if (t != tail)                  // inconsistent read
+                        continue;
+                    if (tn != null) {               // lagging tail
+                        advanceTail(t, tn);
+                        continue;
+                    }
+                    if (timed &amp;&amp; nanos &lt;= 0)        // can't wait
+                        return null;
+                    if (s == null)
+                        s = new QNode(e, isData);
+                    if (!t.casNext(null, s))        // failed to link in
+                        continue;
+
+                    advanceTail(t, s);              // swing tail and wait
+                    Object x = awaitFulfill(s, e, timed, nanos);
+                    if (x == s) {                   // wait was cancelled
+                        clean(t, s);
+                        return null;
+                    }
+
+                    if (!s.isOffList()) {           // not already unlinked
+                        advanceHead(t, s);          // unlink if head
+                        if (x != null)              // and forget fields
+                            s.item = s;
+                        s.waiter = null;
+                    }
+                    return (x != null)? x : e;
+
+                } else {                            // complementary-mode
+                    QNode m = h.next;               // node to fulfill
+                    if (t != tail || m == null || h != head)
+                        continue;                   // inconsistent read
+
+                    Object x = m.item;
+                    if (isData == (x != null) ||    // m already fulfilled
+                        x == m ||                   // m cancelled
+                        !m.casItem(x, e)) {         // lost CAS
+                        advanceHead(h, m);          // dequeue and retry
+                        continue;
+                    }
+
+                    advanceHead(h, m);              // successfully fulfilled
+                    LockSupport.unpark(m.waiter);
+                    return (x != null)? x : e;
+                }
+            }
+        }
+</code></pre>
+
+<h3>参考文章</h3>
+
+<ol>
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/SynchronousQueue.html">Javadoc of SynchronousQueue</a></li>
+<li><a href="http://www.cs.rochester.edu/u/scott/papers/2009_Scherer_CACM_SSQ.pdf">Scalable Synchronous Queues</a></li>
+<li><a href="http://www.cs.rochester.edu/research/synchronization/pseudocode/duals.html">Nonblocking Concurrent Data Structures with Condition Synchronization</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/03/06/raspberry-pi-with-xmbc.html" title="Raspberry Pi做BT下载机+高清播放器">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/02/openvpn-multiple-ports.html" title="OpenVPN使用多个端口">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-05</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>43</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Java-ref">Java <span>5</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#Concurrent-Programming-ref">Concurrent Programming <span>3</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>
