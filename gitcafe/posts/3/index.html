@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
+    <title>使用tsar记录和监控树莓派CPU温度 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use volatile for safe publication 树莓派">
+    <meta name="description" content="Use tsar to monitor Raspberry Pi CPU Temperature 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -146,36 +146,27 @@
 
     
       <div class="post">
-        <h1 class="title"><a href="/2013/03/28/23-arduino-1st-day.html">Arduino初试</a> <span class="date">2013-03-28</span></h1>
+        <h1 class="title"><a href="/2013/03/28/22-memory-barriers-or-fences.html">并发编程之内存屏障</a> <span class="date">2013-03-28</span></h1>
 
-        <p>今天拿到一块Arduino UNO R3板，迫不及待就开始试用了。相比Raspberry Pi是一个全能的电脑，Arduino则是个硬件开源的单片机，因为开源，资料和配件网上就很很多了，也就容易让初学者上手了。</p>
+        <p>原文地址：<a href="http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html"><code>http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html</code></a> 或 <a href="http://ifeve.com/memory-barriersfences/"><code>http://ifeve.com/memory-barriersfences/</code></a></p>
 
-<p>Arduino特点:</p>
+<p>关键词：Load Barrier, Store Barrier, Full Barrier</p>
 
-<ol>
-<li>开源，硬件标准化，配套传感器等模块很多；</li>
-<li>结构简单</li>
-<li>实时系统，稳定，启动只要0.5秒</li>
-</ol>
+<p>本文我将和大家讨论并发编程中最基础的一项技术：内存屏障或内存栅栏，也就是让一个CPU处理单元中的内存状态对其它处理单元可见的一项技术。</p>
 
-<h1><a style="display: block;" name="arduino-ide" href="#arduino-ide"></a>Arduino IDE</h1>
+<p>CPU使用了很多优化技术来达成一个事实：CPU执行单元的速度要远超主存访问速度。在我上一篇文章 &ldquo;Write Combing - 合并写&rdquo;中我已经介绍了其中的一项技术。CPU避免内存访问延迟最常见的技术是将指令管道化，然后尽量重排这些管道的执行以最大利用缓存而把因为缓存未命中引起的延迟降到最小。</p>
 
-<p><a href="http://arduino.cc/en/Main/Software">下载Arduino IDE</a></p>
+<p>当一个程序执行时指令是否被重排并不重要，只要最终的结果是一样的。例如，在一个循环里，如果循环体内没用到这个计数器，循环的计数器什么时候更新（在循环开始，中间还是最后）并不重要。编译器和CPU可以自由的重排指令以最佳的利用CPU，只要下一次循环前更新该计数器即可。并且在循环执行中，这个变量可能一直存在寄存器上，并没有被推到缓存或主存，这样这个变量对其他CPU来说一直都是不可见的。</p>
 
-<h1><a style="display: block;" name="上电测试" href="#上电测试"></a>上电测试</h1>
+<p>CPU核内部包含了多个执行单元。例如，现代Intel CPU包含了6个执行单元，可以组合进行算术运算，逻辑条件判断及内存操作。每个执行单元可以执行上述任务的某种组合。这些执行单元是并行执行的，这样指令也就是在并行执行。但如果站在另一个CPU角度看，这也就产生了程序顺序的另一种不确定性。</p>
 
-<p>用USB线接在电脑USB口，然后在GND和PIN 13上插一个二极管，注意二极管正极插在PIN 13上, 如下图：
-<img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e35tmsg0tjj.jpg"/></p>
+<p>最后，当一个缓存失效发生时，现代CPU可以先假设一个内存载入的值并根据这个假设值继续执行，直到内存载入返回确切的值。</p>
 
-<p>(注：还应该串联一个300欧姆的限流电阻才保险！)</p>
-
-<h1><a style="display: block;" name="上传代码" href="#上传代码"></a>上传代码</h1>
-
-<p>在Arduino IDE编辑好下面的代码，然后点Upload后就会运行了，会看到LED一闪一闪。</p>
+<p><img src="http://ifeve.com/wp-content/uploads/2013/03/cpu.png"/></p>
 
 
         <div class="more">
-          <a href="/2013/03/28/23-arduino-1st-day.html" class="btn btn-small">阅读全文</a>
+          <a href="/2013/03/28/22-memory-barriers-or-fences.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
