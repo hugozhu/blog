@@ -1,5 +1,5 @@
 ---
-date: 2013-07-21
+date: 2013-11-27
 layout: post
 title: 拷贝Android应用的数据
 description: Copy Android application data
