@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>使用tsar记录和监控树莓派CPU温度 - When Go meets Raspberry Pi</title>
+    <title>Java的资源管理 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use tsar to monitor Raspberry Pi CPU Temperature 树莓派">
+    <meta name="description" content="Introduction of best practices for Java resource management 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -144,6 +144,48 @@
     </div>
 
 
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/08/block_failed_ssh_attempts_with_iptable.html">如何封杀尝试Raspberry Pi SSH密码的来源IP</a> <span class="date">2013-03-08</span></h1>
+
+        <p>Raspberry Pi整天开着，如果用缺省SSH端口对外开放，就会经常遇到扫描SSH密码的肉鸡。虽然密码不是很简单，但还是感觉很不安全的。</p>
+
+<p>系统的ssh登录日志文件在：/var/log/auth.log，登录失败时会记录以下格式的日志：</p>
+
+<pre><code>Mar  7 10:31:51 raspberrypi sshd[24510]: Failed password for root from 221.8.19.129 port 4066 ssh2
+Mar  7 10:31:55 raspberrypi sshd[24514]: Failed password for root from 221.8.19.129 port 4079 ssh2
+Mar  7 10:31:56 raspberrypi sshd[24518]: Failed password for sshd from 221.8.19.129 port 4080 ssh2
+Mar  7 10:32:26 raspberrypi sshd[24522]: Failed password for sshd from 221.8.19.129 port 4149 ssh2
+</code></pre>
+
+<p>用最简单的Shell脚本来解决这个问题：</p>
+
+<h3>guard.sh</h3>
+
+<pre><code>#!/bin/bash
+
+last_ip=&quot;&quot;
+tail -f /var/log/auth | while read LINE; do
+{
+    if [[ &quot;${LINE}&quot; =~ &quot;Failed&quot; ]]; then            
+        ip=&quot;$(echo ${LINE} | awk '{print $(NF-3)}')&quot;
+        if [[ &quot;$last_ip&quot; == &quot;$ip&quot; ]]; then
+             echo &quot;block $ip&quot;
+             #curl -s --data-ascii &quot;uuid=&lt;my iphone's uuid&gt;&quot; --data &quot;body=${LINE}&quot; http://raspberrypi/pushme                 
+             iptables -A INPUT -s &quot;$ip&quot; -j DROP
+        fi
+        last_ip=$ip
+        echo $LINE
+    fi
+}
+done
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/03/08/block_failed_ssh_attempts_with_iptable.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
     
       <div class="post">
         <h1 class="title"><a href="/2013/03/06/raspberry-pi-with-xmbc.html">Raspberry Pi做BT下载机+高清播放器</a> <span class="date">2013-03-06</span></h1>
@@ -504,33 +546,6 @@ done
 
         <div class="more">
           <a href="/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/02/26/dynamic-dns-script.html">动态DNS程序</a> <span class="date">2013-02-26</span></h1>
-
-        <h2>动态根据宽带public ip更新dnspod登记的域名</h2>
-
-<p>按照 <a href="https://gist.github.com/833369">https://gist.github.com/833369</a> 逻辑重新用Go实现了，用更少的内存开销在Raspberry Pi上跑。</p>
-
-<p>替换上你的Email，密码，域名ID，记录ID等参数，就可以运行了。 会在后台一直运行，每隔30秒检查一遍IP，如果修改了就更新IP。</p>
-
-<p>获得domain_id可以用：</p>
-
-<pre><code>curl curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
-</code></pre>
-
-<p>获得record_id：</p>
-
-<pre><code>curl -k https://dnsapi.cn/Record.List -d &quot;login_email=xxx&amp;login_password=xxx&amp;domain_id=xxx&quot;
-</code></pre>
-
-<script src="https://gist.github.com/hugozhu/6506189.js"></script>
-
-
-        <div class="more">
-          <a href="/2013/02/26/dynamic-dns-script.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
