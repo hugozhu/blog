@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>使用tsar记录和监控树莓派CPU温度 - When Go meets Raspberry Pi</title>
+    <title>Java的资源管理 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use tsar to monitor Raspberry Pi CPU Temperature 树莓派">
+    <meta name="description" content="Introduction of best practices for Java resource management 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -157,6 +157,33 @@
 
         <div class="more">
           <a href="/2013/02/26/linux_perf_tools.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/26/dynamic-dns-script.html">动态DNS程序</a> <span class="date">2013-02-26</span></h1>
+
+        <h2>动态根据宽带public ip更新dnspod登记的域名</h2>
+
+<p>按照 <a href="https://gist.github.com/833369">https://gist.github.com/833369</a> 逻辑重新用Go实现了，用更少的内存开销在Raspberry Pi上跑。</p>
+
+<p>替换上你的Email，密码，域名ID，记录ID等参数，就可以运行了。 会在后台一直运行，每隔30秒检查一遍IP，如果修改了就更新IP。</p>
+
+<p>获得domain_id可以用：</p>
+
+<pre><code>curl curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
+</code></pre>
+
+<p>获得record_id：</p>
+
+<pre><code>curl -k https://dnsapi.cn/Record.List -d &quot;login_email=xxx&amp;login_password=xxx&amp;domain_id=xxx&quot;
+</code></pre>
+
+<script src="https://gist.github.com/hugozhu/6506189.js"></script>
+
+
+        <div class="more">
+          <a href="/2013/02/26/dynamic-dns-script.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     

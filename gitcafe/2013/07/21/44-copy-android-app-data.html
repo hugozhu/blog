@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>备份Raspberry Pi - When Go meets Raspberry Pi</title>
+    <title>拷贝Android应用的数据 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Backup Raspberry Pi 树莓派">
+    <meta name="description" content="Copy Android application data 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -104,82 +104,50 @@
 
       <div class="content">
         <div class="page-header">
-  <h1>备份Raspberry Pi </h1>
+  <h1>拷贝Android应用的数据 </h1>
 </div>
 
 <div class="row">
   <div class="span8">
-    <p>树莓派的操作系统安装在SD卡，使用一段时间后还是很有必要备份一下，以防哪天SD卡就坏了。</p>
+    <h1><a style="display: block;" name="有root权限" href="#有root权限"></a>有root权限</h1>
 
-<p>备份的目的地最方便的还是使用网络存储，我使用的是西部数据的<a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Cz5Mlq&amp;id=13865367896&amp;is_b=1&amp;cat_id=50099232&amp;q=mybooklive&amp;rn=638aa11bdda81f8d589bb0e052c57187">MyBooklive</a>3T网络硬盘。挺不错的一个产品，功能基本满足我的需求。</p>
-
-<p>准备好备份目标盘，将Nas的备份目录mount到树莓派:</p>
-
-<pre><code>mkdir /mnt/backup
-mount -t cifs //mybooklive/Public/Backup /mnt/backup -o guest
+<pre><code>adb shell su -c cat /data/data/app.package.name/databases/application.sqlite | sed 's/\r$//' &gt; application.sqlite
 </code></pre>
 
-<h1><a style="display: block;" name="完整备份" href="#完整备份"></a>完整备份</h1>
+<h1><a style="display: block;" name="应用可调试的话" href="#应用可调试的话"></a>应用可调试的话</h1>
 
-<p>确定相应的SD卡设备ID</p>
-
-<pre><code>root@raspberrypi2 ~/bin # fdisk -l
-
-Disk /dev/mmcblk0: 1973 MB, 1973420032 bytes, 3854336 sectors
-Units = sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disk identifier: 0x0004f23a
-
-        Device Boot      Start         End      Blocks   Id  System
-/dev/mmcblk0p1   *        2048      186367       92160    c  W95 FAT32 (LBA)
-/dev/mmcblk0p2          186368     3667967     1740800   83  Linux
-
-Disk /dev/sda: 2107 MB, 2107637760 bytes, 4116480 sectors
-Units = sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
+<pre><code>adb shell
+run-as app.package.name \
+cp /data/data/package.name/databases/application.sqlite /sdcard/
+exit
+adb pull /sdcard/application.sqlite ~/
 </code></pre>
 
-<p>执行备份</p>
+<h1><a style="display: block;" name="使用备份方法" href="#使用备份方法"></a>使用备份方法</h1>
 
-<pre><code>root@raspberrypi2 /mnt/backup # dd if=/dev/mmcblk0 of=raspberrypi2.img bs=2M
-941+0 records in
-941+0 records out
-1973420032 bytes (2.0 GB) copied, 786.555 s, 2.5 MB/s
+<pre><code>adb backup -f ~/data.ab -noapk app.package.name
+dd if=data.ab bs=1 skip=24 | python -c &quot;import zlib,sys;sys.stdout.write(zlib.decompress(sys.stdin.read()))&quot; | tar -xvf -
 </code></pre>
 
-<h1><a style="display: block;" name="增量备份" href="#增量备份"></a>增量备份</h1>
+<h1><a style="display: block;" name="参考链接" href="#参考链接"></a>参考链接</h1>
 
-<p>增量备份最简单的方法是用rsync，每天定时将指定目录下变化的文件保存到备份目录，方法如下：</p>
-
-<pre><code>root@raspberrypi:~# crontab -l
-0 3 * * * /root/bin/backup.sh &gt; /var/logs/backup.log 2&gt;&amp;1
-
-
-root@raspberrypi:~# cat /root/bin/backup.sh 
-#!/bin/sh
-mount /mnt/backup
-sleep 3
-rsync -v -a --delete --size-only -O --no-t --no-o --no-p --no-g /var/www /mnt/backup/raspberrypi/
-rsync -v -a --delete --size-only -O --no-t --no-o --no-p --no-g /home/hugo /mnt/backup/raspberrypi/
-rsync -v -a --delete --size-only -O --no-l --no-t --no-o --no-p --no-g /etc /mnt/backup/raspberrypi/
-
-</code></pre>
+<ol>
+<li><a href="http://blog.shvetsov.com/2013/02/access-android-app-data-without-root.html">http://blog.shvetsov.com/2013/02/access-android-app-data-without-root.html</a></li>
+</ol>
 
     <hr>
     <div class="pagination">
       <ul>
         <ul>
           
-            <li class="prev"><a href="/2013/04/13/28-use-tsar-to-monitor-raspberry-pi.html" title="使用tsar记录和监控树莓派CPU温度">&larr; Previous</a></li>
+            <li class="prev"><a href="/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html" title="在树莓派上使用Phantomjs自动登录微博">&larr; Previous</a></li>
           
           
 
             <li><a href="/archive">Archive</a></li>
 
           
-            <li class="next"><a href="/2013/04/08/27-interrupts-with-gpio-pins.html" title="Raspberry Pi的GPIO中断编程">Next &rarr;</a></li>
+            <li class="next"><a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html" title="使用夏普GP2Y1010AU0F灰尘传感器检测空气质量">Next &rarr;</a></li>
           
           
         </ul>
@@ -228,7 +196,7 @@ rsync -v -a --delete --size-only -O --no-l --no-t --no-o --no-p --no-g /etc /mnt
 
 
       <h4>Published</h4>
-      <div class="date"><span>2013-04-08</span></div>
+      <div class="date"><span>2013-07-21</span></div>
       <br>
       <h4>Categories</h4>
       <ul class="tag_box">
@@ -243,7 +211,7 @@ rsync -v -a --delete --size-only -O --no-l --no-t --no-o --no-p --no-g /etc /mnt
       <ul class="tag_box">
       
         <li>
-  <a href="/tags/#Rasperry-Pi-ref">Rasperry Pi <span>2</span></a>
+  <a href="/tags/#Android-ref">Android <span>2</span></a>
 </li>
       
       </ul>

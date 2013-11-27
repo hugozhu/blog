@@ -111,31 +111,6 @@
 <div class="row">
   <div class="span12">
     <div class="post">
-  <h1 class="title"><a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html">使用夏普GP2Y1010AU0F灰尘传感器检测空气质量</a> <span class="date">2013-07-21</span></h1>
-
-  <p>夏普<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.1.X4yMiN&amp;id=25584528001&amp;_u=oqa3375a">GP2Y1010AU0F</a>灰尘传感器价格较便宜，能检测出室内空气中的灰尘和烟尘含量。另外还有韩国SYHITECH生产的<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.9.NNhRMO&amp;id=15543884159">DSM501A</a>粉尘传感器也有类似功能。</p>
-
-<h1><a style="display: block;" name="检测原理" href="#检测原理"></a>检测原理</h1>
-
-<p>其原理如下图，传感器中心有个洞可以让空气自由流过，定向发射LED光，通过检测经过空气中灰尘折射过后的光线来判断灰尘的含量。</p>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/50d1faab-e7fc-45c6-9a0f-2b5f6743ce7f/4422cbee4a324b25d1ebaabba3eb350f/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
-
-<h1><a style="display: block;" name="电路图" href="#电路图"></a>电路图</h1>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/d34f08d5-0a93-44cc-b360-0b0686efa11d/e8548764c41977130e79b645e8b82cc3/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
-
-<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e6x61e41ykj218g0xcamc.jpg" width="500"/></p>
-
-<p>因为数据是通过pin 5的电压模拟信号输出的，而树莓派的引脚不支持模拟信号直接读取（需要增加数模转换芯片），所以先用Arduino来实验。</p>
-
-
-  <div class="more">
-    <a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html" class="btn btn-small">阅读全文</a>
-  </div>
-</div>
-
-<div class="post">
   <h1 class="title"><a href="/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html">在树莓派上使用Phantomjs自动登录微博</a> <span class="date">2013-07-21</span></h1>
 
   <p>使用过新浪开放平台的朋友都知道用户对小应用（用户数较少的）的授权Token很容易<a href="http://open.weibo.com/wiki/授权机制说明#.E6.8E.88.E6.9D.83.E6.9C.89.E6.95.88.E6.9C.9F">过期</a>，自动续期要求授权过的用户在过期前重新打开授权页。如果你想实现一个自动备份自己微博的App，就不得每天（周）自己去访问授权页（想死的心都有了吧？）。这里介绍一种通过脚本自动登录微博获取最新oAuth token的方法（需要微博登录名和密码），合适自己玩。将脚本部署在树莓派上后，我再也不用每周都去登录一次授权页了，只是收到报警消息后（经常是帐号被冻结了）需要手动处理一下。</p>
@@ -223,30 +198,56 @@ page.open(startUrl, function(status) {
 </div>
 
 <div class="post">
-  <h1 class="title"><a href="/2013/07/11/40-try-out-sublime-3-beta-on-mac.html">在Mac上使用Sublime 3写Go代码</a> <span class="date">2013-07-11</span></h1>
+  <h1 class="title"><a href="/2013/07/21/44-copy-android-app-data.html">拷贝Android应用的数据</a> <span class="date">2013-07-21</span></h1>
 
-  <p><img src="http://www.sublimetext.com/anim/rename2_packed.png" width="540"/></p>
+  <h1><a style="display: block;" name="有root权限" href="#有root权限"></a>有root权限</h1>
 
-<p><a href="http://www.sublimetext.com">Sublime</a> 是一个相当好用的文本编辑器，界面简洁，功能强大。最近<a href="http://www.sublimetext.com/3">Sublime 3 Beta</a> 出来了, 体验了一下，发现启动速度比之前快了很多。</p>
+<pre><code>adb shell su -c cat /data/data/app.package.name/databases/application.sqlite | sed 's/\r$//' &gt; application.sqlite
+</code></pre>
 
-<h1><a style="display: block;" name="下载安装" href="#下载安装"></a>下载安装</h1>
+<h1><a style="display: block;" name="应用可调试的话" href="#应用可调试的话"></a>应用可调试的话</h1>
 
-<p>下载地址： <a href="http://www.sublimetext.com/3">http://www.sublimetext.com/3</a></p>
+<pre><code>adb shell
+run-as app.package.name \
+cp /data/data/package.name/databases/application.sqlite /sdcard/
+exit
+adb pull /sdcard/application.sqlite ~/
+</code></pre>
 
-<h1><a style="display: block;" name="安装package-control" href="#安装package-control"></a>安装Package Control</h1>
+<h1><a style="display: block;" name="使用备份方法" href="#使用备份方法"></a>使用备份方法</h1>
 
-<p>Sublime 支持插件来丰富其功能，<a href="http://wbond.net/sublime_packages/package_control">package control</a> 本身也是一个插件，可以用来管理其他插件，所以我们要先安装Package Control，Sublime 3需要安装Pacakge Control Alpha.</p>
-
-<pre><code>cd &quot;Library/Application Support/Sublime Text 3&quot;
-cd Packages/
-git clone https://github.com/wbond/sublime_package_control.git &quot;Package Control&quot;
-cd &quot;Package Control&quot;
-git checkout python3
+<pre><code>adb backup -f ~/data.ab -noapk app.package.name
+dd if=data.ab bs=1 skip=24 | python -c &quot;import zlib,sys;sys.stdout.write(zlib.decompress(sys.stdin.read()))&quot; | tar -xvf -
 </code></pre>
 
 
   <div class="more">
-    <a href="/2013/07/11/40-try-out-sublime-3-beta-on-mac.html" class="btn btn-small">阅读全文</a>
+    <a href="/2013/07/21/44-copy-android-app-data.html" class="btn btn-small">阅读全文</a>
+  </div>
+</div>
+
+<div class="post">
+  <h1 class="title"><a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html">使用夏普GP2Y1010AU0F灰尘传感器检测空气质量</a> <span class="date">2013-07-21</span></h1>
+
+  <p>夏普<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.1.X4yMiN&amp;id=25584528001&amp;_u=oqa3375a">GP2Y1010AU0F</a>灰尘传感器价格较便宜，能检测出室内空气中的灰尘和烟尘含量。另外还有韩国SYHITECH生产的<a href="http://item.taobao.com/item.htm?spm=a230r.1.14.9.NNhRMO&amp;id=15543884159">DSM501A</a>粉尘传感器也有类似功能。</p>
+
+<h1><a style="display: block;" name="检测原理" href="#检测原理"></a>检测原理</h1>
+
+<p>其原理如下图，传感器中心有个洞可以让空气自由流过，定向发射LED光，通过检测经过空气中灰尘折射过后的光线来判断灰尘的含量。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/50d1faab-e7fc-45c6-9a0f-2b5f6743ce7f/4422cbee4a324b25d1ebaabba3eb350f/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
+
+<h1><a style="display: block;" name="电路图" href="#电路图"></a>电路图</h1>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/d34f08d5-0a93-44cc-b360-0b0686efa11d/e8548764c41977130e79b645e8b82cc3/deep/0/www.beck-elektronik.de/fileadmin/templates/beck_folder/opto/sensor/sharp/an-gp2y1010au.pdf.png" width="500"/></p>
+
+<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e6x61e41ykj218g0xcamc.jpg" width="500"/></p>
+
+<p>因为数据是通过pin 5的电压模拟信号输出的，而树莓派的引脚不支持模拟信号直接读取（需要增加数模转换芯片），所以先用Arduino来实验。</p>
+
+
+  <div class="more">
+    <a href="/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html" class="btn btn-small">阅读全文</a>
   </div>
 </div>
 
@@ -276,6 +277,34 @@ git checkout python3
 
   <div class="more">
     <a href="/2013/07/11/39-replace-usb-disk-on-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+  </div>
+</div>
+
+<div class="post">
+  <h1 class="title"><a href="/2013/07/11/40-try-out-sublime-3-beta-on-mac.html">在Mac上使用Sublime 3写Go代码</a> <span class="date">2013-07-11</span></h1>
+
+  <p><img src="http://www.sublimetext.com/anim/rename2_packed.png" width="540"/></p>
+
+<p><a href="http://www.sublimetext.com">Sublime</a> 是一个相当好用的文本编辑器，界面简洁，功能强大。最近<a href="http://www.sublimetext.com/3">Sublime 3 Beta</a> 出来了, 体验了一下，发现启动速度比之前快了很多。</p>
+
+<h1><a style="display: block;" name="下载安装" href="#下载安装"></a>下载安装</h1>
+
+<p>下载地址： <a href="http://www.sublimetext.com/3">http://www.sublimetext.com/3</a></p>
+
+<h1><a style="display: block;" name="安装package-control" href="#安装package-control"></a>安装Package Control</h1>
+
+<p>Sublime 支持插件来丰富其功能，<a href="http://wbond.net/sublime_packages/package_control">package control</a> 本身也是一个插件，可以用来管理其他插件，所以我们要先安装Package Control，Sublime 3需要安装Pacakge Control Alpha.</p>
+
+<pre><code>cd &quot;Library/Application Support/Sublime Text 3&quot;
+cd Packages/
+git clone https://github.com/wbond/sublime_package_control.git &quot;Package Control&quot;
+cd &quot;Package Control&quot;
+git checkout python3
+</code></pre>
+
+
+  <div class="more">
+    <a href="/2013/07/11/40-try-out-sublime-3-beta-on-mac.html" class="btn btn-small">阅读全文</a>
   </div>
 </div>
 
@@ -500,34 +529,6 @@ fi
 
   <div class="more">
     <a href="/2013/05/13/34-use-74HC595-8-bit-shift-register-with-raspberry-pi.html" class="btn btn-small">阅读全文</a>
-  </div>
-</div>
-
-<div class="post">
-  <h1 class="title"><a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html">树莓派网站容灾：利用DNSPod，Google App Engine和Github</a> <span class="date">2013-04-22</span></h1>
-
-  <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
-
-<p><a href="http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html">把网站托管在树莓派上</a>后如果家里停电或是宽带故障，会造成网站中断。本文提供一个免费的解决方案（前提是你需要有自己的一个域名，并由DNSPod解析）</p>
-
-<h1><a style="display: block;" name="dnspod" href="#dnspod"></a>DNSPod</h1>
-
-<p>首先需要在DNSPod里设置好需要failover的域名CNAME：比如<code>hugozhu.myalert.info</code></p>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/95d90628-5c74-4773-aaff-c2110e1863a6/6b592609ef02c42e46664d1fa1493e1c/deep/0/Screenshot%204/22/13%204:57%20PM.png" width="528"/></p>
-
-<p>其中<code>默认</code>指向<code>pi.myalert.info</code>, 这是一个域名的A Record，会由运行在树莓派上的<a href="http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html">脚本</a>来更新动态IP，<code>国外</code>则指向github。当停电时我们需要自动把｀默认｀这条纪录修改成github。</p>
-
-<p>使用下面命令获得相应CNAME的domain_id：</p>
-
-<pre><code>curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
-</code></pre>
-
-<p>使用下面命令获得相应CNAME的record_id：</p>
-
-
-  <div class="more">
-    <a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html" class="btn btn-small">阅读全文</a>
   </div>
 </div>
 

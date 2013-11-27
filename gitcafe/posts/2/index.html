@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>使用tsar记录和监控树莓派CPU温度 - When Go meets Raspberry Pi</title>
+    <title>Java的资源管理 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Use tsar to monitor Raspberry Pi CPU Temperature 树莓派">
+    <meta name="description" content="Introduction of best practices for Java resource management 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -144,6 +144,34 @@
     </div>
 
 
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html">树莓派网站容灾：利用DNSPod，Google App Engine和Github</a> <span class="date">2013-04-22</span></h1>
+
+        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p><a href="http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html">把网站托管在树莓派上</a>后如果家里停电或是宽带故障，会造成网站中断。本文提供一个免费的解决方案（前提是你需要有自己的一个域名，并由DNSPod解析）</p>
+
+<h1><a style="display: block;" name="dnspod" href="#dnspod"></a>DNSPod</h1>
+
+<p>首先需要在DNSPod里设置好需要failover的域名CNAME：比如<code>hugozhu.myalert.info</code></p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/95d90628-5c74-4773-aaff-c2110e1863a6/6b592609ef02c42e46664d1fa1493e1c/deep/0/Screenshot%204/22/13%204:57%20PM.png" width="528"/></p>
+
+<p>其中<code>默认</code>指向<code>pi.myalert.info</code>, 这是一个域名的A Record，会由运行在树莓派上的<a href="http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html">脚本</a>来更新动态IP，<code>国外</code>则指向github。当停电时我们需要自动把｀默认｀这条纪录修改成github。</p>
+
+<p>使用下面命令获得相应CNAME的domain_id：</p>
+
+<pre><code>curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
+</code></pre>
+
+<p>使用下面命令获得相应CNAME的record_id：</p>
+
+
+        <div class="more">
+          <a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
     
       <div class="post">
         <h1 class="title"><a href="/2013/04/21/32-use-goroutine-and-channel-to-implement-interaction-with-timeout.html">使用Goroutine和Channel实现按键超时交互</a> <span class="date">2013-04-21</span></h1>
@@ -477,33 +505,6 @@ output_stdio_mod mod_rpi
       </div>
     
       <div class="post">
-        <h1 class="title"><a href="/2013/04/08/27-interrupts-with-gpio-pins.html">Raspberry Pi的GPIO中断编程</a> <span class="date">2013-04-08</span></h1>
-
-        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
-
-<p>树莓派的GPIO引脚不仅可以输出高低电平，也可以当做输入端口（可以想象成键盘输入），当GPIO接入的是高电平，GPIO的值可以认为是1，如果是低电平则是0。如下图所示，可以使用一个Push Button开关按键来控制GPIO 25（BCM Numbering）的高低电平以达到控制的目的。</p>
-
-<p><img src="https://www.evernote.com/shard/s26/sh/bd720803-1b71-454d-98a2-cf0e907df688/649d6eb30376f8a378ef3e8a7cc3c552/deep/0/Screenshot%204/8/13%2011:25%20PM.jpg?noteKey=649d6eb30376f8a378ef3e8a7cc3c552&suffix=deep%2F0%2FScreenshot+4%2F8%2F13+11%3A25+PM.jpg&noteGuid=bd720803-1b71-454d-98a2-cf0e907df688"/></p>
-
-<p>GPIO 25和VCC（3.3V）之间通过R1（10K欧姆）和R2（1K欧姆）<a href="https://zh.wikipedia.org/zh/上拉电阻">上拉电阻</a>相连，当按键未被按下时，GPIO 25上拉到VCC，程序可以读到1，当按键按下时，GPIO 25被下拉电阻R2拉到GND（0V），程序可以读到0。如果不加R1，而GPIO 25不小心被设置成输出低电平时，将直接和VCC相连而造成短路，这样可能会烧掉这个引脚，所以加上限流电阻R1后，即使发生这样的情况，也不会出现短路情况。</p>
-
-<h1><a style="display: block;" name="应用" href="#应用"></a>应用</h1>
-
-<p>如果我们需要根据GPIO 25的值来控制树莓派，比如按下按钮时希望点亮某个LED或在液晶上显示当前时间，就需要通过程序来获取状态的变化。</p>
-
-<p>一种常见的做法是在循环里不断读取该引脚的状态，当发生对应的变化的时执行控制逻辑，但显而易见，这种做法很消耗CPU，如果在循环增加<code>sleep(1000)</code>这样的调用，又很容易错过按键变化。较好的做法则是通过<a href="http://zh.wikipedia.org/wiki/中断">中断</a>来实现。</p>
-
-<p>最新的树莓派Raspbian和Arch Linux内核都已经包含了GPIO的中断处理支持。但使用前需要将指定GPIO引脚输出，方法如下：</p>
-
-<p>首先可以通过命令<code>echo 25 &gt; /sys/class/gpio/export</code>导出GPIO 25端口，执行成功后在相应的目录下看到以下文件，得益于Linux下<strong>一切都是文件</strong>的设计理念，GPIO的状态可以通过<code>value</code>文件来获取，这样就可以利用Linux的poll/epoll来获取<code>value</code>文件的变化(这点和Linux高性能网络编程是类似的)。</p>
-
-
-        <div class="more">
-          <a href="/2013/04/08/27-interrupts-with-gpio-pins.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
         <h1 class="title"><a href="/2013/04/08/26-backup-raspberry-pi.html">备份Raspberry Pi</a> <span class="date">2013-04-08</span></h1>
 
         <p>树莓派的操作系统安装在SD卡，使用一段时间后还是很有必要备份一下，以防哪天SD卡就坏了。</p>
@@ -541,6 +542,33 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 
         <div class="more">
           <a href="/2013/04/08/26-backup-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/08/27-interrupts-with-gpio-pins.html">Raspberry Pi的GPIO中断编程</a> <span class="date">2013-04-08</span></h1>
+
+        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p>树莓派的GPIO引脚不仅可以输出高低电平，也可以当做输入端口（可以想象成键盘输入），当GPIO接入的是高电平，GPIO的值可以认为是1，如果是低电平则是0。如下图所示，可以使用一个Push Button开关按键来控制GPIO 25（BCM Numbering）的高低电平以达到控制的目的。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/bd720803-1b71-454d-98a2-cf0e907df688/649d6eb30376f8a378ef3e8a7cc3c552/deep/0/Screenshot%204/8/13%2011:25%20PM.jpg?noteKey=649d6eb30376f8a378ef3e8a7cc3c552&suffix=deep%2F0%2FScreenshot+4%2F8%2F13+11%3A25+PM.jpg&noteGuid=bd720803-1b71-454d-98a2-cf0e907df688"/></p>
+
+<p>GPIO 25和VCC（3.3V）之间通过R1（10K欧姆）和R2（1K欧姆）<a href="https://zh.wikipedia.org/zh/上拉电阻">上拉电阻</a>相连，当按键未被按下时，GPIO 25上拉到VCC，程序可以读到1，当按键按下时，GPIO 25被下拉电阻R2拉到GND（0V），程序可以读到0。如果不加R1，而GPIO 25不小心被设置成输出低电平时，将直接和VCC相连而造成短路，这样可能会烧掉这个引脚，所以加上限流电阻R1后，即使发生这样的情况，也不会出现短路情况。</p>
+
+<h1><a style="display: block;" name="应用" href="#应用"></a>应用</h1>
+
+<p>如果我们需要根据GPIO 25的值来控制树莓派，比如按下按钮时希望点亮某个LED或在液晶上显示当前时间，就需要通过程序来获取状态的变化。</p>
+
+<p>一种常见的做法是在循环里不断读取该引脚的状态，当发生对应的变化的时执行控制逻辑，但显而易见，这种做法很消耗CPU，如果在循环增加<code>sleep(1000)</code>这样的调用，又很容易错过按键变化。较好的做法则是通过<a href="http://zh.wikipedia.org/wiki/中断">中断</a>来实现。</p>
+
+<p>最新的树莓派Raspbian和Arch Linux内核都已经包含了GPIO的中断处理支持。但使用前需要将指定GPIO引脚输出，方法如下：</p>
+
+<p>首先可以通过命令<code>echo 25 &gt; /sys/class/gpio/export</code>导出GPIO 25端口，执行成功后在相应的目录下看到以下文件，得益于Linux下<strong>一切都是文件</strong>的设计理念，GPIO的状态可以通过<code>value</code>文件来获取，这样就可以利用Linux的poll/epoll来获取<code>value</code>文件的变化(这点和Linux高性能网络编程是类似的)。</p>
+
+
+        <div class="more">
+          <a href="/2013/04/08/27-interrupts-with-gpio-pins.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
@@ -605,40 +633,6 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 
         <div class="more">
           <a href="/2013/04/03/24-google-channel-service.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/03/28/23-arduino-1st-day.html">Arduino初试</a> <span class="date">2013-03-28</span></h1>
-
-        <p>今天拿到一块Arduino UNO R3板，迫不及待就开始试用了。相比Raspberry Pi是一个全能的电脑，Arduino则是个硬件开源的单片机，因为开源，资料和配件网上就很很多了，也就容易让初学者上手了。</p>
-
-<p>Arduino特点:</p>
-
-<ol>
-<li>开源，硬件标准化，配套传感器等模块很多；</li>
-<li>结构简单</li>
-<li>实时系统，稳定，启动只要0.5秒</li>
-</ol>
-
-<h1><a style="display: block;" name="arduino-ide" href="#arduino-ide"></a>Arduino IDE</h1>
-
-<p><a href="http://arduino.cc/en/Main/Software">下载Arduino IDE</a></p>
-
-<h1><a style="display: block;" name="上电测试" href="#上电测试"></a>上电测试</h1>
-
-<p>用USB线接在电脑USB口，然后在GND和PIN 13上插一个二极管，注意二极管正极插在PIN 13上, 如下图：
-<img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e35tmsg0tjj.jpg"/></p>
-
-<p>(注：还应该串联一个300欧姆的限流电阻才保险！)</p>
-
-<h1><a style="display: block;" name="上传代码" href="#上传代码"></a>上传代码</h1>
-
-<p>在Arduino IDE编辑好下面的代码，然后点Upload后就会运行了，会看到LED一闪一闪。</p>
-
-
-        <div class="more">
-          <a href="/2013/03/28/23-arduino-1st-day.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
