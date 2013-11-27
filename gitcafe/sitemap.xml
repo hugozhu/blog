@@ -4,8 +4,8 @@
 		<loc>http://hugozhu.myalert.info/</loc>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/07/21/44-copy-android-app-data.html</loc>
-		<lastmod>2013-07-21</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/11/27/44-copy-android-app-data.html</loc>
+		<lastmod>2013-11-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
@@ -84,12 +84,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -174,12 +174,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/01/resource-management-in-java.html</loc>
 		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/01/resource-management-in-java.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html</loc>
 		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -194,12 +194,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
