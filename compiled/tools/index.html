@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tools - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Very helpful tools for development 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+  <li class="active"><a href="/tools" class="active">Tools</a></li>
+
+
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Tools </h1>
+</div>
+
+<div class="row">
+  <div class="span12">
+    
+<div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+<h1>URL Encode/Decode</h1>
+
+<script type="text/javascript">
+function encode() {
+    var obj = document.getElementById('dencoder');
+    var unencoded = obj.value;
+    obj.value = encodeURIComponent(unencoded);
+}
+function decode() {
+    var obj = document.getElementById('dencoder');
+    var encoded = obj.value;
+    obj.value = decodeURIComponent(encoded.replace(/\+/g,  " "));
+}
+</script>
+
+<form onsubmit="return false;">
+<textarea cols="200" rows="5" id="dencoder" style="width:500px;height:50px"></textarea>    
+<div>
+<input type="button" onclick="decode()" value="Decode">
+<input type="button" onclick="encode()" value="Encode">
+</div>
+</form>
+
+<h1>JSON Pretty Print</h1>
+
+<form method="POST" action="https://go.myalert.info/json.php">
+<textarea name="json" cols="200" rows="5" id="json" style="width:500px;height:50px"></textarea>    
+<div>
+<input type="submit" value="Pretty Print">
+</div>
+</form>
+
+
+<script type="text/javascript">
+<!--
+
+var keyStr = "ABCDEFGHIJKLMNOP" +
+           "QRSTUVWXYZabcdef" +
+           "ghijklmnopqrstuv" +
+           "wxyz0123456789+/" +
+           "=";
+
+function encode64(input) {
+ input = escape(input);
+ var output = "";
+ var chr1, chr2, chr3 = "";
+ var enc1, enc2, enc3, enc4 = "";
+ var i = 0;
+
+ do {
+    chr1 = input.charCodeAt(i++);
+    chr2 = input.charCodeAt(i++);
+    chr3 = input.charCodeAt(i++);
+
+    enc1 = chr1 >> 2;
+    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+    enc4 = chr3 & 63;
+
+    if (isNaN(chr2)) {
+       enc3 = enc4 = 64;
+    } else if (isNaN(chr3)) {
+       enc4 = 64;
+    }
+
+    output = output +
+       keyStr.charAt(enc1) +
+       keyStr.charAt(enc2) +
+       keyStr.charAt(enc3) +
+       keyStr.charAt(enc4);
+    chr1 = chr2 = chr3 = "";
+    enc1 = enc2 = enc3 = enc4 = "";
+ } while (i < input.length);
+
+ return output;
+}
+
+function decode64(input) {
+ var output = "";
+ var chr1, chr2, chr3 = "";
+ var enc1, enc2, enc3, enc4 = "";
+ var i = 0;
+
+ // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+ var base64test = /[^A-Za-z0-9\+\/\=]/g;
+ if (base64test.exec(input)) {
+    alert("There were invalid base64 characters in the input text.\n" +
+          "Valid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='\n" +
+          "Expect errors in decoding.");
+ }
+ input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+ do {
+    enc1 = keyStr.indexOf(input.charAt(i++));
+    enc2 = keyStr.indexOf(input.charAt(i++));
+    enc3 = keyStr.indexOf(input.charAt(i++));
+    enc4 = keyStr.indexOf(input.charAt(i++));
+
+    chr1 = (enc1 << 2) | (enc2 >> 4);
+    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+    chr3 = ((enc3 & 3) << 6) | enc4;
+
+    output = output + String.fromCharCode(chr1);
+
+    if (enc3 != 64) {
+       output = output + String.fromCharCode(chr2);
+    }
+    if (enc4 != 64) {
+       output = output + String.fromCharCode(chr3);
+    }
+
+    chr1 = chr2 = chr3 = "";
+    enc1 = enc2 = enc3 = enc4 = "";
+
+ } while (i < input.length);
+
+ return unescape(output);
+}
+
+//--></script>
+
+<h1>Base64 Encode/Decode</h1>
+
+<script type="text/javascript">
+function base64_encode() {
+    var obj = document.getElementById('base64');
+    var unencoded = obj.value;
+    obj.value = encode64(unencoded);
+}
+function base64_decode() {
+    var obj = document.getElementById('base64');
+    var encoded = obj.value;
+    obj.value = decode64(encoded.replace(/\+/g,  " "));
+}
+</script>
+
+<form onsubmit="return false;">
+<textarea cols="200" rows="5" id="base64" style="width:500px;height:50px"></textarea>    
+<div>
+<input type="button" onclick="base64_decode()" value="Decode">
+<input type="button" onclick="base64_encode()" value="Encode">
+</div>
+</form>
+
+<h1>Guestbook</h1>
+
+<div style="width:500px">
+<!-- jquery required -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<!-- petal begin -->
+<link rel="stylesheet" href="http://hit9.org/petal/css/petal.min.css" type="text/css" />
+<script src="http://hit9.org/petal/build/petal.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    $(document).ready(function(){  // important!
+        $.petal.init("hugozhu/blog", 1) // $.petal.init(repo, issue_id)
+    })
+</script>
+<div class="petal"></div>
+</div>
+<!-- petal end -->
+  </div>
+</div>
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>使用Ping来检查网络连通性 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Use ping to check network connectivity 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>使用Ping来检查网络连通性 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <p>树莓派使用了一个无线网卡连接家里的无线路由器，在实际使用过程中发现连续运行多天后会掉线，而且掉线后基本上就再也连不上网了，需要重启树莓派才能恢复，十分麻烦。</p>
+
+<p>假设无线路由器IP是192.168.1.1，于是每隔15分钟检查一下，是否能从树莓派上ping通路由器；如果不能则重启无线网络，脚本如下：</p>
+
+<p><strong>network.sh</strong></p>
+
+<pre><code>#!/bin/bash
+
+export PATH=/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+
+ping_count() {
+  count=0
+  `timeout 5 ping 192.168.1.1 | while read LINE; do
+  {
+        if [[ &quot;${LINE}&quot; =~ &quot;64 bytes from&quot; ]]; then
+                let &quot;count = $count + 1&quot;
+                echo &quot;export count=$count&quot;
+        fi
+  }
+  done`
+  echo $count
+}
+
+
+if [[ $(ping_count) &lt; 1 ]]; then
+        ifconfig wlan0
+        ifconfig wlan0 down
+        sleep 1
+        ifconfig wlan0 up
+        sleep 1
+        netcfg -r wlan0-Hugo-Nas
+        sleep 5
+        if [[ $(ping_count) &lt; 1 ]]; then
+                echo &quot;Fatal error: wifi is down, rebooting now...&quot;
+                reboot
+        fi
+fi
+</code></pre>
+
+<p>可以用ifconfig wlan0 down &amp;&amp; ./network.sh来测试脚本是否能正常工作，测试完成后就可以放到crontab里执行了。</p>
+
+<pre><code>*/60 * * * * /home/hugo/bin/network.sh &gt;&gt; /mnt/usb/logs/network.log 2&gt;&amp;1
+</code></pre>
+
+<p>这样出差不在家也不用通知家里的人拔插树莓派电源了。。。</p>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/06/24/37-tcpdump_on_android.html" title="在Android上使用tcpdump">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/05/14/35-understanding-output.html" title="树莓派的GPIO接口输出电流限制">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-06-01</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>45</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Shell-Scripting-ref">Shell Scripting <span>1</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

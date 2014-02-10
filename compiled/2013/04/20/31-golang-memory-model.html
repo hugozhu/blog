@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go语言内存模型 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Go memory model 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>Go语言内存模型 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">名词定义</a></li>
+<li><a href="#toc_1">背景介绍</a></li>
+<li><a href="#toc_2">Happens Before</a>
+<ul>
+<li><a href="#toc_3">Happens-before 定义</a></li>
+</ul></li>
+<li><a href="#toc_4">同步方法</a>
+<ul>
+<li><a href="#toc_5">初始化</a></li>
+<li><a href="#toc_6">创建Goroutine</a></li>
+<li><a href="#toc_7">销毁Goroutine</a></li>
+<li><a href="#toc_8">Channel通信</a></li>
+<li><a href="#toc_9">锁</a></li>
+<li><a href="#toc_10">Once</a></li>
+</ul></li>
+<li><a href="#toc_11">参考链接</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">名词定义</h1>
+
+<p>执行体 - Go里的Goroutine或Java中的Thread</p>
+
+<h1 id="toc_1">背景介绍</h1>
+
+<p>内存模型的目的是为了定义清楚变量的读写在不同执行体里的可见性。理解内存模型在并发编程中非常重要，因为代码的执行顺序和书写的逻辑顺序并不会完全一致，甚至在编译期间编译器也有可能重排代码以最优化CPU执行, 另外还因为有CPU缓存的存在，内存的数据不一定会及时更新，这样对内存中的同一个变量读和写也不一定和期望一样。</p>
+
+<p>和<a href="http://ifeve.com/java-memory-model-1/">Java的内存模型规范</a>类似，Go语言也有一个内存模型，相对JMM来说，Go的内存模型比较简单，Go的并发模型是基于CSP（<a href="http://en.wikipedia.org/wiki/Communicating_sequential_processes">Communicating Sequential Process</a>）的，不同的Goroutine通过一种叫Channel的数据结构来通信；Java的并发模型则基于多线程和共享内存，有较多的概念（violatie, lock, final, construct, thread, atomic等）和场景，当然java.util.concurrent并发工具包大大简化了Java并发编程。</p>
+
+<p>Go内存模型规范了在什么条件下一个Goroutine对某个变量的修改一定对其它Goroutine可见。</p>
+
+<h1 id="toc_2">Happens Before</h1>
+
+<p>在一个单独的Goroutine里，对变量的读写和代码的书写顺序一致。比如以下的代码:</p>
+
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+)
+
+var a, b, c int
+
+func main() {
+    a = 1
+    b = 2
+    c = a + 2
+    log.Println(a, b, c)
+}
+</code></pre>
+
+<p>尽管在编译期和执行期，编译器和CPU都有可能重排代码，比如，先执行b=2，再执行a=1，但c=a+2是保证在a=1后执行的。这样最后的执行结果一定是<code>1 2 3</code>，不会是<code>1 2 2</code>。但下面的代码则可能会输出<code>0 0 0</code>，<code>1 2 2</code>,  <code>0 2 3</code> (b=2比a=1先执行), <code>1 2 3</code>等各种可能。</p>
+
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+)
+
+var a, b, c int
+
+func main() {
+    go func() {
+        a = 1
+        b = 2
+    }()
+    go func() {
+        c = a + 2
+    }()
+    log.Println(a, b, c)
+}
+</code></pre>
+
+<h2 id="toc_3">Happens-before 定义</h2>
+
+<p>Happens-before用来指明Go程序里的内存操作的局部顺序。如果一个内存操作事件e1 happens-before e2，则e2 happens-after e1也成立；如果e1不是happens-before e2,也不是happens-after e2，则e1和e2是并发的。</p>
+
+<p>在这个定义之下，如果以下情况满足，则对变量（v）的内存写操作（w）对一个内存读操作（r）来说<strong>允许</strong>可见的：</p>
+
+<ol>
+<li>r不在w开始之前发生（可以是之后或并发）；</li>
+<li>w和r之间没有另一个写操作(w&rsquo;)发生；</li>
+</ol>
+
+<p>为了保证对变量（v）的一个特定写操作（w）对一个读操作（r）可见，就需要确保w是r<strong>唯一</strong><strong>允许</strong>的写操作，于是如果以下情况满足，则对变量（v）的内存写操作（w）对一个内存读操作（r）来说<strong>保证</strong>可见的：</p>
+
+<ol>
+<li>w在r开始之前发生；</li>
+<li>所有其它对v的写操作只在w之前或r之后发生；</li>
+</ol>
+
+<p>可以看出后一种约定情况比前一种更严格，这种情况要求没有w或r没有其他的并发写操作。</p>
+
+<p>在单个Goroutine里，因为肯定没有并发，上面两种情况是等价的。对变量v的读操作可以读到最近一次写操作的值（这个应该很容易理解）。但在多个Goroutine里如果要访问一个共享变量，我们就必须使用同步工具来建立happens-before条件，来保证对该变量的读操作能读到期望的修改值。</p>
+
+<p><strong>要保证并行执行体对共享变量的顺序访问方法就是用锁</strong>。Java和Go在这点上是一致的。</p>
+
+<p>以下是具体的可被利用的Go语言的happens-before规则，从本质上来讲，happens-before规则确定了CPU缓冲和主存的同步时间点（通过<a href="http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html">内存屏障</a>等指令），从而使得对变量的读写顺序可被确定&ndash;也就是我们通常说的“同步”。</p>
+
+<h1 id="toc_4">同步方法</h1>
+
+<h2 id="toc_5">初始化</h2>
+
+<ol>
+<li><strong>如果package p 引用了package q，q的init()方法 happens-before p</strong> （Java工程师可以对比一下<a href="http://www.infoq.com/cn/articles/java-memory-model-6?utm_source=infoq&amp;utm_medium=related_content_link&amp;utm_campaign=relatedContent_articles_clk">final变量的happens-before规则</a>）</li>
+<li><strong>main.main()方法 happens-after所有package的init()方法结束。</strong></li>
+</ol>
+
+<h2 id="toc_6">创建Goroutine</h2>
+
+<ol>
+<li><strong>go语句创建新的goroutine happens-before 该goroutine执行</strong>（这个应该很容易理解）</li>
+</ol>
+
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+    &quot;time&quot;
+)
+
+var a, b, c int
+
+func main() {
+    a = 1
+    b = 2
+    go func() {
+        c = a + 2
+        log.Println(a, b, c)
+    }()
+    time.Sleep(1 * time.Second)
+}
+</code></pre>
+
+<p>利用这条happens-before，我们可以确定<code>c=a+2</code>是happens-after<code>a=1和b=2</code>，所以结果输出是可以确定的<code>1 2 3</code>，但如果是下面这样的代码，输出就不确定了，有可能是<code>1 2 3</code>或<code>0 0 2</code></p>
+
+<pre><code>func main() {
+    go func() {
+        c = a + 2
+        log.Println(a, b, c)
+    }()
+    a = 1
+    b = 2
+    time.Sleep(1 * time.Second)
+}
+</code></pre>
+
+<h2 id="toc_7">销毁Goroutine</h2>
+
+<ol>
+<li><strong>Goroutine的退出并不保证happens-before任何事件</strong>。</li>
+</ol>
+
+<pre><code>var a string
+
+func hello() {
+    go func() { a = &quot;hello&quot; }()
+    print(a)
+}
+</code></pre>
+
+<p>上面代码因为<code>a=&quot;hello&quot;</code> 没有使用同步事件，并不能保证这个赋值被主goroutine可见。事实上，极度优化的Go编译器甚至可以完全删除这行代码<code>go func() { a = &quot;hello&quot; }()</code>。</p>
+
+<p>Goroutine对变量的修改需要让对其它Goroutine可见，除了使用锁来同步外还可以用Channel。</p>
+
+<h2 id="toc_8">Channel通信</h2>
+
+<p>在Go编程中，Channel是被推荐的执行体间通信的方法，Go的编译器和运行态都会尽力对其优化。</p>
+
+<ol>
+<li><strong>对一个Channel的发送操作(send) happens-before 相应Channel的接收操作完成</strong></li>
+<li><strong>关闭一个Channel happens-before 从该Channel接收到最后的返回值0</strong></li>
+<li><strong>不带缓冲的Channel的接收操作（receive） happens-before 相应Channel的发送操作完成</strong></li>
+</ol>
+
+<pre><code>var c = make(chan int, 10)
+var a string
+
+func f() {
+    a = &quot;hello, world&quot;
+    c &lt;- 0
+}
+
+func main() {
+    go f()
+    &lt;-c
+    print(a)
+}
+</code></pre>
+
+<p>上述代码可以确保输出<code>hello, world</code>，因为<code>a = &quot;hello, world&quot;</code> happens-before <code>c &lt;- 0</code>，<code>print(a)</code> happens-after <code>&lt;-c</code>， 根据上面的规则1）以及happens-before的可传递性，<code>a = &quot;hello, world&quot;</code> happens-before<code>print(a)</code>。</p>
+
+<p>根据规则2）把<code>c&lt;-0</code>替换成<code>close(c)</code>也能保证输出<code>hello,world</code>，因为关闭操作在<code>&lt;-c</code>接收到0之前发送。</p>
+
+<pre><code>var c = make(chan int)
+var a string
+
+func f() {
+    a = &quot;hello, world&quot;
+    &lt;-c
+}
+
+func main() {
+    go f()
+    c &lt;- 0
+    print(a)
+}
+</code></pre>
+
+<p>根据规则3），因为c是不带缓冲的Channel，<code>a = &quot;hello, world&quot;</code> happens-before <code>&lt;-c</code> happens-before <code>c &lt;- 0</code> happens-before <code>print(a)</code>， 但如果c是缓冲队列，如定义<code>c = make(chan int, 1)</code>, 那结果就不确定了。</p>
+
+<h2 id="toc_9">锁</h2>
+
+<p><code>sync</code> 包实现了两种锁数据结构:</p>
+
+<ol>
+<li>sync.Mutex -&gt; java.util.concurrent.ReentrantLock</li>
+<li>sync.RWMutex -&gt; java.util.concurrent.locks.ReadWriteLock</li>
+</ol>
+
+<p>其happens-before规则和Java的也类似：</p>
+
+<ol>
+<li><strong>任何sync.Mutex或sync.RWMutex 变量（l），定义 n &lt; m， 第n次 <code>l.Unlock()</code> happens-before 第m次<code>l.lock()</code>调用返回。</strong></li>
+</ol>
+
+<pre><code>var l sync.Mutex
+var a string
+
+func f() {
+    a = &quot;hello, world&quot;
+    l.Unlock()
+}
+
+func main() {
+    l.Lock()
+    go f()
+    l.Lock()
+    print(a)
+}
+</code></pre>
+
+<p><code>a = &quot;hello, world&quot;</code> happens-before <code>l.Unlock()</code> happens-before 第二个 <code>l.Lock()</code> happens-before <code>print(a)</code></p>
+
+<h2 id="toc_10">Once</h2>
+
+<p><code>sync</code>包还提供了一个安全的初始化工具Once。还记得Java的Singleton设计模式，double-check，甚至triple-check的各种单例初始化方法吗？Go则提供了一个标准的方法。</p>
+
+<ol>
+<li><strong><code>once.Do(f)</code>中的<code>f()</code> happens-before 任何多个once.Do(f)调用的返回，且f()有且只有一次调用。</strong></li>
+</ol>
+
+<pre><code>var a string
+var once sync.Once
+
+func setup() {
+    a = &quot;hello, world&quot;
+}
+
+func doprint() {
+    once.Do(setup)
+    print(a)
+}
+
+func twoprint() {
+    go doprint()
+    go doprint()
+}
+</code></pre>
+
+<p>上面的代码虽然调用两次<code>doprint()</code>，但实际上<code>setup</code>只会执行一次，并且并发的<code>once.Do(setup)</code>都会等待<code>setup</code>返回后再继续执行。</p>
+
+<h1 id="toc_11">参考链接</h1>
+
+<ol>
+<li><a href="http://golang.org/ref/mem">http://golang.org/ref/mem</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Java_Memory_Model">http://en.wikipedia.org/wiki/Java_Memory_Model</a></li>
+<li><a href="http://ifeve.com/java-memory-model-1/">http://ifeve.com/java-memory-model-1/</a></li>
+<li><a href="http://code.google.com/p/golang-china/wiki/go_mem">http://code.google.com/p/golang-china/wiki/go_mem</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/04/21/32-use-goroutine-and-channel-to-implement-interaction-with-timeout.html" title="使用Goroutine和Channel实现按键超时交互">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/04/18/30-raspberrypi-i2c-programming.html" title="树莓派I2C编程">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-04-20</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>45</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Golang-ref">Golang <span>4</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#Concurrent-Programming-ref">Concurrent Programming <span>3</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://a0.twimg.com/profile_images/1590336143/Raspi-PGB001_normal.png"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>
