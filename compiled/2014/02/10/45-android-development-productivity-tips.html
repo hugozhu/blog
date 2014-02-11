@@ -126,16 +126,21 @@ stop adbd
 start adbd
 </code></pre>
 
-<p>再执行下面命令则可以看到手机的网络地址
-<code>
-netcfg | grep wlan
-</code></p>
+<p>再执行下面命令则可以看到手机的网络地址</p>
+
+<pre><code>netcfg | grep wlan
+</code></pre>
 
 <p>在电脑上则执行</p>
 
 <pre><code>adb connect &lt;mobile_phone_ip&gt; 5555
 adb shell
 </code></pre>
+
+<p>安装运行
+<code>
+gradle installDebug &amp;&amp; adb shell am start -n com.laiwang.protocol.android/.MainActivity
+</code></p>
 
     <hr>
     <div class="pagination">
