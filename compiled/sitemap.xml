@@ -89,12 +89,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -109,12 +109,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/28/23-arduino-1st-day.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html</loc>
 		<lastmod>2013-03-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/28/23-arduino-1st-day.html</loc>
 		<lastmod>2013-03-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -199,12 +199,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/%E5%9C%A8Pi%E5%92%8CGithub%E4%B8%8A%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
