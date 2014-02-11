@@ -29,6 +29,7 @@ stop adbd
 start adbd
 ```
 再执行下面命令则可以看到手机的网络地址
+
 ```
 netcfg | grep wlan
 ```
