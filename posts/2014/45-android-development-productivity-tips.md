@@ -39,3 +39,8 @@ netcfg | grep wlan
 adb connect <mobile_phone_ip> 5555
 adb shell
 ```
+
+安装运行
+```
+gradle installDebug && adb shell am start -n com.laiwang.protocol.android/.MainActivity
+```
