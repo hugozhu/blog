@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Use volatile for safe publication 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Blogs</h1>
+</div>
+
+
+<div class="row">
+  <div class="span12">
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/3/">3</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+
+
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/03/24-google-channel-service.html">在Raspberry Pi上使用Google Channel服务搭建实时应用</a> <span class="date">2013-04-03</span></h1>
+
+        <p>前面提到了有关个人网站的<a href="http://hugozhu.myalert.info/2013/03/27/21-realtime-online-user-counter.html">实时在线人数</a>问题，本文要讨论的是如何自己来实现一个这样的统计服务。因为网站也同时部署在Github上，海外用户访问Github镜像网站的访问日志Pi是拿不到的，这怎么办？</p>
+
+<h1><a style="display: block;" name="google-channel-service" href="#google-channel-service"></a>Google Channel Service</h1>
+
+<p><a href="https://developers.google.com/appengine/docs/go/channel/overview">Google Channel Service</a>允许应用和<a href="http://appengine.google.com/">GAE (Google App Engine)</a> 保持一个长连接，允许应用实时发送消息给JavaScript客户端，而不用让客户端用效率很低的定时轮询获取新消息。这个服务是允许有多个发布者和多个订阅者，也能创建多个主题来关联发布者和订阅者。</p>
+
+<p>使用这个服务分两步：</p>
+
+<ol>
+<li><p>客户端请求服务器端（部署在GAE上）获取一个Channel的Token：
+<img src="https://developers.google.com/appengine/images/channel_overview01.png"/></p></li>
+
+<li><p>客户端根据Channel Token和服务器建立长连接，并开始接收消息，这时其它的客户端（或服务器端）可以想这个通道发送消息
+<img src="https://developers.google.com/appengine/images/channel_overview02.png"/></p></li>
+</ol>
+
+<h1><a style="display: block;" name="在线人数统计实现" href="#在线人数统计实现"></a>在线人数统计实现</h1>
+
+<h2><a style="display: block;" name="在页面上部署beacon" href="#在页面上部署beacon"></a>在页面上部署beacon</h2>
+
+<p>通常的网站流量统计是依赖部署在页面上的beacon（Javascript或图片标签）来实现的，这样做的好处是可以直接过滤掉一些机器流量，并且可以将日志集中存储在日志收集服务器上，和网站分离开。</p>
+
+<p>于是可以利用GAE实现一个简单的Beacon服务，这里采用Go语言来实现，用Java或Python也是可以的。</p>
+
+
+        <div class="more">
+          <a href="/2013/04/03/24-google-channel-service.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/28/22-memory-barriers-or-fences.html">并发编程之内存屏障</a> <span class="date">2013-03-28</span></h1>
+
+        <p>原文地址：<a href="http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html"><code>http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html</code></a> 或 <a href="http://ifeve.com/memory-barriersfences/"><code>http://ifeve.com/memory-barriersfences/</code></a></p>
+
+<p>关键词：Load Barrier, Store Barrier, Full Barrier</p>
+
+<p>本文我将和大家讨论并发编程中最基础的一项技术：内存屏障或内存栅栏，也就是让一个CPU处理单元中的内存状态对其它处理单元可见的一项技术。</p>
+
+<p>CPU使用了很多优化技术来达成一个事实：CPU执行单元的速度要远超主存访问速度。在我上一篇文章 &ldquo;Write Combing - 合并写&rdquo;中我已经介绍了其中的一项技术。CPU避免内存访问延迟最常见的技术是将指令管道化，然后尽量重排这些管道的执行以最大利用缓存而把因为缓存未命中引起的延迟降到最小。</p>
+
+<p>当一个程序执行时指令是否被重排并不重要，只要最终的结果是一样的。例如，在一个循环里，如果循环体内没用到这个计数器，循环的计数器什么时候更新（在循环开始，中间还是最后）并不重要。编译器和CPU可以自由的重排指令以最佳的利用CPU，只要下一次循环前更新该计数器即可。并且在循环执行中，这个变量可能一直存在寄存器上，并没有被推到缓存或主存，这样这个变量对其他CPU来说一直都是不可见的。</p>
+
+<p>CPU核内部包含了多个执行单元。例如，现代Intel CPU包含了6个执行单元，可以组合进行算术运算，逻辑条件判断及内存操作。每个执行单元可以执行上述任务的某种组合。这些执行单元是并行执行的，这样指令也就是在并行执行。但如果站在另一个CPU角度看，这也就产生了程序顺序的另一种不确定性。</p>
+
+<p>最后，当一个缓存失效发生时，现代CPU可以先假设一个内存载入的值并根据这个假设值继续执行，直到内存载入返回确切的值。</p>
+
+<p><img src="http://ifeve.com/wp-content/uploads/2013/03/cpu.png"/></p>
+
+
+        <div class="more">
+          <a href="/2013/03/28/22-memory-barriers-or-fences.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/28/23-arduino-1st-day.html">Arduino初试</a> <span class="date">2013-03-28</span></h1>
+
+        <p>今天拿到一块Arduino UNO R3板，迫不及待就开始试用了。相比Raspberry Pi是一个全能的电脑，Arduino则是个硬件开源的单片机，因为开源，资料和配件网上就很很多了，也就容易让初学者上手了。</p>
+
+<p>Arduino特点:</p>
+
+<ol>
+<li>开源，硬件标准化，配套传感器等模块很多；</li>
+<li>结构简单</li>
+<li>实时系统，稳定，启动只要0.5秒</li>
+</ol>
+
+<h1><a style="display: block;" name="arduino-ide" href="#arduino-ide"></a>Arduino IDE</h1>
+
+<p><a href="http://arduino.cc/en/Main/Software">下载Arduino IDE</a></p>
+
+<h1><a style="display: block;" name="上电测试" href="#上电测试"></a>上电测试</h1>
+
+<p>用USB线接在电脑USB口，然后在GND和PIN 13上插一个二极管，注意二极管正极插在PIN 13上, 如下图：
+<img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e35tmsg0tjj.jpg"/></p>
+
+<p>(注：还应该串联一个300欧姆的限流电阻才保险！)</p>
+
+<h1><a style="display: block;" name="上传代码" href="#上传代码"></a>上传代码</h1>
+
+<p>在Arduino IDE编辑好下面的代码，然后点Upload后就会运行了，会看到LED一闪一闪。</p>
+
+
+        <div class="more">
+          <a href="/2013/03/28/23-arduino-1st-day.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/27/21-realtime-online-user-counter.html">个人网站实时在线人数接口</a> <span class="date">2013-03-27</span></h1>
+
+        <p>感觉把个人网站正在访问的在线人数显示在Nokia 5110液晶屏挺好玩，就稍微研究了一下如何提取实时在线人数。</p>
+
+<h1><a style="display: block;" name="实现方法" href="#实现方法"></a>实现方法</h1>
+
+<h2><a style="display: block;" name="google-analytics" href="#google-analytics"></a>Google Analytics</h2>
+
+<p>Google Analytics具有很强大的实时流量分析功能，不过网站主必须登陆到后台才能看，但并没有提供Open API，所以就不能用这个服务了。</p>
+
+<h2><a style="display: block;" name="日志分析" href="#日志分析"></a>日志分析</h2>
+
+<p>不修改网站通过web服务器的日志分析，用一个脚本统计15分钟内日志的Unique IP可以粗略的获得一个在线人数。
+但多个用户可能通过一个IP过来，这种做法肯定不精确。一般我们可以通过在页面上部署Javascript脚本，由Javascript为每一个浏览器产生一个独特的持久化Cookie，用这个Cookie代替IP来统计。但用Raspberry Pi来做这件事情会拖慢网站，于是一种方案是采用免费的Google App Engine来实现，打算有空来实现一个。</p>
+
+<h2><a style="display: block;" name="cnzz" href="#cnzz"></a>CNZZ</h2>
+
+<p>CNZZ也提供了15分钟内的在线人数统计功能。分析CNZZ的计数器代码后发现如下方法可以提取到在线人数:</p>
+
+<p></p>
+
+
+        <div class="more">
+          <a href="/2013/03/27/21-realtime-online-user-counter.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/24/20-raspberry-pi-drive-nokia-5110.html">升级版电子钟 - 如何使用Raspberry Pi驱动Nokia 5110液晶屏</a> <span class="date">2013-03-24</span></h1>
+
+        <p>Nokia 5110屏比前面介绍过的<a href="http://hugozhu.myalert.info/2013/03/23/19-raspberry-pi-drive-1602-lcd.html">1602液晶屏</a>功能好很多，淘宝上买价格相差不大（二手5110 12块左右, 全新1602 8块左右），Nokia 5110最少只需要占用4个GPIO引脚：</p>
+
+<ol>
+<li>带蓝色背光</li>
+<li>使用Philips PCD8544 LCD控制器（通过SPI接口）</li>
+<li>84x48点阵，可显示100多个字符</li>
+</ol>
+
+<h1><a style="display: block;" name="硬件准备" href="#硬件准备"></a>硬件准备</h1>
+
+<ol>
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&amp;id=17337394004&amp;is_b=1&amp;cat_id=2&amp;q=%CA%F7%DD%AE%C5%C9&amp;rn=4004716f9ba818c1d69b5eb7818891b5">树莓派</a></li>
+<li><a href="http://item.taobao.com/item.htm?id=3125173573&amp;ali_trackid=2:mm_12926928_3484851_11423954:1364118594_4k1_653822857&amp;clk1=0b755dfca67112cd1b605914b40146e7&amp;spm=a230z.1.5634029.2.foR1Yu">Nokia 5110 拆机屏</a> 或 <a href="http://item.taobao.com/item.htm?spm=a230r.1.10.154.SdjftL&amp;id=13361097288&amp;_u=oqa31997">焊好的？</a> 注意不要买裸屏，需要带电路板的</li>
+<li><a href="http://list.tmall.com/search_product.htm?q=%B6%C5%B0%EE%CF%DF&amp;user_action=initiative&amp;at_topsearch=1&amp;sort=st&amp;type=p&amp;cat=&amp;style=">杜邦线</a> 母对母8条</li>
+<li>8P排针 用来焊接5110屏幕PCB板</li>
+<li><a href="http://detail.tmall.com/item.htm?id=22096296909&amp;ali_trackid=2:mm_12926928_3484851_11423954:1364118800_4k4_1229281314&amp;clk1=c7335b2dcbad93f47eaf5cd4d1cc140b&amp;spm=a230z.1.5634029.66.6xxdfN">电烙铁</a></li>
+</ol>
+
+<h1><a style="display: block;" name="电路" href="#电路"></a>电路</h1>
+
+<p>5110电路板有8个引脚，使用排针（如下图）将其焊上，方便后面用杜邦线连接，如果不会焊也可以买焊接好的。</p>
+
+
+        <div class="more">
+          <a href="/2013/03/24/20-raspberry-pi-drive-nokia-5110.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/23/19-raspberry-pi-drive-1602-lcd.html">如何使用Raspberry Pi在1602液晶屏上显示当前时间--电子钟</a> <span class="date">2013-03-23</span></h1>
+
+        <h1><a style="display: block;" name="硬件准备" href="#硬件准备"></a>硬件准备</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.6.nGxekg&amp;id=17337394004&amp;is_b=1&amp;cat_id=2&amp;q=%CA%F7%DD%AE%C5%C9&amp;rn=4004716f9ba818c1d69b5eb7818891b5">树莓派</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5&amp;type=p&amp;style=&amp;cat=all">面包板</a></li>
+<li><a href="http://s.taobao.com/search?spm=a230r.1.8.2.RvXL2p&amp;q=1602+%D2%BA%BE%A7&amp;commend=all&amp;source=haiwaigou&amp;ssid=s5-e&amp;pid=mm_14507416_2297358_8935934&amp;newpre=null&amp;tab=mall">1602液晶屏</a>一块</li>
+<li><a href="http://s.taobao.com/search?source=suggest&amp;haiwaifrom=1&amp;q=%B5%E7%CE%BB%C6%F7+10k&amp;initiative_id=staobaoz_20130323&amp;suggest_query=%B5%E7%CE%BB%C6%F7+10k&amp;sb_id=10&amp;suggest=0_2&amp;wq=%B5%E7%CE%BB%C6%F7&amp;tab=mall">10K电位器</a></li>
+<li><a href="http://list.tmall.com/search_product.htm?q=%B6%C5%B0%EE%CF%DF&amp;user_action=initiative&amp;at_topsearch=1&amp;sort=st&amp;type=p&amp;cat=&amp;style=">杜邦线</a></li>
+<li><a href="http://s.taobao.com/search?source=haiwaigou&amp;haiwaifrom=1&amp;q=%C5%C5%D5%EB&amp;initiative_id=staobaoz_20130323&amp;tab=mall">排针</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&amp;type=p&amp;style=&amp;cat=all">面包板电源</a></li>
+</ol>
+
+<h1><a style="display: block;" name="1602-lcd液晶屏" href="#1602-lcd液晶屏"></a>1602 LCD液晶屏</h1>
+
+<p>LCD1602液晶屏提供了16列x2行的ASCII字符显示能力，工作电压5V，提供4位数据与8位数据两种工作模式，因为Raspberry Pi的GPIO口数量很有限，所以使用4位数据模式。LCD1602液晶屏模块提供了16个引脚，我们只需接其中的12个即可&ndash;请参考<a href="http://hugozhu.myalert.info/2013/03/22/19-raspberry-pi-gpio-port-naming.html">GPIO命名规则</a>：</p>
+
+<ol>
+<li>VSS，接地，RPi PIN 6</li>
+<li>VDD，接5V电源，PRi PIN 2</li>
+<li>VO，液晶对比度调节，接电位器中间的引脚</li>
+<li>RS，寄存器选择，接GPIO 14，RPi PIN 8</li>
+<li>RW，读写选择，接地，表示写模式，PRi PIN 6</li>
+<li>EN，使能信号，接GPIO 15，RPi PIN 10</li>
+<li>D0，数据位0，4位工作模式下不用，不接</li>
+<li>D1，数据位1，4位工作模式下不用，不接</li>
+<li>D2，数据位2，4位工作模式下不用，不接</li>
+<li>D3，数据位3，4位工作模式下不用，不接</li>
+<li>D4，数据位4，接GPIO 17，RPi PIN 11</li>
+<li>D5，数据位5，接GPIO 18，RPi PIN 12</li>
+<li>D6，数据位6，接GPIO 27，RPi PIN 13</li>
+<li>D7，数据位7，接GPIO 22，RPi PIN 15</li>
+<li>A，液晶屏背光+，接5V，RPi PIN 2</li>
+<li>K，液晶屏背光-，接地，RPi PIN 6</li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/03/23/19-raspberry-pi-drive-1602-lcd.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/22/19-raspberry-pi-gpio-port-naming.html">Raspberry Pi GPIO的编号规范</a> <span class="date">2013-03-22</span></h1>
+
+        <p>树莓派和普通电脑不一样的地方在于它还带了17个可编程的<a href="http://en.wikipedia.org/wiki/General_Purpose_Input/Output">GPIO</a>（General Purpose Input/Output），可以用来驱动各种外设（如传感器，步进电机等）。但GPIO的编号方法有些混乱，不同的API（如wiringPi，RPi.GPIO等）对GPIO的端口号编号并不一样，下面则用图表标明了对应的叫法，这样在看程序例子的时候可以确定物理是哪个接口。</p>
+
+<h1><a style="display: block;" name="gpio库" href="#gpio库"></a>GPIO库</h1>
+
+<ol>
+<li><a href="https://github.com/WiringPi/WiringPi">wiringPi</a> C，有Perl, PHP, Ruby, Node.JS和<strong><a href="http://github.com/hugozhu/rpi">Golang</a></strong>的扩展，支持wiringPi Pin和BCM GPIO两种编号</li>
+<li><a href="https://pypi.python.org/pypi/RPi.GPIO">RPi.GPIO</a> Python，支持Board Pin和BCM GPIO两种编号</li>
+<li><a href="http://code.google.com/p/webiopi/">Webiopi</a>，Python, 使用BCM GPIO编号</li>
+<li><a href="http://github.com/hugozhu/rpi">WiringPi-Go</a>, Go语言，支持以上三种编号</li>
+</ol>
+
+<h1><a style="display: block;" name="编号规范" href="#编号规范"></a>编号规范</h1>
+
+<ol>
+<li>第一列是wiringPi API中的缺省编号，<code>wiringPiSetup()</code>采用这列编号</li>
+<li>第二列（Name）往往是转接板的编号</li>
+<li>第三列是树莓派板子上的自然编号（左边引脚为1-15，右边引脚为2-26），<code>RPi.GPIO.setmode(GPIO.BOARD)</code>采用这列编号</li>
+<li>树莓派主芯片提供商Broadcom的编号方法，相当于调用了<code>WiringPiSetupGpio()</code>或<code>RPi.GPIO.setmode(GPIO.BCM)</code>采用这列编号</li>
+</ol>
+
+<table>
+<thead>
+<tr>
+<td>wiringPi Pin</td>
+<td>Name</td>
+<td>Board Pin</td>
+<td>BCM GPIO</td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>GPIO 0</td>
+<td>11</td>
+<td>17</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>GPIO 1</td>
+<td>12</td>
+<td>18</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>GPIO 2</td>
+<td>13</td>
+<td>21</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>GPIO 3</td>
+<td>15</td>
+<td>22</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>GPIO 4</td>
+<td>16</td>
+<td>23</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>GPIO 5</td>
+<td>18</td>
+<td>24</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>GPIO 6</td>
+<td>22</td>
+<td>25</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>GPIO 7</td>
+<td>7</td>
+<td>4</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>SDA</td>
+<td>3</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>SCL</td>
+<td>5</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>CE0</td>
+<td>24</td>
+<td>8</td>
+</tr>
+
+<tr>
+<td>11</td>
+<td>CE1</td>
+<td>26</td>
+<td>7</td>
+</tr>
+
+<tr>
+<td>12</td>
+<td>MOSI</td>
+<td>19</td>
+<td>10</td>
+</tr>
+
+<tr>
+<td>13</td>
+<td>MISO</td>
+<td>21</td>
+<td>9</td>
+</tr>
+
+<tr>
+<td>14</td>
+<td>SCLK</td>
+<td>23</td>
+<td>11</td>
+</tr>
+
+<tr>
+<td>15</td>
+<td>TXD</td>
+<td>8</td>
+<td>14</td>
+</tr>
+
+<tr>
+<td>16</td>
+<td>RXD</td>
+<td>10</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+
+
+        <div class="more">
+          <a href="/2013/03/22/19-raspberry-pi-gpio-port-naming.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/17/03-17-interfacing-temperature-and-humidity-sensor-with-raspberry-pi.html">如何使用Raspberry Pi测量室内温度和湿度并绘制曲线</a> <span class="date">2013-03-17</span></h1>
+
+        <h1><a style="display: block;" name="硬件准备" href="#硬件准备"></a>硬件准备</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li>可以工作的<a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW">树莓派</a>一个</li>
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&amp;type=p&amp;style=&amp;cat=all&amp;ali_trackid=2:mm_12926928_3484851_11423971:1364041941_4k1_1171281511&amp;upsid=8daf4a561f161cd669d949c6bf367733&amp;clk1=8daf4a561f161cd669d949c6bf367733">面包板</a>和<a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&amp;type=p&amp;style=&amp;cat=all">公对母杜邦线</a></li>
+<li><a href="http://list.tmall.com/search_product.htm?q=10K+%B5%E7%CE%BB%C6%F7&amp;user_action=initiative&amp;at_topsearch=1&amp;sort=st&amp;type=p&amp;cat=&amp;style=">10K 电位器</a>一个</li>
+<li><a href="http://list.tmall.com//search_product.htm?q=DHT11&amp;type=p&amp;style=&amp;cat=all">DHT11</a>温度和湿度传感器一个或<a href="http://s.taobao.com/search?q=DHT22&amp;keyword=&amp;commend=all&amp;ssid=s5-e&amp;search_type=item&amp;atype=&amp;tracelog=&amp;sourceId=tb.index&amp;rt=1364041904459&amp;source=haiwaigou&amp;pid=mm_14507416_2297358_8935934&amp;unid=">DHT22</a></li>
+</ol>
+
+<h1><a style="display: block;" name="传感器电路及原理" href="#传感器电路及原理"></a>传感器电路及原理</h1>
+
+<h2><a style="display: block;" name="dht11传感器外观" href="#dht11传感器外观"></a>DHT11传感器外观</h2>
+
+<p><img src="http://learn.adafruit.com/system/products/images/000/000/386/medium225/dht11_MED.jpg?1342023044"/></p>
+
+<h2><a style="display: block;" name="参数" href="#参数"></a>参数</h2>
+
+
+        <div class="more">
+          <a href="/2013/03/17/03-17-interfacing-temperature-and-humidity-sensor-with-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/16/03-16-use-raspberry-pi-control-step-motor-rotate-webcam.html">如何使用Raspberry Pi控制步进电机旋转高清摄像头并拍照</a> <span class="date">2013-03-16</span></h1>
+
+        <h1><a style="display: block;" name="硬件准备" href="#硬件准备"></a>硬件准备</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li>可以工作的<a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW">树莓派</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHoWKV0kwS8Wy16Cg6qBM%2BZAOnJCqNG%2BPJAy9U15g8TwJiq5U3GGcJ8eTvC7%2F6APShw%3D%3D">母对母1P杜邦线</a>6根</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxjSLt%2BsmFEpvY8zQ4WXjoTHsLWTKD4gnL0sndE3qVPXd4UC6NUEZOQAryYUWhO7gt10i%2FUQ%3D%3D">DC 5V4相28YBJ-48步进电机</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxjSLuXQmw2TUIlWTNRCvS2wo483pjZyXspPuvkTH5pg4vQUqrztOAoNz2Gfp8MmwKPg%2FbQb8%3D">UL2003芯片步进电机驱动板</a>一块</li>
+</ol>
+
+<h1><a style="display: block;" name="安装" href="#安装"></a>安装</h1>
+
+<p>按下图将步进电机接到驱动板上，也就是白色的接口</p>
+
+<p><img src="http://img04.taobaocdn.com/bao/uploaded/i4/T10lS4XnXfXXaZhKrX_115008.jpg_310x310.jpg"/></p>
+
+<p><img src="http://img02.taobaocdn.com/imgextra/i2/49873130/T2534HXoBXXXXXXXXX_!!49873130.jpg" width="600"/></p>
+
+
+        <div class="more">
+          <a href="/2013/03/16/03-16-use-raspberry-pi-control-step-motor-rotate-webcam.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/03/13/vistor-on-homepage-led-indicator.html">如何在Raspberry Pi上用LED闪烁提示网站首页新访客</a> <span class="date">2013-03-13</span></h1>
+
+        <p>本方法只适合小网站，主要是好玩。Raspberry Pi不是很合适需要实时控制的系统（比如，飞行器，遥控小车），因为Linux内核要多任务，应用程序的优先级不能保持最高，会带来延时，但做些实时性要求不高的系统还是可以的。</p>
+
+<h1><a style="display: block;" name="硬件安装" href="#硬件安装"></a>硬件安装</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li>可以工作的<a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW">树莓派</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHoWKV0kwS8Wy16Cg6qBM%2BZAOnJCqNG%2BPJAy9U15g8TwJiq5U3GGcJ8eTvC7%2F6APShw%3D%3D">1P杜邦线2条</a></li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxiNm9RKSkRargJCPYP6KVEIQUWKzMUFn1hvlcbkMSKk3m2pVJo%2BqQDYKVz%2Bt1%2FjL7Iywe7g%3D%3D">面包板</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHKxVk7v382jKYSyD7qi5ltcqvLWmWBL7lxLB2%2BsaWLuet8Ik65QHyGWV5mRTheUA">面包板跳线</a> 或 <a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.166.XlEzyw&amp;id=15208013820&amp;_u=nqa35596&amp;is_b=1&amp;cat_id=2&amp;q=%C5%C5%D5%EB&amp;rn=bb53adf333ca7517208da34346ac3ffb">单排针</a> 两根</li>
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.30.wnPTNf&amp;id=14576731464&amp;_u=nqa35af3&amp;is_b=1&amp;cat_id=2&amp;q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&amp;rn=b12ffd48699547ed9cb982a88014a0aa">发光二极管</a>一个</li>
+<li>300欧姆的<a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxiNm80QgaIDkojjQIBhc4L8WmRpaGVVBVD9DpAt8wKPZTmbzvVp4EIdCD2Ow2DOQmdPtlV8g%3D">电阻</a>一个</li>
+</ol>
+
+<h2><a style="display: block;" name="gpio接口" href="#gpio接口"></a>GPIO接口</h2>
+
+<p><img src="http://ww1.sinaimg.cn/large/6bc40342gw1e2o2uls7wlj.jpg" width="630"/></p>
+
+<p>用杜邦线将上图的3.3V输出和GPIO 23引出（板子正面朝上，GPIO引脚在左上角），将电阻和LED串联起来（电阻防止LED电流过大烧掉），注意二极管的两根脚不一样长，长脚的接正级，这样GPIO 23如果输出高电平，二极管就不发光了，输出低电平就亮啦！</p>
+
+
+        <div class="more">
+          <a href="/2013/03/13/vistor-on-homepage-led-indicator.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/3/">3</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>并发编程之内存屏障 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Memory Barriers/Fences：一组处理器指令，用来实现内存数据对CPU的可见性。 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>并发编程之内存屏障 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p>原文地址：<a href="http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html"><code>http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html</code></a> 或 <a href="http://ifeve.com/memory-barriersfences/"><code>http://ifeve.com/memory-barriersfences/</code></a></p>
+
+<p>关键词：Load Barrier, Store Barrier, Full Barrier</p>
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">Store Barrier</a></li>
+<li><a href="#toc_1">Load Barrier</a></li>
+<li><a href="#toc_2">Full Barrier</a></li>
+<li><a href="#toc_3">Java内存模型</a></li>
+<li><a href="#toc_4">原子指令和Software Locks</a></li>
+<li><a href="#toc_5">内存屏障的性能影响</a></li>
+</ul>
+</nav></p>
+
+<p>本文我将和大家讨论并发编程中最基础的一项技术：内存屏障或内存栅栏，也就是让一个CPU处理单元中的内存状态对其它处理单元可见的一项技术。</p>
+
+<p>CPU使用了很多优化技术来达成一个事实：CPU执行单元的速度要远超主存访问速度。在我上一篇文章 &ldquo;Write Combing - 合并写&rdquo;中我已经介绍了其中的一项技术。CPU避免内存访问延迟最常见的技术是将指令管道化，然后尽量重排这些管道的执行以最大利用缓存而把因为缓存未命中引起的延迟降到最小。</p>
+
+<p>当一个程序执行时指令是否被重排并不重要，只要最终的结果是一样的。例如，在一个循环里，如果循环体内没用到这个计数器，循环的计数器什么时候更新（在循环开始，中间还是最后）并不重要。编译器和CPU可以自由的重排指令以最佳的利用CPU，只要下一次循环前更新该计数器即可。并且在循环执行中，这个变量可能一直存在寄存器上，并没有被推到缓存或主存，这样这个变量对其他CPU来说一直都是不可见的。</p>
+
+<p>CPU核内部包含了多个执行单元。例如，现代Intel CPU包含了6个执行单元，可以组合进行算术运算，逻辑条件判断及内存操作。每个执行单元可以执行上述任务的某种组合。这些执行单元是并行执行的，这样指令也就是在并行执行。但如果站在另一个CPU角度看，这也就产生了程序顺序的另一种不确定性。</p>
+
+<p>最后，当一个缓存失效发生时，现代CPU可以先假设一个内存载入的值并根据这个假设值继续执行，直到内存载入返回确切的值。</p>
+
+<p><img src="http://ifeve.com/wp-content/uploads/2013/03/cpu.png"/></p>
+
+<pre><code>CPU核
+  |
+  V
+寄存器
+  |
+  V
+执行单元 -&gt; Load/Store缓冲区-&gt;L1 Cache ---&gt;L3 Cache--&gt;内存控制器--&gt;主存
+       |                                   |
+       +-&gt; Write Combine缓冲区-&gt;L2 Cache ---+
+</code></pre>
+
+<p>代码顺序并不是真正的执行顺序，CPU和编译器可以各种优化只要有空间提高性能。缓存和主存的读取会利用load, store和write-combining缓冲区来缓冲和重排。这些缓冲区是查找速度很快的关联队列，当一个后来发生的load需要读取上一个store的值，而该值还没有到达缓存，查找是必需的，上图描绘的是一个简化的现代多核CPU，从上图可以看出执行单元可以利用本地寄存器和缓冲区来管理和缓存子系统的交互。</p>
+
+<p>在多线程环境里需要使用技术来使得程序结果尽快可见。这篇文章里我不会涉及到 Cache Conherence 的概念。请先假定一个事实：一旦内存数据被推送到缓存，就会有消息协议来确保所有的缓存会对所有的共享数据同步并保持一致。这个使内存数据对CPU核可见的技术被称为内存屏障或内存栅栏。</p>
+
+<p>内存屏障提供了两个功能。首先，它们通过确保从另一个CPU来看屏障的两边的所有指令都是正确的程序顺序，而保持程序顺序的外部可见性；其次它们可以实现内存数据可见性，确保内存数据会同步到CPU缓存子系统。</p>
+
+<p>大多数的内存屏障都是复杂的话题。在不同的CPU架构上内存屏障的实现非常不一样。相对来说Intel CPU的强内存模型比DEC Alpha的弱复杂内存模型（缓存不仅分层了，还分区了）更简单。因为x86处理器是在多线程编程中最常见的，下面我尽量用x86的架构来阐述。</p>
+
+<h1 id="toc_0">Store Barrier</h1>
+
+<p>Store屏障，是x86的&rdquo;<strong>sfence</strong>&ldquo;指令，强制所有在store屏障指令之前的store指令，都在该store屏障指令执行之前被执行，并把store缓冲区的数据都刷到CPU缓存。这会使得程序状态对其它CPU可见，这样其它CPU可以根据需要介入。一个实际的好例子是Disruptor中的<a href="http://code.google.com/p/disruptor/source/browse/trunk/code/src/main/com/lmax/disruptor/BatchEventProcessor.java">BatchEventProcessor</a>。当序列Sequence被一个消费者更新时，其它消费者(Consumers)和生产者（Producers）知道该消费者的进度，因此可以采取合适的动作。所以屏障之前发生的内存更新都可见了。</p>
+
+<pre><code>private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
+ 
+// from inside the run() method
+ 
+T event = null;
+long nextSequence = sequence.get() + 1L;
+while (running)
+{
+    try
+    {
+        final long availableSequence = barrier.waitFor(nextSequence);
+ 
+        while (nextSequence &lt;= availableSequence)
+        {
+            event = ringBuffer.get(nextSequence);
+            boolean endOfBatch = nextSequence == availableSequence;
+            eventHandler.onEvent(event, nextSequence, endOfBatch);
+            nextSequence++;
+        }
+ 
+        sequence.set(nextSequence - 1L); 
+        // store barrier inserted here !!!
+    }
+    catch (final Exception ex)
+    {
+        exceptionHandler.handle(ex, nextSequence, event);
+        sequence.set(nextSequence);
+        // store barrier inserted here !!!
+        nextSequence++;
+    }
+}
+</code></pre>
+
+<h1 id="toc_1">Load Barrier</h1>
+
+<p>Load屏障，是x86上的&rdquo;<strong>ifence</strong>&ldquo;指令，强制所有在load屏障指令之后的load指令，都在该load屏障指令执行之后被执行，并且一直等到load缓冲区被该CPU读完才能执行之后的load指令。这使得从其它CPU暴露出来的程序状态对该CPU可见，这之后CPU可以进行后续处理。一个好例子是上面的BatchEventProcessor的sequence对象是放在屏障后被生产者或消费者使用。</p>
+
+<h1 id="toc_2">Full Barrier</h1>
+
+<p>Full屏障，是x86上的&rdquo;<strong>mfence</strong>&ldquo;指令，复合了load和save屏障的功能。</p>
+
+<h1 id="toc_3">Java内存模型</h1>
+
+<p><a href="http://en.wikipedia.org/wiki/Java_Memory_Model">Java内存模型</a>中<strong>volatile</strong>变量在写操作之后会插入一个store屏障，在读操作之前会插入一个load屏障。类的<strong>final</strong>字段会在初始化后插入一个store屏障来确保final字段在构造函数完成可被使用时可见。</p>
+
+<h1 id="toc_4">原子指令和Software Locks</h1>
+
+<p>原子指令，如x86上的&rdquo;lock &hellip;&rdquo; 指令是一个Full Barrier，执行时会锁住内存子系统来确保执行顺序，甚至跨多个CPU。Software Locks通常使用了内存屏障或原子指令来实现变量可见性和保持程序顺序。</p>
+
+<h1 id="toc_5">内存屏障的性能影响</h1>
+
+<p>内存屏障阻碍了CPU采用优化技术来降低内存操作延迟，必须考虑因此带来的性能损失。为了达到最佳性能，最好是把要解决的问题模块化，这样处理器可以按单元执行任务，然后在任务单元的边界放上所有需要的内存屏障。采用这个方法可以让处理器不受限的执行一个任务单元。合理的内存屏障组合还有一个好处是：缓冲区在第一次被刷后开销会减少，因为再填充改缓冲区不需要额外工作了。</p>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/04/03/24-google-channel-service.html" title="在Raspberry Pi上使用Google Channel服务搭建实时应用">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/28/23-arduino-1st-day.html" title="Arduino初试">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-28</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>45</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Java-ref">Java <span>5</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#Concurrent-Programming-ref">Concurrent Programming <span>3</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#%E6%96%87%E7%AB%A0%E7%BF%BB%E8%AF%91-ref">文章翻译 <span>1</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

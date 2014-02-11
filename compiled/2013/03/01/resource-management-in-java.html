@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Java的资源管理 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Introduction of best practices for Java resource management 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>Java的资源管理 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>Java程序中的常见的资源有：文件，Socket，数据库连接。在使用这些资源时候要分外小心，因为操作系统可同时操作的资源是有限的，比如默认情况下系统允许同时打开的文件数为1024个，Mysql服务器默认允许的最大连接数是100，所以操作这些资源时候要注意即使在遇到错误时也要让系统能正确回收资源。如果发生错误时候，打开的文件描述符没关闭或数据库连接没关闭，积累到一定程度后，应用将会变得不可用，只能重启。</p>
+
+<h2><a style="display: block;" name="try-catch-finally" href="#try-catch-finally"></a>try-catch-finally</h2>
+
+<p>Java提供了try-catch-finally来保证程序遇到异常时总是有机会可以处理资源的关闭 &ndash; 调用资源对象的close()方法。但经验不足的Java程序员还是会错误的管理资源，而造成资源的泄露，静态代码分析工具，如<a href="http://findbugs.sourceforge.net"><strong>FindBugs</strong></a>可以帮助发现此类问题。</p>
+
+<p>首先我们来看一段文件操作代码：</p>
+
+<pre><code>private void copy(String from, String to) throws IOException {
+    FileInputStream in = null;  
+    FileOutputStream out = null;  
+    in = new FileInputStream(from);  
+    out = new FileOutputStream(to);  
+    int c;  
+    while ((c = in.read()) != -1)
+        out.write(c);  
+    in.close();
+    out.close();
+}
+</code></pre>
+
+<p>一眼看上去，代码挺整齐的，逻辑也容易理解。但其中有一个很大的问题是，如果out.write调用失败（比如磁盘空间满了）方法异常退出，in.close()和out.close()就不会被调用，而in和out对象内部都引用了系统资源-<a href="http://zh.wikipedia.org/wiki/文件描述符">文件描述符</a>，这样会导致文件描述符没有关闭，不能被重新使用而直到整个Java进程退出。</p>
+
+<h4><a href="http://en.wikipedia.org/wiki/File_descriptor">File descriptor</a></h4>
+
+<p>Linux的每个进程（如：Java进程）都有一个文件描述符表管理当前进程访问的所有的文件，文件描述符关联了系统文件表中的file entry，系统能容纳多少file entry是有限制的，如果超过限制系统会拒绝访问，抛出Too many opened files错误。</p>
+
+<p><img src="https://pbs.twimg.com/media/BEUt3v3CEAAeP-m.jpg:large"/></p>
+
+<p>较为正确的代码应该是：</p>
+
+<pre><code>private void copy(String src, String dest) throws IOException {
+    FileInputStream in = null;  
+    FileOutputStream out = null;  
+    try {
+        in = new FileInputStream(src);  
+        out = new FileOutputStream(dest);  
+        int c;  
+        while ((c = in.read()) != -1)
+            out.write(c);
+    } finally {
+         try {
+             if (in!=null) {
+                in.close();
+             }
+         } finally {
+             if (out!=null) {
+                out.close();
+             }
+         }
+    }
+}
+</code></pre>
+
+<p>但是这样的代码写起来是不是让人有点沮丧？这样写代码犯错的可能性确实比较大。
+改良过后的代码阅读性好一些：</p>
+
+<pre><code>private void copy(String src, String dest) throws IOException {
+    FileInputStream in = null;  
+    FileOutputStream out = null;  
+    try {
+        in = new FileInputStream(src);  
+        out = new FileOutputStream(dest);  
+        int c;  
+        while ((c = in.read()) != -1)
+            out.write(c);  
+    } finally {
+        FileUtils.close(in);
+        FileUtils.close(out);
+    }
+}
+</code></pre>
+
+<p>让我们也看看在其他语言里是怎么实现的：</p>
+
+<h3>Ruby：</h3>
+
+<pre><code>def copy(src, dest)
+    File.open(dest, 'w') do |f|  
+        f.write(File.read(src))
+    end  
+end
+</code></pre>
+
+<p>Ruby的File.open 方法接受一个函数作为参数，执行该函数后，会保证打开的文件被关闭，即使在执行函数过程中有异常。相比之下这种代码优美多了有没有？</p>
+
+<h3>Golang：</h3>
+
+<pre><code>func copy(src string, dest string) {
+    src_file, err := os.Open(src)
+    if err != nil { panic(err) }
+    defer src_file.Close()
+
+    dest_file, err := os.Open(dest)
+    if err != nil { panic(err) }
+    defer dest_file.Close() 
+
+    buf := make([]byte,1024)
+
+    for {
+        n, err := src_file.Read(buf)
+        if err != nil &amp;&amp; err != io.EOF { panic(err) }
+        if n == 0 {break}
+
+        if _, err:= dest_file.Write(buf[:n]); err != nil {
+           panic(err)
+        } 
+    }       
+}
+</code></pre>
+
+<p>Go语言通过defer关键词来保证程序结束时相应的方法会被调用，嗯，你还是要显示的写Close()方法，但有一点改进就是你可以在打开后立刻写关闭语句，只要加上defer关键词。</p>
+
+<h3>Clojure：</h3>
+
+<pre><code>defn copy[src dest] ( 
+   (with-open [rdr (reader src)
+               wrtr (writer dest)]
+      (doseq [line (line-seq rdr)]
+          (.write wrtr line))))
+</code></pre>
+
+<p>Clojure通过with-open函数来保证打开的文件在异常情况下也会被关闭</p>
+
+<h3>Java 7：</h3>
+
+<pre><code>private void copy(String src, String dest) throws IOException {
+    FileInputStream in = null;  
+    FileOutputStream out = null;  
+    try (FileInputStream in = new FileInputStream(src);  
+         FileOutputStream out = new FileOutputStream(dest)) {            
+        int c;  
+        while ((c = in.read()) != -1)
+            out.write(c);  
+}
+</code></pre>
+
+<p>终于Java 7通过自动资源管理较好的解决了这个问题，try()代码块内的变量在离开时候会自动调用AutoCloseable接口必须实现的close()方法。java.lang.AutoCloseable接口是在Java 7内新增的。</p>
+
+<h2><a style="display: block;" name="独占资源和并发访问" href="#独占资源和并发访问"></a>独占资源和并发访问</h2>
+
+<h3>锁</h3>
+
+<h4>读写锁</h4>
+
+<h3>信号量</h3>
+
+<h3>连接池</h3>
+
+<h2><a style="display: block;" name="作业" href="#作业"></a>作业</h2>
+
+<p>TODO：</p>
+
+<h2><a style="display: block;" name="参考链接" href="#参考链接"></a>参考链接</h2>
+
+<ol>
+<li><a href="http://www.oracle.com/technetwork/articles/java/trywithresources-401775.html">Better Resource Management with Java SE 7: Beyond Syntactic Sugar</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/03/02/openvpn-multiple-ports.html" title="OpenVPN使用多个端口">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html" title="在Ubuntu上配置L2TP，PPTP和OpenVPN服务">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-01</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>45</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Java-ref">Java <span>5</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#%E4%BB%A3%E7%A0%81%E4%B9%8B%E7%BE%8E-ref">代码之美 <span>2</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

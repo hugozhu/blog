@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>如何使用Raspberry Pi控制步进电机旋转高清摄像头并拍照 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="后续利用OpenCV还可以合成多张照片成全景图，或者多角度连续视频录制 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>如何使用Raspberry Pi控制步进电机旋转高清摄像头并拍照 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">硬件准备</a></li>
+<li><a href="#toc_1">安装</a>
+<ul>
+<li><a href="#toc_2">步进电机电源</a></li>
+<li><a href="#toc_3">步进电机驱动线路</a></li>
+<li><a href="#toc_4">安装摄像头</a></li>
+</ul></li>
+<li><a href="#toc_5">驱动示例代码</a>
+<ul>
+<li><a href="#toc_6">转动效果视频</a></li>
+</ul></li>
+<li><a href="#toc_7">连续转动拍摄代码实现</a></li>
+<li><a href="#toc_8">拍摄图片效果</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">硬件准备</h1>
+
+<p>需要以下硬件：</p>
+
+<ol>
+<li>可以工作的<a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHo44Chb01aWIu4ho12MwdcCLV6ff8kJMg0iz0FTGXaJAqMvt94sTe0NIrCAdd8LW">树莓派</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CITy7klxxrJ35Nnc0iO6niAHoWKV0kwS8Wy16Cg6qBM%2BZAOnJCqNG%2BPJAy9U15g8TwJiq5U3GGcJ8eTvC7%2F6APShw%3D%3D">母对母1P杜邦线</a>6根</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxjSLt%2BsmFEpvY8zQ4WXjoTHsLWTKD4gnL0sndE3qVPXd4UC6NUEZOQAryYUWhO7gt10i%2FUQ%3D%3D">DC 5V4相28YBJ-48步进电机</a>一个</li>
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB07S4%2FK0CFcRfH0GoT805sipKjxjSLuXQmw2TUIlWTNRCvS2wo483pjZyXspPuvkTH5pg4vQUqrztOAoNz2Gfp8MmwKPg%2FbQb8%3D">UL2003芯片步进电机驱动板</a>一块</li>
+</ol>
+
+<h1 id="toc_1">安装</h1>
+
+<p>按下图将步进电机接到驱动板上，也就是白色的接口</p>
+
+<p><img src="http://img04.taobaocdn.com/bao/uploaded/i4/T10lS4XnXfXXaZhKrX_115008.jpg_310x310.jpg"/></p>
+
+<p><img src="http://img02.taobaocdn.com/imgextra/i2/49873130/T2534HXoBXXXXXXXXX_!!49873130.jpg" width="600"/></p>
+
+<h2 id="toc_2">步进电机电源</h2>
+
+<p>步进电机需要5V电压驱动，而树莓派的<a href="http://elinux.org/RPi_Low-level_peripherals">GPIO接口</a>中已有5V输出，将图中的Pin 2（最右上角那个）5V，接到驱动板的5V正极，Pin 6接到5V负级，电源部分则搞定。</p>
+
+<p><img src="http://trouch.com/wp-content/uploads/2012/08/webiopi-chrome.png" width="600"/></p>
+
+<h2 id="toc_3">步进电机驱动线路</h2>
+
+<p>驱动板上有IN1, IN2, IN3, IN4四个接口，根据资料得知这四个接口依次设置为低电平就可以驱动，我们分别用杜邦线将GPIO 17（Pin 11），GPIO 18（Pin 12）, GPIO 21（Pin 13）, GPIO 22（Pin 15）和IN1，IN2，IN3，IN4一一相连。 <strong>注意不同的GPIO驱动程序对端口的编号不一定一样（至少有三种叫法：Board，Broadcom，GPIO）</strong></p>
+
+<p>驱动原理：（每次将四个GPIO端口按下表依次设置好电平后，可以sleep几十毫秒来控制转速）</p>
+
+<table>
+<thead>
+<tr>
+<td><strong>序列</strong></td>
+<td><strong>GPIO 17</strong></td>
+<td><strong>GPIO 18</strong></td>
+<td><strong>GPIO 21</strong></td>
+<td><strong>GPIO 22</strong></td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td><strong>LOW</strong></td>
+<td>HIGH</td>
+<td>HIGH</td>
+<td>HIGH</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>HIGH</td>
+<td><strong>LOW</strong></td>
+<td>HIGH</td>
+<td>HIGH</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>HIGH</td>
+<td>HIGH</td>
+<td><strong>LOW</strong></td>
+<td>HIGH</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>HIGH</td>
+<td>HIGH</td>
+<td>HIGH</td>
+<td><strong>LOW</strong></td>
+</tr>
+
+<tr>
+<td>4</td>
+<td><strong>LOW</strong></td>
+<td>HIGH</td>
+<td>HIGH</td>
+<td>HIGH</td>
+</tr>
+
+<tr>
+<td>…</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_4">安装摄像头</h2>
+
+<p>本来是希望用3D打印机来制作齿轮和支架来完成这部分工作的，但因为打印机还没到货，所以先用乐高积木来做了, 刚好乐高积木可以插在步进电机中轴上，而且很牢靠，还不用密封带了。</p>
+
+<p>摄像头如下图用两根导线固定在乐高积木上：</p>
+
+<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1e2rqxrtrd2j.jpg"/></p>
+
+<p>然后用各种积木搭个底座把电机固定起来，并留两个洞口可以将驱动线和摄像头的USB线穿出，这样表面上比较整齐，USB线也不会因为牵扯影响转动。</p>
+
+<p><img src="http://ww4.sinaimg.cn/bmiddle/6bc40342jw1e2rqt5b23rj.jpg"/></p>
+
+<p><a href="http://photo.weibo.com/1808008002/wbphotos/large/photo_id/3556528869320348?refer=weibofeedv5">点击看大图</a></p>
+
+<h1 id="toc_5">驱动示例代码</h1>
+
+<p>这里使用的是Python GPIO库，注意这里的端口命名是按树莓派的Board叫法（Pin 11, 12, 13, 15）</p>
+
+<pre><code>root@raspberrypi2 ~/projects/step_motor # cat motor.py
+import RPi.GPIO as GPIO
+import time
+import sys
+from array import *
+
+GPIO.setwarnings(False) 
+GPIO.setmode(GPIO.BOARD)
+
+steps    = int(sys.argv[1]);
+clockwise = int(sys.argv[2]);
+
+arr = [0,1,2,3];
+if clockwise!=1:
+    arr = [3,2,1,0];
+
+ports = [11,12,13,15]
+
+for p in ports:
+    GPIO.setup(p,GPIO.OUT)
+
+for x in range(0,steps):
+    for j in arr:
+        time.sleep(0.01)
+        for i in range(0,4):
+            if i == j:            
+                GPIO.output(ports[i],True)
+            else:
+                GPIO.output(ports[i],False)
+</code></pre>
+
+<p>执行<code>python motor.py  90 0</code> 可以顺时针转动大约80度。</p>
+
+<p>执行<code>python motor.py  90 1</code> 则可逆时针转动大约80度。</p>
+
+<h2 id="toc_6">转动效果视频</h2>
+
+<p><embed src="http://player.youku.com/player.php/sid/XNTI3MzU1MjIw/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></p>
+
+<h1 id="toc_7">连续转动拍摄代码实现</h1>
+
+<p>这次使用<a href="http://code.google.com/p/webiopi/">webiopi</a>把控制程序转换成REST API，这样方便网页调用。</p>
+
+<pre><code>root@raspberrypi2 ~/projects/gpio_server # cat webiopi_custom.py
+# Imports
+import webiopi
+import time
+
+# Retrieve GPIO lib
+GPIO = webiopi.GPIO
+
+# -------------------------------------------------- #
+# Macro definition part                              #
+# -------------------------------------------------- #
+
+# A custom macro which prints out the arg received and return OK
+def myMacroWithArgs(arg1, arg2, arg3):
+    print(&quot;myMacroWithArgs(%s, %s, %s)&quot; % (arg1, arg2, arg3))
+    return &quot;OK&quot;
+
+# A custom macro without args which return nothing
+def myMacroWithoutArgs():
+    print(&quot;myMacroWithoutArgs()&quot;)
+
+# Example loop which toggle GPIO 7 each 5 seconds
+def loop():
+    time.sleep(5)        
+
+
+def turnLed(port_str, ms):
+    port = int(port_str)
+    GPIO.setFunction(port,GPIO.OUT)    
+    GPIO.output(port,GPIO.LOW)
+    time.sleep(float(ms)/1000)
+    GPIO.output(port,GPIO.HIGH)
+
+def turnWebcam(steps_str, clockwise_str):
+    steps = int(steps_str);
+    clockwise = int(clockwise_str);
+    arr = [0,1,2,3];
+    if clockwise!=1:
+        arr = [3,2,1,0];
+
+    ports = [17,18,27,22]
+
+    for p in ports:
+        GPIO.setFunction(p,GPIO.OUT)
+
+    for x in range(0,steps):
+        for j in arr:
+            time.sleep(0.01)
+            for i in range(0,4):
+                if i == j:            
+                    GPIO.output(ports[i],GPIO.LOW)
+                else:
+                    GPIO.output(ports[i],GPIO.HIGH)
+
+# -------------------------------------------------- #
+# Initialization part                                #
+# -------------------------------------------------- #
+
+# Setup GPIOs
+
+# -------------------------------------------------- #
+# Main server part                                   #
+# -------------------------------------------------- #
+
+# Instantiate the server on the port 8000, it starts immediately in its own thread
+server = webiopi.Server(port=8001, login=&quot;pi&quot;, password=&quot;pi&quot;)
+# or     webiopi.Server(port=8000, passwdfile=&quot;/etc/webiopi/passwd&quot;)
+
+# Register the macros so you can call it with Javascript and/or REST API
+server.addMacro(turnWebcam)
+server.addMacro(turnLed)
+
+
+# -------------------------------------------------- #
+# Loop execution part                                #
+# -------------------------------------------------- #
+
+# Run our loop until CTRL-C is pressed or SIGTERM received
+webiopi.runLoop()
+
+# If no specific loop is needed and defined above, just use 
+# webiopi.runLoop()
+# here instead
+
+# -------------------------------------------------- #
+# Termination part                                   #
+# -------------------------------------------------- #
+
+# Cleanly stop the server
+server.stop()
+</code></pre>
+
+<p>执行<code>python webiopi_custom.py</code> 后启动GPIO REST API服务器</p>
+
+<p>转动命令是：<code>curl --data &quot;&quot; &quot;http://pi:pi@raspberrypi2:8001/macros/turnWebcam/90,0</code></p>
+
+<p>拍照命令是：<code>/usr/bin/fswebcam -v -r 640x480 --no-banner /var/www/fswebcam/foo.jpg</code></p>
+
+<p>于是我们可以用以下方法来实现连续拍摄：</p>
+
+<ol>
+<li>执行拍照命令, 生成right.jpg</li>
+<li>顺时转80度</li>
+<li>执行拍照命令, 生成middle.jpg</li>
+<li>顺时转80度</li>
+<li>执行拍照命令, 生成left.jpg</li>
+<li>逆时针转160度归位</li>
+</ol>
+
+<p>将命令通过网页执行后，就可以在外面看房间里的情况了，今天出去外面采草莓在iPhone上试了一下，结果符合预期。</p>
+
+<h1 id="toc_8">拍摄图片效果</h1>
+
+<p>在手机上看到的页面：点Reload会重新连拍三张
+<img src="http://ww3.sinaimg.cn/large/6bc40342jw1e2r069hyhsj.jpg"/></p>
+
+<p>总共花了不到2小时就可以搞定这个了，还是非常好玩的~ 后面还可以用OpenCV库来合成照片到真正的全景图</p>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/03/17/03-17-interfacing-temperature-and-humidity-sensor-with-raspberry-pi.html" title="如何使用Raspberry Pi测量室内温度和湿度并绘制曲线">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/13/vistor-on-homepage-led-indicator.html" title="如何在Raspberry Pi上用LED闪烁提示网站首页新访客">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-16</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>45</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Raspberry-Pi-ref">Raspberry Pi <span>14</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+<br/>
+
+
+
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11423954";
+alimama_type="g";
+alimama_tks={};
+alimama_tks.style_i=1;
+alimama_tks.lg_i=1;
+alimama_tks.w_i="300";
+alimama_tks.h_i=45;
+alimama_tks.btn_i=1;
+alimama_tks.txt_s="树莓派";
+alimama_tks.hot_i=0;
+alimama_tks.hc_c="0065FF";
+alimama_tks.cid_i="50008090";
+alimama_tks.c_i=0;
+</script>
+<script type="text/javascript" src="http://a.alimama.cn/inf.js"></script>
+
+<h3>
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5Gze6lARW%2F6wppaeuAahpi92q7zwCUfaJaaRSsqaln1AWSo6Ao%2BYc%3D">egoman旗舰店 树莓派官方授权制造</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?id=17337394004&ali_trackid=2:mm_12926928_3484851_11423954:1363964513_3k4_104244671&spm=a230z.1.5634029.2.nmZsrN">树莓派B型 512M</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C3%E6%B0%FC%B0%E5&type=p&style=&cat=all">面包板</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%C3%E6%B0%FC%B0%E5+%B5%E7%D4%B4&type=p&style=&cat=all">面包板电源</a></li>
+<li><a href="http://list.tmall.com//search_product.htm?q=%B6%C5%B0%EE%CF%DF&type=p&style=&cat=all">杜邦线（公对公，母对母，公对母）</a></li>
+
+<li><a href="http://list.tmall.com/search_product.htm?q=%C5%C5%D5%EB&type=p&style=&cat=all">排针</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Qj0yrp&id=19320559408">跳线</a></li>
+
+<li><a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.34.Iy6r5n&id=14576731464&_u=mqa33139&is_b=1&cat_id=2&q=%B7%A2%B9%E2%B6%FE%BC%AB%B9%DC&rn=f5ce756f4550ee7d2c3a5794da51f2a7">发光二极管</a></li>
+
+
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyJopkOI0QYvoXibidEuXaVS1kmBWdIaObwQ6rnZeltwKMIMp8%3D">移动电源</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG69RGcaJQDLBg9qZFCEzRcuylpLAGxgREQ5AnqOebFmdm0IydZK9qnSnlgNpbsFs1pVYRI%3D"><img src=""/>iPhone手机配件</a></li>
+
+<li><a href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5BWwyIbXkIQ9g3b0zWA6Pnee2K4ztHaNxInPc9zXsn8C1rmzfu2B8%3D">苹果配件</a></li>
+
+
+</h3>
+
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_12926928_3484851_11373345";
+alimama_width=300;
+alimama_height=250;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+
+<div><a onclick="clk_track('ad_right_pi')" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB04MQzdgG3VSuWRI1IF3n%2FzhW5HbKnj4dMMnZV62W6Vrr4aYHB0LrtzeEqVzfF8UMo0UFO03%2Faad4M%3D"><img style="border:1px solid #ccc" width="300" height="300" src="http://img03.taobaocdn.com/bao/uploaded/i3/14364033184428336/T13oBtXwRbXXXXXXXX_!!0-item_pic.jpg_300x300.jpg"/></a></div>
+
+</div>
+
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

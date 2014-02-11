@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Use volatile for safe publication 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Blogs</h1>
+</div>
+
+
+<div class="row">
+  <div class="span12">
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/2/">2</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+
+
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/05/13/34-use-74HC595-8-bit-shift-register-with-raspberry-pi.html">使用8位移位寄存器74HC595扩展树莓派的IO端口</a> <span class="date">2013-05-13</span></h1>
+
+        <p>树莓派的GPIO接口数目有限，驱动一个步进电机需要占用4个， 一个Nokia 5110液晶也要占4个， 传感器输入至少需要一个，多玩几个外设后接口就不够用了。如果接口可以复用就可以让树莓派驱动更多的外设了，本文讨论如何使用74HC595集成电路芯片来扩展树莓派的I/O接口。</p>
+
+<h1><a style="display: block;" name="芯片介绍" href="#芯片介绍"></a>芯片介绍</h1>
+
+<p>SN74HC595N是德州仪器公司生产的集成电路芯片，是一个8位串行输入变串行输出或并行输出移位寄存器，具有高阻关断，高电平和低电平三态输出。在IO扩充上，可以最多串联15片，也就是高达120个IO扩充。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/b90034cc-cdf8-426d-a79d-16bbbcbb49b2/0ba3371f3039afa71a17bad845eede7a/deep/0/Screenshot%205/12/13%2010:42%20PM.png"/></p>
+
+<p>（注意到芯片上的小凹槽了吗，拿芯片的时候以这个为参考物就不会搞反了）</p>
+
+<p>接口的常用命名方式有以下两种：</p>
+
+<table>
+<thead>
+<tr>
+<td>接口代号(编号)</td>
+<td>说明</td>
+<td>接口代号(编号)</td>
+<td>说明</td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Q7&rsquo;(9)</td>
+<td>serial data output</td>
+<td>QH&rsquo;  (9)</td>
+<td>serial data output</td>
+</tr>
+
+<tr>
+<td>MR (10)</td>
+<td>Master Reset (Active Low)</td>
+<td>SRCLR  (10)</td>
+<td>Shift register CLeaR</td>
+</tr>
+
+<tr>
+<td>SH_CP (11)</td>
+<td>shift register clock input</td>
+<td>SRCLK  (11)</td>
+<td>Shift Register CLocK input</td>
+</tr>
+
+<tr>
+<td>ST_CP (12)</td>
+<td>storage register clock input</td>
+<td>RCLK  (12)</td>
+<td>storage Register CLocK input</td>
+</tr>
+
+<tr>
+<td>OE (13)</td>
+<td>output enable input (Active Low)</td>
+<td>OE  (13)</td>
+<td>Output Enable</td>
+</tr>
+
+<tr>
+<td>DS (14)</td>
+<td>serial data input</td>
+<td>SER (14)</td>
+<td>SERial data input</td>
+</tr>
+
+<tr>
+<td>Qx (15，1-7)</td>
+<td>data output</td>
+<td>Qx (15，1-7)</td>
+<td>data output</td>
+</tr>
+</tbody>
+</table>
+
+
+        <div class="more">
+          <a href="/2013/05/13/34-use-74HC595-8-bit-shift-register-with-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html">树莓派网站容灾：利用DNSPod，Google App Engine和Github</a> <span class="date">2013-04-22</span></h1>
+
+        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p><a href="http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html">把网站托管在树莓派上</a>后如果家里停电或是宽带故障，会造成网站中断。本文提供一个免费的解决方案（前提是你需要有自己的一个域名，并由DNSPod解析）</p>
+
+<h1><a style="display: block;" name="dnspod" href="#dnspod"></a>DNSPod</h1>
+
+<p>首先需要在DNSPod里设置好需要failover的域名CNAME：比如<code>hugozhu.myalert.info</code></p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/95d90628-5c74-4773-aaff-c2110e1863a6/6b592609ef02c42e46664d1fa1493e1c/deep/0/Screenshot%204/22/13%204:57%20PM.png" width="528"/></p>
+
+<p>其中<code>默认</code>指向<code>pi.myalert.info</code>, 这是一个域名的A Record，会由运行在树莓派上的<a href="http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html">脚本</a>来更新动态IP，<code>国外</code>则指向github。当停电时我们需要自动把｀默认｀这条纪录修改成github。</p>
+
+<p>使用下面命令获得相应CNAME的domain_id：</p>
+
+<pre><code>curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
+</code></pre>
+
+<p>使用下面命令获得相应CNAME的record_id：</p>
+
+
+        <div class="more">
+          <a href="/2013/04/22/33-use-google-app-engine-failover-your-blog-between-raspberrypi-and-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/21/32-use-goroutine-and-channel-to-implement-interaction-with-timeout.html">使用Goroutine和Channel实现按键超时交互</a> <span class="date">2013-04-21</span></h1>
+
+        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p>前面的文章（见<a href="#参考链接">参考链接</a>）已经介绍了如何使用按键作为树莓派的输入。在实际应用中可以通过按下按键循环显示预先设定的脚本输出到显示屏幕，需求如下：</p>
+
+<ol>
+<li>如果按键不被触动，则定时5秒执行脚本获取最新内容显示；</li>
+<li>因为不同的脚本获取内容速度会不一样，我们要求如果超过500ms脚本还未返回，需要在屏幕上显示“loading…”这样的过渡内容，如果脚本在500ms内返回，则不显示。</li>
+</ol>
+
+<p>使用Goroutine和Channel可以很方便的实现这个需求。</p>
+
+<h1><a style="display: block;" name="代码" href="#代码"></a>代码</h1>
+
+<pre><code>var screen_chan chan int
+var switch_chan = make(chan bool)
+
+func main() {
+    //a goroutine： 检查按键是否被按
+    go func() {
+        last_time := time.Now().UnixNano() / 1000000
+        btn_pushed := 0
+        total_mode := 3
+        for msg := range WiringPiISR(PIN_GPIO_6, INT_EDGE_FALLING) {
+            if msg &gt; -1 {
+                n := time.Now().UnixNano() / 1000000
+                delta := n - last_time
+                if delta &gt; 300 { //如果两次按键变化的间隔时间&lt;300ms，是因为接触信号不稳定可以忽略掉
+                    last_time = n
+                    btn_pushed++
+                    screen_chan &lt;- btn_pushed % total_mode
+                }
+            }
+        }
+    }()
+
+    //a goroutine： 根据管道消息刷新屏幕
+    go loop_update_display()
+
+    //选择确实的屏幕内容脚本编号
+    screen_chan &lt;- 0
+
+    //a goroutine: 定时5s向管道发送更新屏幕内容的信号
+    ticker := time.NewTicker(5 * time.Second)
+    go func() {
+        for {
+            &lt;-ticker.C
+            screen_chan &lt;- -1
+        }
+    }()
+    
+    ... 
+}
+
+func loop_update_display() {
+    current_screen := 0
+    for msg := range screen_chan {
+        switch_screen := false
+        if msg &gt;= 0 {
+           //说明是按钮触发的消息，而不是定时器触发的(-1)
+            if msg != current_screen {
+                //btn pushed
+                current_screen = msg
+                switch_screen = true
+                go func() {
+                    select {
+                    case &lt;-time.After(500 * time.Millisecond):
+                        display_loading()
+                        &lt;-switch_chan
+                    case &lt;-switch_chan:
+                    }
+                }()
+            }
+        }
+        switch current_screen {
+        case 0:
+            display_screen0()
+        case 1:
+            display_screen1()
+        case 2:
+            display_screen2()
+        }
+        if switch_screen {
+            switch_chan &lt;- true
+        }
+    }
+}
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/04/21/32-use-goroutine-and-channel-to-implement-interaction-with-timeout.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/20/31-golang-memory-model.html">Go语言内存模型</a> <span class="date">2013-04-20</span></h1>
+
+        <h1><a style="display: block;" name="名词定义" href="#名词定义"></a>名词定义</h1>
+
+<p>执行体 - Go里的Goroutine或Java中的Thread</p>
+
+<h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p>内存模型的目的是为了定义清楚变量的读写在不同执行体里的可见性。理解内存模型在并发编程中非常重要，因为代码的执行顺序和书写的逻辑顺序并不会完全一致，甚至在编译期间编译器也有可能重排代码以最优化CPU执行, 另外还因为有CPU缓存的存在，内存的数据不一定会及时更新，这样对内存中的同一个变量读和写也不一定和期望一样。</p>
+
+<p>和<a href="http://ifeve.com/java-memory-model-1/">Java的内存模型规范</a>类似，Go语言也有一个内存模型，相对JMM来说，Go的内存模型比较简单，Go的并发模型是基于CSP（<a href="http://en.wikipedia.org/wiki/Communicating_sequential_processes">Communicating Sequential Process</a>）的，不同的Goroutine通过一种叫Channel的数据结构来通信；Java的并发模型则基于多线程和共享内存，有较多的概念（violatie, lock, final, construct, thread, atomic等）和场景，当然java.util.concurrent并发工具包大大简化了Java并发编程。</p>
+
+<p>Go内存模型规范了在什么条件下一个Goroutine对某个变量的修改一定对其它Goroutine可见。</p>
+
+<h1><a style="display: block;" name="happens-before" href="#happens-before"></a>Happens Before</h1>
+
+<p>在一个单独的Goroutine里，对变量的读写和代码的书写顺序一致。比如以下的代码:</p>
+
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+)
+
+var a, b, c int
+
+func main() {
+    a = 1
+    b = 2
+    c = a + 2
+    log.Println(a, b, c)
+}
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/04/20/31-golang-memory-model.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/18/30-raspberrypi-i2c-programming.html">树莓派I2C编程</a> <span class="date">2013-04-18</span></h1>
+
+        <p>(！未完！)</p>
+
+<p>除了<a href="http://hugozhu.myalert.info/2013/04/05/25-get-spi-working-on-raspberry-pi-spi.html">SPI</a>协议外，树莓派还支持<a href="http://zh.wikipedia.org/wiki/I²C">I2C</a>。I2C是为了连接低速周边装置设计的，只需要用两根线（SDA和SCL，也就是树莓派的端口8和9-wiringPi编号）。</p>
+
+<h1><a style="display: block;" name="i2c" href="#i2c"></a>I2C</h1>
+
+<p><img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/I2C.svg/350px-I2C.svg.png"/></p>
+
+<p>上图是一个主控使用I2C驱动3个设备的示意图</p>
+
+<h1><a style="display: block;" name="参考链接" href="#参考链接"></a>参考链接</h1>
+
+<ol>
+<li><a href="http://zh.wikipedia.org/wiki/I²C">http://zh.wikipedia.org/wiki/I²C</a></li>
+<li><a href="https://projects.drogon.net/raspberry-pi/wiringpi/i2c-library/">https://projects.drogon.net/raspberry-pi/wiringpi/i2c-library/</a></li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/04/18/30-raspberrypi-i2c-programming.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/14/29-use-wiringpi-go-binding.html">使用Go语言在树莓派上编程</a> <span class="date">2013-04-14</span></h1>
+
+        <p><a href="https://projects.drogon.net/raspberry-pi/wiringpi/">WiringPi</a>是树莓派上比较好的一个开发库，是用C语言写的。使用cgo，我们可以在Go语言里方便的调用WiringPI的函数，于是我包装了一个<a href="https://github.com/hugozhu/rpi">WiringPi-Go</a>，目前支持wiringPi的基本功能，硬件SPI协议驱动Nokia 5110屏幕，以及中断，未来还会增加PWM和I2C协议的支持。</p>
+
+<p>下面是一个完整的使用例子，结合了之前的两个电路：<a href="http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html">链接1</a>，<a href="http://hugozhu.myalert.info/2013/04/05/25-get-spi-working-on-raspberry-pi-spi.html">链接2</a></p>
+
+<p>通过push button可以切换液晶屏显示不同脚本的输出内容。</p>
+
+<p>lcd_switch.go</p>
+
+<pre><code>package main
+
+import (
+    . &quot;github.com/hugozhu/rpi&quot;
+    &quot;github.com/hugozhu/rpi/pcd8544&quot;
+    &quot;log&quot;
+    &quot;os/exec&quot;
+    &quot;time&quot;
+)
+
+const (
+    DIN        = PIN_MOSI
+    SCLK       = PIN_SCLK
+    DC         = PIN_GPIO_2
+    RST        = PIN_GPIO_0
+    CS         = PIN_CE0
+    PUSHBUTTON = PIN_GPIO_6
+    CONTRAST   = 40 //may need tweak for each Nokia 5110 screen
+)
+
+var screen_chan chan int
+var TOTAL_MODES = 3
+
+func init() {
+    WiringPiSetup()
+    pcd8544.LCDInit(SCLK, DIN, DC, CS, RST, CONTRAST)
+    screen_chan = make(chan int, 1)
+}
+
+func main() {
+    //a goroutine to check button push event
+    go func() {
+        last_time := time.Now().UnixNano() / 1000000
+        btn_pushed := 0
+        for pin := range WiringPiISR(PUSHBUTTON, INT_EDGE_FALLING) {
+            if pin &gt; -1 {
+                n := time.Now().UnixNano() / 1000000
+                delta := n - last_time
+                if delta &gt; 300 { //software debouncing
+                    log.Println(&quot;btn pushed&quot;)
+                    last_time = n
+                    btn_pushed++
+                    screen_chan &lt;- btn_pushed % TOTAL_MODES //switch the screen display
+                }
+            }
+        }
+    }()
+
+    //a groutine to update display every 5 seconds
+    go loop_update_display()
+
+    //set screen 0 to be default display
+    screen_chan &lt;- 0
+
+    ticker := time.NewTicker(5 * time.Second)
+
+    for {
+        &lt;-ticker.C
+        screen_chan &lt;- -1 //refresh current screen every 5 seconds
+    }
+}
+
+func loop_update_display() {
+    current_screen := 0
+    for screen := range screen_chan {
+        if screen &gt;= 0 {
+            if screen != current_screen {
+                //btn pushed
+                current_screen = screen
+                display_loading()
+            }
+        }
+        switch current_screen {
+        case 0:
+            display_screen0()
+        case 1:
+            display_screen1()
+        case 2:
+            display_screen2()
+        }
+    }
+}
+
+func display_loading() {
+    pcd8544.LCDclear()
+    pcd8544.LCDdrawstring(0, 20, &quot;Loading ...&quot;)
+    pcd8544.LCDdisplay()
+}
+
+func display_screen0() {
+    out, err := exec.Command(&quot;/bin/screen_0.sh&quot;).CombinedOutput()
+    if err != nil {
+        out = []byte(err.Error())
+    }
+
+    pcd8544.LCDclear()
+    pcd8544.LCDdrawstring(0, 0, string(out))
+    pcd8544.LCDdisplay()
+}
+
+func display_screen1() {
+    out, err := exec.Command(&quot;/bin/screen_1.sh&quot;).CombinedOutput()
+    if err != nil {
+        out = []byte(err.Error())
+    }
+
+    pcd8544.LCDclear()
+    pcd8544.LCDdrawstring(0, 0, string(out))
+    pcd8544.LCDdisplay()
+}
+
+func display_screen2() {
+    out, err := exec.Command(&quot;/bin/screen_2.sh&quot;).CombinedOutput()
+    if err != nil {
+        out = []byte(err.Error())
+    }
+
+    pcd8544.LCDclear()
+    pcd8544.LCDdrawstring(0, 0, string(out))
+    pcd8544.LCDdisplay()
+}
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/04/14/29-use-wiringpi-go-binding.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/13/28-use-tsar-to-monitor-raspberry-pi.html">使用tsar记录和监控树莓派CPU温度</a> <span class="date">2013-04-13</span></h1>
+
+        <p>夏天到了，树莓派的CPU温度也开始节节攀升，虽然我们也可以用云服务<a href="https://cosm.com">cosm</a>来监控，但每5分钟采样一次精度不够高，每分钟采样一次则上传次数又太多了点。最好的方法还是使用<a href="http://github.com/alibaba/tsar">tsar</a>这样的工具本地高频（如每1分钟）采样，然后再定时将5分钟的均值上传到cosm绘图。</p>
+
+<p>Tsar是淘宝的一个用来收集服务器系统和应用信息的采集报告工具，如收集服务器的系统信息（cpu，mem等），以及应用数据（nginx、swift等），收集到的数据存储在服务器磁盘上，可以随时查询历史信息，也可以将数据发送到nagios报警。Tsar能够比较方便的增加模块，只需要按照tsar的要求编写数据的采集函数和展现函数，就可以把自定义的模块加入到tsar中。</p>
+
+<h1><a style="display: block;" name="**更新**" href="#**更新**"></a><strong>更新</strong></h1>
+
+<p>[2013-04-14] mod_rpi已经被合并到了主干代码：<a href="https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c">https://github.com/alibaba/tsar/blob/master/modules/mod_rpi.c</a>  只需要增加文件：<code>/etc/tsar/conf.d/rpi.conf</code>，内容为以下即可开始使用mod_rpi模块：</p>
+
+<pre><code>mod_rpi on
+
+####add it to tsar default output
+output_stdio_mod mod_rpi
+</code></pre>
+
+<h1><a style="display: block;" name="mod_rpi模块开发方法" href="#mod_rpi模块开发方法"></a>mod_rpi模块开发方法</h1>
+
+<p>首先按照安装说明，见<a href="https://github.com/alibaba/tsar">https://github.com/alibaba/tsar</a>将tsar和tsardevel安装好。</p>
+
+
+        <div class="more">
+          <a href="/2013/04/13/28-use-tsar-to-monitor-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/08/27-interrupts-with-gpio-pins.html">Raspberry Pi的GPIO中断编程</a> <span class="date">2013-04-08</span></h1>
+
+        <h1><a style="display: block;" name="背景介绍" href="#背景介绍"></a>背景介绍</h1>
+
+<p>树莓派的GPIO引脚不仅可以输出高低电平，也可以当做输入端口（可以想象成键盘输入），当GPIO接入的是高电平，GPIO的值可以认为是1，如果是低电平则是0。如下图所示，可以使用一个Push Button开关按键来控制GPIO 25（BCM Numbering）的高低电平以达到控制的目的。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/bd720803-1b71-454d-98a2-cf0e907df688/649d6eb30376f8a378ef3e8a7cc3c552/deep/0/Screenshot%204/8/13%2011:25%20PM.jpg?noteKey=649d6eb30376f8a378ef3e8a7cc3c552&suffix=deep%2F0%2FScreenshot+4%2F8%2F13+11%3A25+PM.jpg&noteGuid=bd720803-1b71-454d-98a2-cf0e907df688"/></p>
+
+<p>GPIO 25和VCC（3.3V）之间通过R1（10K欧姆）和R2（1K欧姆）<a href="https://zh.wikipedia.org/zh/上拉电阻">上拉电阻</a>相连，当按键未被按下时，GPIO 25上拉到VCC，程序可以读到1，当按键按下时，GPIO 25被下拉电阻R2拉到GND（0V），程序可以读到0。如果不加R1，而GPIO 25不小心被设置成输出低电平时，将直接和VCC相连而造成短路，这样可能会烧掉这个引脚，所以加上限流电阻R1后，即使发生这样的情况，也不会出现短路情况。</p>
+
+<h1><a style="display: block;" name="应用" href="#应用"></a>应用</h1>
+
+<p>如果我们需要根据GPIO 25的值来控制树莓派，比如按下按钮时希望点亮某个LED或在液晶上显示当前时间，就需要通过程序来获取状态的变化。</p>
+
+<p>一种常见的做法是在循环里不断读取该引脚的状态，当发生对应的变化的时执行控制逻辑，但显而易见，这种做法很消耗CPU，如果在循环增加<code>sleep(1000)</code>这样的调用，又很容易错过按键变化。较好的做法则是通过<a href="http://zh.wikipedia.org/wiki/中断">中断</a>来实现。</p>
+
+<p>最新的树莓派Raspbian和Arch Linux内核都已经包含了GPIO的中断处理支持。但使用前需要将指定GPIO引脚输出，方法如下：</p>
+
+<p>首先可以通过命令<code>echo 25 &gt; /sys/class/gpio/export</code>导出GPIO 25端口，执行成功后在相应的目录下看到以下文件，得益于Linux下<strong>一切都是文件</strong>的设计理念，GPIO的状态可以通过<code>value</code>文件来获取，这样就可以利用Linux的poll/epoll来获取<code>value</code>文件的变化(这点和Linux高性能网络编程是类似的)。</p>
+
+
+        <div class="more">
+          <a href="/2013/04/08/27-interrupts-with-gpio-pins.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/08/26-backup-raspberry-pi.html">备份Raspberry Pi</a> <span class="date">2013-04-08</span></h1>
+
+        <p>树莓派的操作系统安装在SD卡，使用一段时间后还是很有必要备份一下，以防哪天SD卡就坏了。</p>
+
+<p>备份的目的地最方便的还是使用网络存储，我使用的是西部数据的<a href="http://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Cz5Mlq&amp;id=13865367896&amp;is_b=1&amp;cat_id=50099232&amp;q=mybooklive&amp;rn=638aa11bdda81f8d589bb0e052c57187">MyBooklive</a>3T网络硬盘。挺不错的一个产品，功能基本满足我的需求。</p>
+
+<p>准备好备份目标盘，将Nas的备份目录mount到树莓派:</p>
+
+<pre><code>mkdir /mnt/backup
+mount -t cifs //mybooklive/Public/Backup /mnt/backup -o guest
+</code></pre>
+
+<h1><a style="display: block;" name="完整备份" href="#完整备份"></a>完整备份</h1>
+
+<p>确定相应的SD卡设备ID</p>
+
+<pre><code>root@raspberrypi2 ~/bin # fdisk -l
+
+Disk /dev/mmcblk0: 1973 MB, 1973420032 bytes, 3854336 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0004f23a
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *        2048      186367       92160    c  W95 FAT32 (LBA)
+/dev/mmcblk0p2          186368     3667967     1740800   83  Linux
+
+Disk /dev/sda: 2107 MB, 2107637760 bytes, 4116480 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/04/08/26-backup-raspberry-pi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/04/05/25-get-spi-working-on-raspberry-pi-spi.html">在Raspberry Pi上使用硬件SPI</a> <span class="date">2013-04-05</span></h1>
+
+        <h1><a style="display: block;" name="什么是spi" href="#什么是spi"></a>什么是SPI</h1>
+
+<p>SPI (Serial Peripheral Interface)，是一种高速，全双工，同步的通信总线协议，基于SPI的设备需要4根线：</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/61dba789-b17b-4570-b124-03925a97a4bf/4e64405c3b1a486f7aa4b9451e142b32/deep/0/Screenshot%204/5/13%204:27%20PM.jpg
+"/></p>
+
+<ol>
+<li>SDO / MOSI - 主设备数据输出，从设备数据输入</li>
+<li>SDI / MISO - 主设备数据输入，从设备数据输出</li>
+<li>SCLK / CLK - 时钟信号，由主设备产生</li>
+<li>CS / SS - 从设备使能信号，由主设备控制</li>
+</ol>
+
+<p>通过CS，主设备可以控制和哪个从设备通信。</p>
+
+<h2><a style="display: block;" name="bit-banging" href="#bit-banging"></a>Bit Banging</h2>
+
+<p>Bit-banging是一种用软件替代专职硬件的串行通信的技术。软件直接对微处理器的管脚的状态进行设置和采样，其功能涵盖诸如：时钟，电平，同步等所有参数。与此不同的是（传统的串行通信技术中），专职硬件诸如 modem、UART 或者 位移寄存器等一般是用来处理这些参数并且提供一个（缓存）的数据接口，软件在这种情况下同信号处理无关。</p>
+
+<p>bit-banging 具有明显优点诸如：让相同的设备运行不同的协议而只需很小的（甚至不需）硬件的改动。借助很少的额外设备，我们也许可以从数字管脚（数字终端）可以得到视频信号。</p>
+
+
+        <div class="more">
+          <a href="/2013/04/05/25-get-spi-working-on-raspberry-pi-spi.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/2/">2</a></li>
+        
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+        <hr/>
+
+        <center>
+        <script type="text/javascript"> 
+        alimama_pid="mm_12926928_3484851_11458495"; 
+        alimama_width=950; 
+        alimama_height=90; 
+        </script> 
+        <script src="http://a.alimama.cn/inf.js" type="text/javascript"> 
+        </script>
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2013
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>
