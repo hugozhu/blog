@@ -46,3 +46,6 @@ adb shell
 ```
 gradle installDebug && adb shell am start -n com.laiwang.protocol.android/.MainActivity
 ```
+
+
+
