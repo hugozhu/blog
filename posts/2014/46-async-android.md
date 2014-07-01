@@ -17,7 +17,7 @@ tags:
 
 Android操作系统在boot后，会启动一个Zygote(受精卵)进程，Zygote进程负责创建大部分应用程序进程。Zygote进程启动加载核心程序库和数据结构到内存后会创建一个Dalvik虚拟机（DVM）进程－-SystemServer，此进程会包含大部分的系统服务（包括管理Activity的服务ActivityManagerService），SystemServer初始化后，Zygote进程会侦听本地的socket端口, 等待进一步的指令。当新的app被启动时，Zygote会为这个app创建一个DVM----直接fork出一个子进程，这种架构的好处是同时启动多个App时，多个App进程可以访问共享内存。
 
-<img src="http://e.hiphotos.baidu.com/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=f55ae3fad143ad4bb2234e92e36b31ca/359b033b5bb5c9ea39a71dbcd539b6003af3b31c.jpg"/>
+<img src="https://www.evernote.com/shard/s26/sh/72e630cc-271f-4ecb-8ca0-116101155fc0/e7a978a53e5428fb6feca131e0fca4dc/res/25806df1-87a3-432f-aea9-df02e2535e30/skitch.png?resizeSmall&width=832"/>
 
 Android App的进程也是一个DVM，内部有许多线程在执行，比如，主UI线程（Main Thread），垃圾回收线程等。其中主UI线程负责执行我们写的应用代码。对于只做很少的I/O操作或耗时操作的App，单一线程开发模式问题不大，但是如果有大量IO或者CPU计算的任务，我们就必须在其他线程内完成了。因为主UI线程需要根据硬件刷新率[^3]同步用户界面的重绘。手机应用体验流畅要求界面帧率达到每秒60，也就是说每16.67毫秒就需要重绘一帧，这意味着如果我们在主线程上执行的任务超过16毫秒，就会出现丢帧现象，也就是界面会开始变卡。。。
 
