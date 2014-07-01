@@ -12,12 +12,22 @@ tags:
 
 {:toc}
 
+
+# Android的线程和内存模型
+
+Android操作系统在boot后，会启动一个Zygote(受精卵)进程，Zygote进程负责创建大部分应用程序进程。Zygote进程启动加载核心程序库和数据结构到内存后会创建一个Dalvik虚拟机（DVM）进程－-SystemServer，此进程会包含大部分的系统服务（包括管理Activity的服务ActivityManagerService），SystemServer初始化后，Zygote进程会侦听本地的socket端口, 等待进一步的指令。当新的app被启动时，Zygote会为这个app创建一个DVM----直接fork出一个子进程，这种架构的好处是同时启动多个App时，多个App进程可以访问共享内存。
+
+<img src="http://e.hiphotos.baidu.com/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=f55ae3fad143ad4bb2234e92e36b31ca/359b033b5bb5c9ea39a71dbcd539b6003af3b31c.jpg"/>
+
+Android App的进程也是一个DVM，内部有许多线程在执行，比如，主UI线程（Main Thread），垃圾回收线程等。其中主UI线程负责执行我们写的应用代码。对于只做很少的I/O操作或耗时操作的App，单一线程开发模式问题不大，但是如果有大量IO或者CPU计算的任务，我们就必须在其他线程内完成了。因为主UI线程需要根据硬件刷新率[^3]同步用户界面的重绘。手机应用体验流畅要求界面帧率达到每秒60，也就是说每16.67毫秒就需要重绘一帧，这意味着如果我们在主线程上执行的任务超过16毫秒，就会出现丢帧现象，也就是界面会开始变卡。。。
+
+Android异步执行任务的方法有以下几种：
+
 # AsyncTask
 AsyncTask是最常用的异步方法，功能结构设计的也很丰富，给使用者足够的控制，使用上主要是将异步执行的任务放在下面方法里。
 
 ```
 protected Result doInBackground(Params... params)
-
 ```
 然后调用`.execute(params)`方法即可。
 
@@ -29,7 +39,7 @@ task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 
 `AsyncTask.THREAD_POOL_EXECUTOR`是`ThreadPoolExecutor`的一个实例，配置是最少5个线程，最多128个。如果需要自己来配置线程池大小，你可以传递自己配置的一个实例到上述方法。
 
-使用AsyncTask需要注意的几个问题
+使用AsyncTask需要注意的几个问题：
 
 ## 碎片化问题
 因为不同版本的Android AsyncTask缺省执行逻辑并不一样，可能在不同机型上表现不一致。如果要自己控制AsyncTask的并发度，解决这个问题的建议是复制Android SDK的AsyncTask源码自己实现一个AsyncTask。
@@ -95,7 +105,8 @@ Service合适执行独立于任何Activity或Fragment的任务，即使App主界
 AlarmManager可以不在人工干预下定时执行任务，比如定时检查邮件，下载更新，或同步内容到云端。
 
 # 参考链接
-1. http://www.packtpub.com/concurrent-programming-on-android/book
-
+1. Asynchronous Android http://www.packtpub.com/concurrent-programming-on-android/book
+2. Android内核：http://baike.baidu.com/link?url=syxjYQCIl0gmUPQJGs-oBGffNzRcKNqX4jow2gmUsPhcEH7mSu9dXBijpVglpMBs1iTcUv9Pwm5NEFP_KCSWIq
+3. 帧率与刷新率的区别 http://zhidao.baidu.com/link?url=axWjZPYDt3aRgA4EhoNwicCR5j9hMcRscCNZaVThX-JnbRIcPAH6a_t_BR5lgV9fC8CXQeRLogFLZjLvvy8G_a
 
 
