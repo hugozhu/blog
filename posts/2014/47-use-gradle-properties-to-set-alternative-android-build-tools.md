@@ -127,7 +127,11 @@ gradle.properties文件可以放在root project根目录下，也可以放在用
 
 
 ## 命令行使用
-./gradlew build -x -DbuildToolsVersion=19.1.0 -DandroidGradlePluginVersion=0.12.+ lint
+
+还可以在命令行中设置参数
+
+
+`./gradlew build -DbuildToolsVersion=19.1.0 -DandroidGradlePluginVersion=0.12.+  -x lint`
 
 
 # 参考链接
