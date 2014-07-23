@@ -53,9 +53,6 @@ Gradle支持三种Properties, 这三种Properties的作用域和初始化阶段�
 		
 2. *Project Properties：* 
 	1. 可通过gradle.properties文件，环境变量或命令行-P参数设置，优先级是: 
-		1. gradle.properties located in project build dir.
-		2. gradle.properties located in gradle user home.
-		3. 
 	2. 可在build.gradle中动态修改，但引用不存在的project properties会立即抛错
 	3. 动态修改过的project properties在buildscript block中不可见
 	
@@ -68,7 +65,8 @@ Gradle支持三种Properties, 这三种Properties的作用域和初始化阶段�
 1. from gradle.properties located in project build dir.
 2. from gradle.properties located in gradle user home.
 3. from system properties, e.g. when -Dsome.property is used in the command line.
-
+4. setting.gradle
+5. build.gradle
 
 根据其特点，这里给出一个使用System Properties来解决问题的方案。
 
@@ -129,7 +127,7 @@ gradle.properties文件可以放在root project根目录下，也可以放在用
 
 
 ## 命令行使用
-./gradlew build -x -D lint
+./gradlew build -x -DbuildToolsVersion=19.1.0 -DandroidGradlePluginVersion=0.12.+ lint
 
 
 # 参考链接
