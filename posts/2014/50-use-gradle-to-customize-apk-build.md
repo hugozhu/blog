@@ -12,17 +12,17 @@ tags:
 
 {:toc}
 
-## 背景
+# 背景
 开发一个App一般会生成内测版和正式版，甚至还会有不同渠道的版本，不同版本的配置可能会不一样，比如内测版会需要记录完整的日志。
 
 Android手机对于同样的Application Id的App只能安装一个版本，如果我们需要同时安装内测版和正式版，就必须修改其中一个版本的Application Id。
 
-## 解决方案
+# 解决方案
 
 Gradle支持buildTypes和productFlavors两种定制方法，这里只介绍通过buildType的解决方案。通过productFlavors则可有效解决渠道包，arm，x86等分平台以及付费版和广告版的打包问题。
 
 
-### 修改debug版的包名
+## 修改debug版的包名
 
 配置如下：
 
@@ -41,7 +41,7 @@ android {
 }
 ```
 
-### 修正资源文件里的包名
+## 修正资源文件里的包名
 
 如果你的项目里使用了自定义的View，且有自定义的属性时，会需要修正一下xml命名空间里的包名。
 
@@ -63,7 +63,7 @@ android.applicationVariants.all { variant ->
 }
 ```
 
-### 定制APK的应用名称
+## 定制APK的应用名称
 
 如果同时安装两个版本，那么最好能从应用名称上来区别一下，一般我们在`AndroidManifest.xml`中使用String resource来命名，如下：
 
@@ -91,7 +91,7 @@ android.applicationVariants.all { variant ->
 }
 ```
 
-### 修改ContentProvider Authority
+## 修改ContentProvider Authority
 
 如果你的应用里还提供ContentProvider的话，如下：
 
