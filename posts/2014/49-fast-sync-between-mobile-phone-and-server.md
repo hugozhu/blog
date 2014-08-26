@@ -15,7 +15,7 @@ tags:
 我们假设一些前提：
 
 1. 同一时刻只有一端（iPhone，iPad或其他移动设备）能和服务器同步；
-2. 客户端和服务端的时间一致或误差较小；
+2. ~~客户端和服务端的时间一致或误差较小；~~
 
 ## 应用场景
 1. 通讯录同步
@@ -60,14 +60,14 @@ tags:
 `SELECT * FROM table WHERE STATUS ＝ 0 ORDER BY MODIFIED ASC` 会找出本地更新的所有记录，通过网络分批串行发送给服务端，一个请求可能包含多条记录，只有上一个请求得到响应后才能发起下一个请求。
 
 ### 4. Server 处理同步消息
+
 服务端收到请求后根据记录是ADD，UPDATE或DELETE后在服务端数据库中做响应处理
 服务端数据表如下：
 
-| ID | KEY  | VALUE | CREATED | MODIFIED| 
-| ---| -----|-------| --------| --------|
-| 1  | Foo  | Bar   |    3    |   3     | 
-| 2  | Hello| World2|    4    |   4     |
-
+| ID | KEY  | VALUE  | CREATED | MODIFIED|
+| ---| -----|--------| --------| --------|
+| 1  | Foo  | Bar    |    3    |   3     |
+| 2  | Hello| World2 |    4    |   4     |
 
 处理完成后响应请求数据如下，使用服务端Modified时间作为Anchor：
 
