@@ -63,7 +63,7 @@ tags:
 
 ### 4. Server 处理同步消息
 
-服务端收到请求后根据记录是ADD，UPDATE或DELETE后在服务端数据库中做响应处理，处理时候需要比较客户端的ANCHOR和服务端的记录MODIFIED，只有MODIFIED<ANCHOR的才能被更新，防止服务端更新的记录被覆盖。
+服务端收到请求后根据记录是ADD，UPDATE或DELETE后在服务端数据库中做响应处理，处理时候需要比较客户端的ANCHOR（其实就是上一次同步服务端的MODIFIED）和服务端的记录MODIFIED，只有MODIFIED<ANCHOR的才能被更新，防止服务端有更加新的记录被覆盖。
 
 `UPDATE table SET KEY = ?, VALUE = ? WHERE ID=? AND MODIFIED<=ANCHOR`
 
