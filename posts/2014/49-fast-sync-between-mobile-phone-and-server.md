@@ -35,7 +35,7 @@ tags:
 
 每条记录包含两个同步用的字段：
   
-  *status* － 用来标识记录的状态：0－未同步（本地新增或更新）1 - 已同步
+  *status* － 用来标识记录的状态：0－未同步（本地新增或更新）1 - 已同步，2 － 标记删除
   
   *anchor* － 用来记录服务端同步过来的时间戳。
 
@@ -61,8 +61,11 @@ tags:
 
 ### 4. Server 处理同步消息
 
-服务端收到请求后根据记录是ADD，UPDATE或DELETE后在服务端数据库中做响应处理
-服务端数据表如下：
+服务端收到请求后根据记录是ADD，UPDATE或DELETE后在服务端数据库中做响应处理，处理时候需要比较客户端的ANCHOR和服务端的记录MODIFIED，只有MODIFIED<ANCHOR的才能被更新，防止服务端更新的记录被覆盖。
+
+`UPDATE table SET KEY = ?, VALUE = ? WHERE ID=? AND MODIFIED<=ANCHOR`
+
+更新后服务端数据表如下：
 
 | ID | KEY  | VALUE  | CREATED | MODIFIED|
 | ---| -----|--------| --------| --------|
@@ -78,12 +81,14 @@ tags:
 
 ### 5. Client 根据响应更新本地记录
 
+`UPDATE table SET ANCHOR=X WHERE ID=? AND MODIFIED=?` 限制只有本地MODIFIED没修改过的记录才会更新ANCHOR，防止在同步期间更新过的本地数据被标记已同步。
+
 | ID | KEY  | VALUE | STATUS  | CREATED | MODIFIED| ANCHOR|
 | ---| -----|-------| ------- | --------| ------- | ------|
 | 1  | Foo  | Bar   |    1    |    1    |   1     |   3   |
 | 2  | Hello| World2|    1    |    2    |   2     |   4   |
 
-### 6. Client 根据最大的ANCHOR发起增量同步
+### 6. Client 根据最大的ANCHOR请求 SERVER 增量同步
 
 假设另一个客户端在服务器上增加了一条新的纪录并更新了一条记录：
 
