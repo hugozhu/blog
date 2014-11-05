@@ -48,7 +48,7 @@ task sync_jars() << {
     }
 }
 
-task sync_aars(dependsOn:':sdk:assembleRelease') << {
+task sync_aars(dependsOn:':<your_library_project>:assembleRelease') << {
 	 //把所有依赖的.aar库里包含的classes.jar都拷贝到build/aar/libs下，并重命名以不被覆盖
     def jar_name
     def aar_path
