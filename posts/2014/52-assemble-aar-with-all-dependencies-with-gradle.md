@@ -1,7 +1,7 @@
 ---
 date: 2014-11-05
 layout: post
-title: 使用Gradle生成包含所有依赖的aar包
+title: 使用Gradle生成包含所有依赖库(.jar或.aar)的aar包
 description: Assemble aar package with all dependencies using Gradle 2.1
 categories:
 - Blog
