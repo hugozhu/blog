@@ -27,9 +27,11 @@ tags:
 目前Robinhood已经完成了千万美元的风险投资，现阶段提供颠覆性的交易体验，吸引更多年轻的新投资者，赢得用户的信任显然更为重要。用户多了，盈利就不是问题了。。。
 
 <img src="http://files.techcrunch.cn/2014/09/robinhood-app.png?w=556&amp;h=600"/>
+
 App界面
 
 <img src="http://files.techcrunch.cn/2014/09/baiju-and-vlad-2.jpg?w=600&amp;h=400"/>
+
 创始人
 
 # 参考文档
