@@ -24,7 +24,7 @@ tags:
 假设家里的路由器IP地址为:**192.168.1.1**，树莓派2的IP地址为:**192.168.1.3**，以下是需要安装和设置步骤。
 
 
-##PPTP和L2TP VPN Server
+## PPTP和L2TP VPN Server
 
 首先在树莓派上安装和设置VPN服务器，移动设备就可以通过运营商网络连接回家里的树莓派（iPhone和Android都内置了PPTP和L2TP客户端），这样移动设备将以树莓派为路由访问网站，通过一些设置我们可以让树莓派提供科学上网服务。
 
@@ -49,14 +49,14 @@ L2TP需要设置的端口转发 - tcp: 50, udp: 500,4500,1701
 PPTP拨号速度比较快，但是不安全；L2TP有加密，相对安全。
 
 
-#Redsocks2
+# Redsocks2
 
 [redsocks2](http://github.com/hugozhu/redsocks)是一个透明TCP代理，其实现使用了libevent库，性能较好，其最大的特点是如果目标IP可以直连则不会转发流量给加密代理，如果IP不能直连（通过连接超时判断）则会将流量转发给加密代理。这样可以将最少的流量转发到代理上，访问一般的国外网站如yahoo.com也不会经过代理而减速，在配置方面则做到了零配置，不需要手工维护网站名单。代理也能支持很多中类型，如socks5, shadowsocks, goagent, http-proxy等，redsocks2安装和配置可以见链接： http://github.com/hugozhu/redsocks
 
 这里我们假设redsocks2的端口使用**12345**
 
 
-#iptables
+# iptables
 
 使用iptables我们可以将某些来源的流量转发到本地的某个端口
 
@@ -70,7 +70,7 @@ sudo iptables -t nat -A PREROUTING -s 192.168.3.0/24 -p tcp --dport 443 -j REDIR
 sudo iptables -t nat -A POSTROUTING -s 192.168.3.0/24 -o eth0 -j MASQUERADE #转发VPN客户端的TCP流量到网络出口，并进行IP伪装；如果树莓派使用无线网卡则将eth0改成wlan0
 ```
 
-#DNS加固
+# DNS加固
 
 上面的设置我们解决了VPN拨号到树莓派的客户端通过redsocks2透明代理分流为直连或通过加密代理连接和访问目标网站，我们还需要解决一下DNS查询被纂改为不存在的IP地址的问题。
 
@@ -94,6 +94,6 @@ server=127.0.0.1#1053
 完成这一步后，我们可以修改pptp和l2tp服务的配置将vpn客户端的DNS服务器设置为`192.168.3.1`
 
 
-#总结
+# 总结
 
 通过以上的设置，可以充分发挥树莓派2的4核CPU性能，不仅可以为移动设备提供科学上网服务，也可以为家里的支持PPTP或L2TP VPN的台式机提供同样的服务。如果要进一步折腾，还可以通过增加usb网卡和交换机，让树莓派2作为主路由提供上网服务。
