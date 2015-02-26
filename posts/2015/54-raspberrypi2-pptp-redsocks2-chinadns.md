@@ -82,11 +82,13 @@ sudo iptables -t nat -A POSTROUTING -s 192.168.3.0/24 -o eth0 -j MASQUERADE #转
 dnsmasq是一个小巧的DNS和DHCP服务器软件，是openwrt的标配，具备dns缓存的功能，建议使用dnsmasq作为解析服务器，ChinaDNS则作为dnsmasq的上游(upstream)服务器，这样搭配较稳定又能缓存解析结果而提高并发性能，dnsmasq安装和配置如下：
 
 安装：
+
 ```
 sudo apt-get install dnsmasq
 ```
 
 配置：
+
 ```
 no-resolv
 server=127.0.0.1#1053
