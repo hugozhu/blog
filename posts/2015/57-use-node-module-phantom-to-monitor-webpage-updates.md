@@ -68,7 +68,7 @@ phantom.create(function (ph) {
 执行后的结果
 
 ```
-hugo@raspberrypi2 ~/projects/phantomjs $ node wacai_node.js 
+hugo@raspberrypi phantomjs $ node wacai.js 
 
 0 : 新手专享 新手项目1号 年化收益 10.00% 已购人数28121人 起购金额100元 投资期限 10天 立即申购 本息保障
 1 : 车盈宝133号 年化收益 6.50% 投资总额493.84万 投资进度 % 投资期限 29天 剩余金额199.07万 立即申购 本息保障
