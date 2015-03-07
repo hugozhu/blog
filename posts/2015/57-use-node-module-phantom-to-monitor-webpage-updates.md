@@ -90,7 +90,7 @@ hugo@raspberrypi2 ~/projects/phantomjs $ node wacai_node.js
 
 # 通知手机
 
-参考前面[一篇文章](http://hugozhu.myalert.info/2015/02/27/55-use-telegram-to-chat-with-raspberrypi.html) 可以将变化通知到手机上的Telegram App。
+参考前面的[用Telegram和树莓派交互](http://hugozhu.myalert.info/2015/02/27/55-use-telegram-to-chat-with-raspberrypi.html) 可以将变化通知到手机上的Telegram App。
 
 ```
 <?php
@@ -131,4 +131,4 @@ if ($last != $all) {
 	}
 	file_put_contents($file, $all);
 }
-···
+```
