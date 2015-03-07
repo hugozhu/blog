@@ -20,23 +20,24 @@ tags:
 
 # 安装phantomjs
 
-从 `https://github.com/piksel/phantomjs-raspberrypi` 下载已经编译好的phatomjs，并复制到`$PATH`下
+从 [https://github.com/piksel/phantomjs-raspberrypi](https://github.com/piksel/phantomjs-raspberrypi) 下载已经编译好的phatomjs，并复制到`$PATH`下
 
 # 安装Node.js
 
 在树莓派上编译Node.js非常非常耗时。。。你也可以下载已经编译好的node和npm
 
-···
+```
 wget https://s3-eu-west-1.amazonaws.com/conoroneill.net/wp-content/uploads/2015/02/node-v0.12.0-linux-arm-pi.tar.gz
 tar -zxvf node-v0.12.0-linux-arm-pi.tar.gz
 cd node-v0.12.0-linux-arm-pi
 sudo cp -R * /usr/local/
-···
+```
 
 执行`npm install phantom`安装phantom模块，这个模块要求phantomjs被安装在$PATH下。
 
 # 编写监视网页的脚本
-···
+
+```
 var phantom = require('phantom');
 
 phantom.create(function (ph) {
