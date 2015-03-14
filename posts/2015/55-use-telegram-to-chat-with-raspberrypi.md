@@ -57,7 +57,7 @@ function on_msg_receive (msg)
 		if cmd == "ping" then
 			send_msg (chat, 'pong', ok_cb, false)
 		elseif safe_commands[cmd] ~= nil then
-			send_msg (chat, exec(cmd), ok_cb, false)
+			send_msg (chat, exec(safe_commands[cmd]), ok_cb, false)
 		end
 	end
 end
