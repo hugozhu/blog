@@ -14,9 +14,11 @@ tags:
 
 {:toc}
 
-苹果的[Airplay](http://en.wikipedia.org/wiki/AirPlay)协议是通过基于[RSTP](http://en.wikipedia.org/wiki/Real_Time_Streaming_Protocol)（Real Time Streaming Protocol）协议通过UDP传输的无损编码音频流([Apple Lossless codec](http://en.wikipedia.org/wiki/Apple_Lossless)，音频流本身经过了AES加密，私钥是不公开的，这样只有苹果和其合作伙伴才能使用这个协议。但是2004年有人通过逆向工程获得了私钥并将其公开，这样我们也可以自己搭建低成本高音质的基于Airplay的音乐系统。在iPhone成为街机的时代，每个人的手机里有很多喜欢的音乐，如果在家里可以通过无线网络在音响系统里播放会方便很多。
+先看一下在iPhone 6 plus上用虾米播放高音质音乐的效果：
 
 ![Airplay](https://www.evernote.com/shard/s26/sh/5d6ddb93-220e-4c1d-a042-87a8835199dc/5e8345944ca4f948ee84636dacc77358/deep/0/77fa703f-71bc-40ac-8f65-861689fc2085-720-1,280-pixels.png)
+
+苹果的[Airplay](http://en.wikipedia.org/wiki/AirPlay)协议是通过基于[RSTP](http://en.wikipedia.org/wiki/Real_Time_Streaming_Protocol)（Real Time Streaming Protocol）协议通过UDP传输的无损编码音频流([Apple Lossless codec](http://en.wikipedia.org/wiki/Apple_Lossless)，音频流本身经过了AES加密，私钥是不公开的，这样只有苹果和其合作伙伴才能使用这个协议。但是2004年有人通过逆向工程获得了私钥并将其公开，这样我们也可以自己搭建低成本高音质的基于Airplay的音乐系统。在iPhone成为街机的时代，每个人的手机里有很多喜欢的音乐，如果在家里可以通过无线网络在音响系统里播放会方便很多。
 
 # 硬件
 1. pcDunio Acadia 或 Raspberry Pi 一只
@@ -35,7 +37,7 @@ pcDuino Acadia集成的音频芯片是业界领先的英国[Wolfson（欧胜微�
 ![raspberry pi audio2](http://i1.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/thd_onboard.png?resize=300%2C213)
 
 正是因为板载音频质量差强人意，Wolfson也专为树莓派设计了基于[WM5102](http://www.cirrus.com/en/products/wm5102.html) codec芯片的[Wolfson Audio Card](http://www.adafruit.com/product/1761) （售价高达$34.95，性价比不高，这块芯片也用在了魅族MX3上）。
-![Wolfson Audio Card](http://www.adafruit.com/images/230x173/1761-02.jpg)
+![Wolfson Audio Card](https://www.evernote.com/shard/s26/sh/7321c82f-96ad-42aa-9171-f10d0da456c0/c65f41888045af7bf1d879320ee3e171/deep/0/1761-00.jpg-970-728-pixels.png)
 
 更好的方案是使用USB声卡，如淘宝上可以购买的基于德州仪器的[PCM2704](http://www.ti.com/product/pcm2704)的[USB声卡](http://s.taobao.com/search?q=PCM2704&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=1.7274553.1997520841.1&initiative_id=tbindexz_20150315)，40多人民币。
 
