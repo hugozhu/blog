@@ -27,11 +27,14 @@ tags:
 # 音频芯片
 好的音质需要好的音源，无损音乐加好的前端输出是必不可少的。
 pcDuino Acadia集成的音频芯片是业界领先的英国[Wolfson（欧胜微电子）](http://en.wikipedia.org/wiki/Wolfson_Microelectronics)为高清音频设计的[WM8962](http://www.cirrus.com/en/products/wm8962-62b.html) 。树莓派集成的音频芯片则是由美国Broadcom（博通）封装在主芯片[BCM2835](http://www.broadcom.com/products/BCM2835)里通过PWM (pulse-width modulation) 提供的，比较简单音质一般，达不到高清音频的要求。
+
 ![raspberry pi audio](http://i2.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/onboard.png?resize=300%2C180) 
 
+<br/>
+下面是树莓派音频口播放1kHz正弦信号的输出波形，可以看出来波形并不好。
 ![raspberry pi audio2](http://i1.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/thd_onboard.png?resize=300%2C213)
 
-Wolfson也专为树莓派设计了基于[WM5102](http://www.cirrus.com/en/products/wm5102.html) codec芯片的[Wolfson Audio Card](http://www.adafruit.com/product/1761) （售价高达$34.95，性价比不高，这块芯片也用在了魅族MX3上）。
+正是因为板载音频质量差强人意，Wolfson也专为树莓派设计了基于[WM5102](http://www.cirrus.com/en/products/wm5102.html) codec芯片的[Wolfson Audio Card](http://www.adafruit.com/product/1761) （售价高达$34.95，性价比不高，这块芯片也用在了魅族MX3上）。
 ![Wolfson Audio Card](http://www.adafruit.com/images/230x173/1761-02.jpg)
 
 更好的方案是使用USB声卡，如淘宝上可以购买的基于德州仪器的[PCM2704](http://www.ti.com/product/pcm2704)的[USB声卡](http://s.taobao.com/search?q=PCM2704&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=1.7274553.1997520841.1&initiative_id=tbindexz_20150315)，40多人民币。
@@ -145,7 +148,7 @@ sudo apt-get install git libao-dev libssl-dev libcrypt-openssl-rsa-perl libio-so
 ```
  
 
-## 下载`Shairport`代码，编译安装
+## 下载代码，编译安装
 
 ```
 root@Acadia ~ $ git clone https://github.com/abrasive/shairport.git  
@@ -164,7 +167,8 @@ Configure successful. You may now build with 'make'
 root@Acadia ~/shairport $ make  
 ```
 
-pcDunio上还需要执行这一步：
+pcDunio Acadia上还需要执行这一步：
+
 ```
 root@Acadia ~ $ git clone https://github.com/njh/perl-net-sdp.git perl-net-sdp  
 root@Acadia  ~ $ cd perl-net-sdp  
