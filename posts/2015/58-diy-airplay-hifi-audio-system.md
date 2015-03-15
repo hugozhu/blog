@@ -18,6 +18,8 @@ tags:
 
 ![Airplay](https://www.evernote.com/shard/s26/sh/5d6ddb93-220e-4c1d-a042-87a8835199dc/5e8345944ca4f948ee84636dacc77358/deep/0/77fa703f-71bc-40ac-8f65-861689fc2085-720-1,280-pixels.png)
 
+![pcDunio Acadia](http://ww1.sinaimg.cn/bmiddle/6bc40342jw1eq68scsp62j20qn18galb.jpg)
+
 苹果的[Airplay](http://en.wikipedia.org/wiki/AirPlay)协议是通过基于[RSTP](http://en.wikipedia.org/wiki/Real_Time_Streaming_Protocol)（Real Time Streaming Protocol）协议通过UDP传输的无损编码音频流([Apple Lossless codec](http://en.wikipedia.org/wiki/Apple_Lossless)，音频流本身经过了AES加密，私钥是不公开的，这样只有苹果和其合作伙伴才能使用这个协议。但是2004年有人通过逆向工程获得了私钥并将其公开，这样我们也可以自己搭建低成本高音质的基于Airplay的音乐系统。在iPhone成为街机的时代，每个人的手机里有很多喜欢的音乐，如果在家里可以通过无线网络在音响系统里播放会方便很多。
 
 # 硬件
@@ -28,7 +30,7 @@ tags:
 
 # 音频芯片
 好的音质需要好的音源，无损音乐加好的前端输出是必不可少的。
-pcDuino Acadia集成的音频芯片是业界领先的英国[Wolfson（欧胜微电子）](http://en.wikipedia.org/wiki/Wolfson_Microelectronics)为高清音频设计的[WM8962](http://www.cirrus.com/en/products/wm8962-62b.html) 。树莓派集成的音频芯片则是由美国Broadcom（博通）封装在主芯片[BCM2835](http://www.broadcom.com/products/BCM2835)里通过PWM (pulse-width modulation) 提供的，比较简单音质一般，达不到高清音频的要求。
+[pcDuino Acadia](http://www.linksprite.com/?page_id=829)集成的音频芯片是业界领先的英国[Wolfson（欧胜微电子）](http://en.wikipedia.org/wiki/Wolfson_Microelectronics)为高清音频设计的[WM8962](http://www.cirrus.com/en/products/wm8962-62b.html) 。树莓派集成的音频芯片则是由美国Broadcom（博通）封装在主芯片[BCM2835](http://www.broadcom.com/products/BCM2835)里通过PWM (pulse-width modulation) 提供的，比较简单音质一般，达不到高清音频的要求。
 
 ![raspberry pi audio](http://i2.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/onboard.png?resize=300%2C180) 
 
