@@ -76,6 +76,7 @@ Time per period = 2.899088
 如果听不到声音，可以检查一下连接和系统设置：
 
 树莓派的命令输出：
+
 ```
 hugo@raspberrypi2 ~ $ sudo aplay -l
 **** List of PLAYBACK Hardware Devices ****
@@ -95,6 +96,7 @@ card 0: ALSA [bcm2835 ALSA], device 1: bcm2835 ALSA [bcm2835 IEC958/HDMI]
 ```
 
 pcDunio Acadia的命令输出：
+
 ```
     Hardware device with all software conversions
 hugo@Acadia ~ $ sudo aplay -l
@@ -108,16 +110,22 @@ card 1: imxhdmisoc [imx-hdmi-soc], device 0: IMX HDMI TX mxc-hdmi-soc-0 []
   ```
   
 如果你安装了USB声卡，还需要设置系统把USB声卡设置成缺省声卡。
+
 `sudo vi /etc/modprobe.d/alsa-base.conf`
+
 修改
+
 `options snd-usb-audio index=-2`
+
 为
+
 ```
 #options snd-usb-audio index=-2  
 options snd-usb-audio nrpacks=
 ```
 
 有些系统可能还需执行下一步（注：树莓派2不需要）
+
 `sudo vi /usr/share/alsa/alsa.conf`
 把`pcm.front cards.pcm.front` 替换成`pcm.front cards.pcm.default`
 
