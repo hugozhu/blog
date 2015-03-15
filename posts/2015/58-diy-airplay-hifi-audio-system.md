@@ -32,11 +32,12 @@ tags:
 好的音质需要好的音源，无损音乐加好的前端输出是必不可少的。
 [pcDuino Acadia](http://www.linksprite.com/?page_id=829)集成的音频芯片是业界领先的英国[Wolfson（欧胜微电子）](http://en.wikipedia.org/wiki/Wolfson_Microelectronics)为高清音频设计的[WM8962](http://www.cirrus.com/en/products/wm8962-62b.html) 。树莓派集成的音频芯片则是由美国Broadcom（博通）封装在主芯片[BCM2835](http://www.broadcom.com/products/BCM2835)里通过PWM (pulse-width modulation) 提供的，比较简单音质一般，达不到高清音频的要求。
 
-![raspberry pi audio](http://i2.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/onboard.png?resize=300%2C180) 
+下面是树莓派音频口播放1kHz正弦信号的输出波形，可以看出来波形并不好。
+![raspberry pi audio](https://www.evernote.com/shard/s26/sh/0ae05aca-ea18-4c4d-bee8-2a98f9467d76/e1b636d369435324e3ef1a7f38bf7c59/deep/0/onboard.png-300-180-pixels.png) 
 
 <br/>
-下面是树莓派音频口播放1kHz正弦信号的输出波形，可以看出来波形并不好。
-![raspberry pi audio2](http://i1.wp.com/www.crazy-audio.com/wp-content/uploads/2013/11/thd_onboard.png?resize=300%2C213)
+
+![raspberry pi audio2](https://www.evernote.com/shard/s26/sh/3b5a026b-9725-40e8-b1e1-429bfe9d1438/a86296da1bec5cf7bb8d98d530d271fe/deep/0/thd_onboard.png-300-213-pixels.png)
 
 正是因为板载音频质量差强人意，Wolfson也专为树莓派设计了基于[WM5102](http://www.cirrus.com/en/products/wm5102.html) codec芯片的[Wolfson Audio Card](http://www.adafruit.com/product/1761) （售价高达$34.95，性价比不高，这块芯片也用在了魅族MX3上）。
 ![Wolfson Audio Card](https://www.evernote.com/shard/s26/sh/7321c82f-96ad-42aa-9171-f10d0da456c0/c65f41888045af7bf1d879320ee3e171/deep/0/1761-00.jpg-970-728-pixels.png)
