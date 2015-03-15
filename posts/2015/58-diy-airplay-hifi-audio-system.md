@@ -149,7 +149,7 @@ sudo apt-get install mpg321
 
 ![pcDunio](https://www.evernote.com/shard/s26/sh/5f01fea9-0726-45ac-a1d0-7ef508862487/f0a830f6c56b40744a1ab62a3623fdf4/deep/0/workapp---hugo@Acadia------ssh---98-35.png)
 
-## Airplay设置
+# Airplay设置
 
 这里我们使用开源的Airplay解码软件`Shairport`。
 
