@@ -56,6 +56,7 @@ tags:
 注：普通用户不一定有权限使用系统音频设备，所以以下测试需要root或audio group里的用户。
 
 首先可以用`speaker-test`命令测试是否能出声。
+
 ```
 hugo@raspberrypi2 ~ $ sudo speaker-test 
 speaker-test 1.0.25
@@ -130,7 +131,7 @@ options snd-usb-audio nrpacks=
 有些系统可能还需执行下一步（注：树莓派2不需要）
 
 `sudo vi /usr/share/alsa/alsa.conf`
-把`pcm.front cards.pcm.front` 替换成`pcm.front cards.pcm.default`
+把 `pcm.front cards.pcm.front` 替换成`pcm.front cards.pcm.default`
 
 ## 测试音乐播放
 下载一个mp3文件在pcDunio或树莓派上，然后安装`mpg321`
