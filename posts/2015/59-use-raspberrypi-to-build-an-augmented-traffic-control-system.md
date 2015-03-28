@@ -229,7 +229,7 @@ python manage.py migrate
 ```
 /usr/local/bin/atcd --atcd-lan wlan0
 cd /home/pi/startproject/atcui
-python manage.py runserver 0.0.0.0:80
+python manage.py runserver 0.0.0.0:80 &
 ```
 
 重新启动树莓派后，大约30s后，可以用iPhone连上`Raspberry AP`，然后用Safari打开http://192.168.3.1 你就可以可以看弱网模拟系统的控制面板了。
