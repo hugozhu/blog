@@ -64,6 +64,7 @@ Arch Linux特点：
     /dev/sda       /mnt/usb        ext4    defaults,noatime  0       0
 
 还可以测试一下SD卡和USB盘的读写性能：
+
 ```
 [root@raspberrypi2 ~]# hdparm -Tt /dev/mmcblk0
 
@@ -214,20 +215,11 @@ System Benchmarks Index Score                                          76.3
     
 3. 设置开机启动无线网络
     
-    使用`wifi-menu`手动连上wifi ap，可以连多个，相应的输入会保存在：/etc/network.d/，在下面的文件里输入相应的文件名
-    
-    修改/etc/conf.d/netcfg
-    
-    ```
-    DHCP_TIMEOUT=30 
-    AUTO_PROFILES=("wlan0-Hugo2" "wlan0-hugo")
-    ```
-    
-    如果是隐藏SSID的要加一行"HIDDEN=YES"
+    使用`wifi-menu`手动连上wifi ap，可以连多个，相应的输入会保存在：/etc/netctl/，在下面的文件里输入相应的文件名
     
     执行一下命令在重启时自动连上wifi
     ```
-    systemctl enable net-auto-wireless
+    netctl enable wlan0-<YOUR_AP_NAME>
     ```
 
 4. 有条件的可以在路由器里设置好根据MAC地址总是分配同一个ip给Pi，这样就可以拔掉网线的束缚了~
