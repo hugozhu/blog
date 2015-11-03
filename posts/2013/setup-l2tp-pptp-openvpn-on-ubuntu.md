@@ -101,20 +101,19 @@ MacOS, Windows, iOS都内置支持PPTP，L2TP；OpenVPN需要安装客户端，�
     leftnexthop=1.2.3.1 #机器的Gateway
 
 如果机器直接连接网络，不需要NAT，需要注释下面几行
-```
-#conn L2TP-PSK-NAT
-#       rightsubnet=vhost:%priv
-#       also=L2TP-PSK-noNAT
-```
+
+    conn L2TP-PSK-NAT
+           rightsubnet=vhost:%priv
+           also=L2TP-PSK-noNAT
     
 修改 /etc/ipsec.conf，在文件最后增加：
 
     include /etc/ipsec.d/l2tp-psk.conf
 
 如果机器直接连接网络，确认 /etc/ipsec.conf 中nat_traversal是yes
-```
-nat_traversal=yes
-```
+
+    nat_traversal=yes
+
 
 修改 /etc/ipsec.secrets
     
