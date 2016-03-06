@@ -64,7 +64,7 @@ pppoptfile = /etc/ppp/xl2tpd-options
 length bit = yes
 ```
 
-/etc/ppp/xl2tpd-options 里设置通过vpn接入进来的设备DNS
+`/etc/ppp/xl2tpd-options` 里设置通过vpn接入进来的设备DNS
 
 ```
 asyncmap 0
