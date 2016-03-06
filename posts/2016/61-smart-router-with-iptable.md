@@ -44,9 +44,11 @@ nohup ss-server config.json &
 nohup ss-redir config.json &
 ```
 
-## 在中国的服务器上安装好L2TP服务，`/etc/xl2tpd/xl2tpd.conf` 里设置好vpn ip段
+## 在中国的服务器上安装好L2TP服务，
 
-···
+`/etc/xl2tpd/xl2tpd.conf` 里设置好vpn ip段
+
+```
 [global]
 ipsec saref = yes
 listen-addr = <外网IP>
@@ -60,7 +62,9 @@ require authentication = yes
 ppp debug = yes
 pppoptfile = /etc/ppp/xl2tpd-options
 length bit = yes
-···
+```
+
+/etc/ppp/xl2tpd-options 里设置通过vpn接入进来的设备DNS
 
 ```
 asyncmap 0
