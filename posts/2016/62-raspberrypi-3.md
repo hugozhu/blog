@@ -29,6 +29,7 @@ tags:
 背面看略有不同，中间的芯片是1G内存，树莓派3的内存速度快了1倍，右边是CF卡插槽，树莓派2是回弹式卡槽（取出CF卡时只要往力再摁一下就会弹出），树莓派3可能为了降低成本或是因为板卡空间的问题改成了更紧凑的插入式，装上外壳后取出的时候有点费劲，我需要用瑞士军刀的镊子夹出来。
 
 ![image](http://ww2.sinaimg.cn/bmiddle/6bc40342gw1f1sd7pk73sj20qo0zkdpq.jpg)
+
 （下图是树莓派3）
 
 # 安装启动
@@ -73,6 +74,9 @@ sudo iwconfig wlan0 power off
 # CPU
 树莓派3使用的4核Cortex-A53 BCM2837 SoC为了向下兼容，架构上和树莓派2使用的4核Cortex-A7 BCM2836差不多，在32位模式运行下，速度要快50~60%（时钟频率1.2GHz vs 900MHz），尽管CPU已经支持64位，官方的操作系统Raspbian还是32位，当然树莓派3内存只有1G，运行64位操作系统可能会有点累,。
 如果要体验真64位系统，目前可以考虑带2G内存，千兆网口的[ODROID-C2](https://item.taobao.com/item.htm?spm=a230r.1.14.1.aQSAa0&id=527695599811&ns=1&abbucket=18#detail)，可装Ubuntu 16.04和Android 5.1。
+
+一般情况下，不带散热片的CPU温度在45度左右，我有个脚本会每五分钟上传一下温度：[https://personal.xively.com/feeds/1480103458](https://personal.xively.com/feeds/1480103458)
+
 
 # Node.js
 
