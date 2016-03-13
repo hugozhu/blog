@@ -1,7 +1,7 @@
 ---
 date: 2016-04-13
 layout: post
-title:  第一代64位CPU，内置无线的树莓派3初体验
+title: 树莓派3初体验
 description: Raspberry Pi 3
 categories:
 - Blog
