@@ -1,8 +1,8 @@
 ---
-date: 2016-04-19
+date: 2016-04-17
 layout: post
 title: 在树莓派3上搭建监控系统
-description: 
+description: Set up monitor system on Raspberry Pi 3 with Prometheus
 categories:
 - Blog
 tags:
