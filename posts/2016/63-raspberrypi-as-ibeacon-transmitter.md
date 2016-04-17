@@ -113,7 +113,7 @@ sudo hcitool -i hci0 cmd 0x08 0x0008 1E 02 01 1A 1A FF 4C 00 02 15 f6 bc 15 e0 9
 
 # App使用iBeacon获取推送信息
 
-iOS 9可以在后台感知附近的iBeacon基站并通知用户，这给了开发者需要想象空间，而现在你可以用树莓派3创建一个iBeacon基站。
+iOS 9可以在后台感知附近的iBeacon基站并通知用户，这给了开发者无限的想象空间，而现在你就可以用树莓派3创建一个自己的iBeacon基站了。
 
 
 # 参考链接
