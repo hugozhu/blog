@@ -5,9 +5,8 @@ title: 用免费的Google云服务将Github项目Webhook事件通知到钉钉
 description: Use Free Google Cloud Service to deliver Github webhook events to DingTalk
 categories:
 - Blog
-tags:
-- DingTalk
 
+---
 
 {:toc}
 
