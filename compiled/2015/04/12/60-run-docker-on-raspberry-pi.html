@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>在树莓派上运行Docker - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Run docker on Raspberry Pi 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>在树莓派上运行Docker </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">Docker</a></li>
+<li><a href="#toc_1">树莓派二代</a>
+<ul>
+<li><a href="#toc_2">Arch Linux ARM</a>
+<ul>
+<li><a href="#toc_3">安装docker</a></li>
+<li><a href="#toc_4">开机自动docker</a></li>
+<li><a href="#toc_5">把登录用户加到docker组</a></li>
+<li><a href="#toc_6">执行docker</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#toc_7">HypriotOS</a></li>
+<li><a href="#toc_8">Resin.io</a></li>
+<li><a href="#toc_9">参考链接</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">Docker</h1>
+
+<p>Docker是目前非常流行的代码运行容器，操作系统虚拟化，运维自动化架构和开源的解决方案。</p>
+
+<p>Docker的基础是Linux容器（LXC）技术，相比传统的VM虚拟化技术, LXC更轻量，性能更好。</p>
+
+<p>Docker采用Golang语言开发，在LXC基础上Docker进行了封装，简化了容器的管理。</p>
+
+<p>Docker还提供了一个标准(Dockerile)来实现软件部署环境代码化，全球的开发和运维工程师可以通过官方的Docker Hub仓库分享自己创建的镜像，使用者则可以快速的把系统和应用部署到自己的环境。</p>
+
+<h1 id="toc_1">树莓派二代</h1>
+
+<p>树莓派二代的CPU有4核，运行速度是第一代的6倍，通过Docker快速部署开发环境，开发应用，再把开发好的系统通过镜像分享和发布出去也是非常有意义的事。因为树莓派的官方操作系统Raspbian并不支持Docker，本文主要介绍下如何在树莓派二代上运行Docker的几种方法。</p>
+
+<h2 id="toc_2">Arch Linux ARM</h2>
+
+<p><a href="http://archlinuxarm.org">Arch Linux ARM</a> 是由开源社区维护专为ARMv6（如树莓派一代）和 ARMv7（如树莓派二代, pcDuino3）等嵌入式硬件提供内核及软件支持的Linux发行版本。</p>
+
+<p>在树莓派上安装Arch Linux和Raspbian略有不同，详细步骤可以看<a href="http://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2">参考链接4</a>。
+总得来说是你需要在SD卡上分两个区并格式化，一个是FAT 32(LBA)格式的引导分区(/boot)，另一个是系统根分区（/root）。然后把下载下来的文件解开来复制到这两个分区就可以了。</p>
+
+<p>你也可以只在SD卡上放/boot分区（这样可以用较小的如1G的SD卡引导树莓派），在U盘上放根分区，通过USB扩展存储可以允许你存放很多的镜像文件。</p>
+
+<p>安装好Arch Linux后，参考这篇<a href="http://hugozhu.myalert.info/2013/03/09/setup-archliunx-on-raspberry-pi.html">文章</a>做完基础设置。</p>
+
+<h3 id="toc_3">安装docker</h3>
+
+<pre><code>pacman -S docker
+</code></pre>
+
+<p>目前安装好的版本是1.5</p>
+
+<h3 id="toc_4">开机自动docker</h3>
+
+<pre><code>systemctl enable docker
+</code></pre>
+
+<h3 id="toc_5">把登录用户加到docker组</h3>
+
+<p>这样不需要root也能执行docker了</p>
+
+<pre><code>gpasswd -a &lt;your_login&gt; docker
+</code></pre>
+
+<h3 id="toc_6">执行docker</h3>
+
+<p>Docker Hub上搜索rpi已经可以找到不少适合Raspberry Pi运行的镜像了，热心网友都是棒棒哒。</p>
+
+<pre><code>[hugo@alarmpi ~]$ docker -v      
+Docker version 1.5.0, build a8a31e
+
+[hugo@alarmpi ~]$ docker search rpi
+NAME                          DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+resin/rpi-raspbian            Base image for the Raspberry Pi. Contains ...   55                   
+sdhibit/rpi-raspbian          Base Raspbian image for ARMv6 boards. Imag...   9                    [OK]
+hypriot/rpi-node              RPi-compatible Docker Image with Node.js        8                    
+yyolk/rpi-archlinuxarm        Arch Linux Arm base image, built daily w/ ...   7                    
+hypriot/rpi-iojs              RPi-compatible Docker Image with io.js          7                    
+hypriot/rpi-python            RPi-compatible Docker Image with Python         6                    
+hypriot/rpi-java              RPi-compatible Docker Image with Java           5                    
+hypriot/rpi-crate             RPi-compatible Docker Image with Crate.io       3                    
+akkerman/rpi-nginx            rpi build of nginx                              3                    
+jprjr/distcc-rpi                                                              3                    [OK]
+resin/rpi-node                Node.js is a JavaScript-based platform for...   1                    
+ontouchstart/rpi-ruby         ontouchstart/rpi-ruby                           0                    
+ontouchstart/rpi-base         ontouchstart/rpi-base                           0                    
+ontouchstart/rpi-redis        ontouchstart/rpi-redis                          0                    
+ontouchstart/rpi-go           ontouchstart/rpi-go                             0                    
+philipz/rpi-raspbian                                                          0                    [OK]
+maiome/rpi-kernel-build       A simple container that makes rebuilding a...   0                    [OK]
+dcarley/golang-rpi                                                            0                    [OK]
+philipz/rpi-hub-test                                                          0                    [OK]
+rpietzsch/paperwork                                                           0                    [OK]
+rpietzsch/facete2-docker                                                      0                    [OK]
+jakobwesthoff/rpi-cc                                                          0                    [OK]
+danielfrg/rpi2xc                                                              0                    [OK]
+rpietzsch/bww-personensuche                                                   0                    [OK]
+randyp/rpi-archlinuxarm       Adding extra to yyolk/rpi-archlinuxarm...       0                    
+
+</code></pre>
+
+<h1 id="toc_7">HypriotOS</h1>
+
+<p>如果你不习惯Arch Linux或者想用docker 1.6，下面这个方法是你的菜：</p>
+
+<p>按照 <a href="http://blog.hypriot.com/post/hypriotos-back-again-with-docker-on-arm/">http://blog.hypriot.com/post/hypriotos-back-again-with-docker-on-arm/</a> 教程安装就好了。</p>
+
+<h1 id="toc_8">Resin.io</h1>
+
+<p>这是一家研究在树莓派上运行和分发应用较早的公司。</p>
+
+<p>这里有详细的教程 : <a href="http://docs.resin.io/#/pages/installing/gettingStarted.md">http://docs.resin.io/#/pages/installing/gettingStarted.md</a></p>
+
+<h1 id="toc_9">参考链接</h1>
+
+<ol>
+<li><a href="http://dockerpool.com/static/books/docker_practice/introduction/what.html">http://dockerpool.com/static/books/docker_practice/introduction/what.html</a></li>
+<li><a href="https://resin.io/blog/docker-on-raspberry-pi/">https://resin.io/blog/docker-on-raspberry-pi/</a></li>
+<li><a href="http://blog.hypriot.com/post/hypriotos-back-again-with-docker-on-arm/">http://blog.hypriot.com/post/hypriotos-back-again-with-docker-on-arm/</a></li>
+<li><a href="http://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2">http://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2016/04/06/61-smart-router-with-iptable.html" title="用iptables搭建稳定的加速代理">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2015/03/28/59-use-raspberrypi-to-build-an-augmented-traffic-control-system.html" title="使用树莓派搭建低成本，便携，多用户的弱网模拟器：高效测试手机App在弱网下的可用性">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2015-04-12</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>67</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Raspberry-Pi-ref">Raspberry Pi <span>27</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#docker-ref">docker <span>1</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+
+<a href="http://s.click.taobao.com/t?e=m%3D2%26s%3D9DKPd4ZJgCocQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAuRj1MpVirn6yTS32oZobhotyCA8kPsK20DQUmvVyfKQaZdJdwyDgalbY%2Bzpq8pT0%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLZ%2FNxlvga2vCGHCdjJcucegWK9VBnTRuNlDnA5T%2FnLesYOae24fhW0"><img src="https://img.alicdn.com/tps/TB1wJ_DMXXXXXXLapXXXXXXXXXX-300-100.jpg"/></a>
+
+<br/>
+</div>
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

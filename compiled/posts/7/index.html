@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go语言内存模型 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Go memory model 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Blogs</h1>
+</div>
+
+
+<div class="row">
+  <div class="span12">
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/6/">6</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/7/">7</a></li>
+        
+        
+      
+      </ul>
+    </div>
+
+
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/28/logging-in-java.html">Java程序的日志</a> <span class="date">2013-02-28</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>一个在生产环境里运行的程序如果没有日志是很让维护者提心吊胆的，有太多杂乱又无意义的日志也是令人伤神。程序出现问题时候，从日志里如果发现不了问题可能的原因是很令人受挫的。本文想讨论的是如何在Java程序里写好日志。大多数的Web服务器（如Apache，Nginx）都有access日志和error日志，分别记录在不同的文件内；我们使用的服务器操作系统Linux有Syslog日志, /var/log目录下也有很多基础应用和服务的日志文件；桌面Windows有事件查看器, Mac有Console应用可以查看和管理日志；这些成熟的系统及工具方法都值得我们学习并在自己的项目中应用。</p>
+
+<p>一般来说日志分为两种：业务日志和异常日志。使用日志我们希望能达到以下目标：</p>
+
+<ol>
+<li>对程序运行情况的记录和监控；</li>
+<li>在必要时可详细了解程序内部的运行状态；</li>
+<li>对系统性能的影响尽量小；</li>
+</ol>
+
+<h2><a style="display: block;" name="日志规范" href="#日志规范"></a>日志规范</h2>
+
+<p>程序框架应该提供统一的日志记录接口，日志格式也需要有一定的规范，方便利用日志工具来分析日志。
+首先我们有必要了解一下Linux普遍使用的<a href="http://en.wikipedia.org/wiki/Syslog">Syslog</a>标准协议，协议规定日志中应包含产生日志的模块(Facility)，严重性（Severity Level），时间，主机名或IP，进程名，进程ID和日志内容，根据模块和严重性可以配置相应的动作：是否需要记录，日志存储路径（文件或网络）。</p>
+
+<p>下面是部分常见的Syslog模块类型：</p>
+
+<table>
+<thead>
+<tr>
+<td><strong>模块ID</strong></td>
+<td><strong>关键词</strong></td>
+<td><strong>描述</strong></td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>kern</td>
+<td>内核消息</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>user</td>
+<td>用户级别消息</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>mail</td>
+<td>邮件系统</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>daemon</td>
+<td>系统后台守护程序</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>auth</td>
+<td>安全/鉴权消息</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>syslog</td>
+<td>syslogd内部产生的日志消息</td>
+</tr>
+
+<tr>
+<td>…</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+        <div class="more">
+          <a href="/2013/02/28/logging-in-java.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/27/collaborating-development-with-github.html">使用Github合作开发项目</a> <span class="date">2013-02-27</span></h1>
+
+        <p>本文大部分内容来自： <a href="https://help.github.com/categories/63/articles">https://help.github.com/categories/63/articles</a></p>
+
+<p>Github上合作开发最好的方式是“<strong>Fork + Pull Request</strong>”。比如我最近需要一个静态Blog生成器，市面上有很多Ruby实现的，但我想要一个Go语言的实现，Github上找到了一个 <a href="https://github.com/wendal/gor">https://github.com/wendal/gor</a> ，测试了一下已有的功能基本能满足了，就用上了。</p>
+
+<p>但实际使用过程中发现了一个问题，如果在URL中有中文，生成的URL如下没有做URL安全编码：</p>
+
+<pre><code>http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html
+</code></pre>
+
+<p>还有一种情况是如果URL中有空格，如：</p>
+
+<pre><code>http://hugozhu.myalert.info//2013//02/25/Java properties to enviorment variables.html
+</code></pre>
+
+<p>浏览器遇到这种URL时，会主动进行编码，但这里有两个问题：</p>
+
+<ol>
+<li>遇到中文时，浏览器是用GBK还是UTF-8还是其它字符集编码后再发送给服务器呢？</li>
+<li>遇到空格时，编码成+还是%20呢？
+不同浏览器实现可能不一样，在不同操作系统上也可能不一样（可能和用户设置的缺省语言有关），这样有些用户可能会遭遇404错误了，实际上我在服务器的错误日志上的确看到这样的错误</li>
+</ol>
+
+<p>日志：</p>
+
+
+        <div class="more">
+          <a href="/2013/02/27/collaborating-development-with-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/27/how-to-host-personal-blog-on-github.html">在Pi和Github上搭建自己的个人博客</a> <span class="date">2013-02-27</span></h1>
+
+        <h1>方法如下：</h1>
+
+<p>本站同时托管在家里的<a href="http://www.raspberrypi.org">Raspberry Pi</a>和<a href="http://pages.github.com/">Github Pages</a>上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名<strong>hugozhu.myalert.info</strong>到不同的服务器是通过<a href="http://dnspod.cn">DnsPod</a>的服务实现的，这么好的服务还是免费的，这里推荐一下。</p>
+
+<p>因为Github Pages只能支持静态网页，你需要一个能生成静态网页的博客生成引擎。我使用的是<a href="http://github.com/wendal/gor">gor</a> ， 也可以使用<a href="http://ruhoh.com">ruhoh</a>，<a href="https://www.google.com/search?q=static+blog+generator&amp;hl=en&amp;newwindow=1&amp;client=safari&amp;rls=en&amp;biw=1238&amp;bih=868&amp;ei=msAuUY-vDMKO2AWQ7IHoBQ&amp;sqi=2&amp;start=10&amp;sa=N">Google一下还有很多</a>。</p>
+
+<h2>静态页面博客的好处：</h2>
+
+<ol>
+<li>性能是最好的，很合适用Raspberry Pi来做服务器，节省资源；</li>
+<li>文章可以用Markdown格式来编写，采用Github来做版本控制，我的Blog仓库在 <a href="http://github.com/hugozhu/blog">http://github.com/hugozhu/blog</a> ，数据安全很好，误删除也不担心了；</li>
+<li>很容易找到托管环境，方便迁移；</li>
+<li>用Gor在Pi上生成速度很快；再用Nginx提供Web服务，可以直接在Pi上写Blog；</li>
+<li>大繁至简</li>
+</ol>
+
+<h2>Github设置</h2>
+
+<ol>
+<li>在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是<a href="https://github.com/hugozhu/hugozhu.github.com">hugozhu.github.com</a>，这个仓库也就是网站的根目录了，在这里放生成好的静态文件</li>
+<li>如果你需要用自己的域名，而不是Github提供的，可以在根目录下增加一个<a href="https://github.com/hugozhu/hugozhu.github.com/blob/master/CNAME">CNAME</a>文件,文件内容则是你的域名，在DnsPod上需要建一个CNAME记录，将你的域名指向your_github_id.github.com. 也就是github原来分配给你的，完成这个设置后，访问your_github_id.github.com会跳转到你的域名；</li>
+<li>每次更新后，Github会在10分钟内生效。</li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/02/27/how-to-host-personal-blog-on-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/26/dynamic-dns-script.html">动态DNS程序</a> <span class="date">2013-02-26</span></h1>
+
+        <h2>动态根据宽带public ip更新dnspod登记的域名</h2>
+
+<p>按照 <a href="https://gist.github.com/833369">https://gist.github.com/833369</a> 逻辑重新用Go实现了，用更少的内存开销在Raspberry Pi上跑。</p>
+
+<p>替换上你的Email，密码，域名ID，记录ID等参数，就可以运行了。 会在后台一直运行，每隔30秒检查一遍IP，如果修改了就更新IP。</p>
+
+<p>获得domain_id可以用：</p>
+
+<pre><code>curl curl -k https://dnsapi.cn/Domain.List -d &quot;login_email=xxx&amp;login_password=xxx&quot; 
+</code></pre>
+
+<p>获得record_id：</p>
+
+<pre><code>curl -k https://dnsapi.cn/Record.List -d &quot;login_email=xxx&amp;login_password=xxx&amp;domain_id=xxx&quot;
+</code></pre>
+
+<script src="https://gist.github.com/hugozhu/6506189.js"></script>
+
+
+        <div class="more">
+          <a href="/2013/02/26/dynamic-dns-script.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/26/linux_perf_tools.html">系统调试和分析工具</a> <span class="date">2013-02-26</span></h1>
+
+        <p>Linux下的调试和分析工具集</p>
+
+<hr />
+
+<p><img src="/assets/media/tools.jpg" width="600"/></p>
+
+
+        <div class="more">
+          <a href="/2013/02/26/linux_perf_tools.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/25/Java%20properties%20to%20enviorment%20variables.html">将Java的Properties文件转换成环境变量</a> <span class="date">2013-02-25</span></h1>
+
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
+
+<p>在Java程序中使用properties文件很方便，但有时候需要和脚本配合使用时，需要把properties文件内的多个变量转换成环境变量，本文提供一个转换脚本示范：</p>
+
+<p>比如env.properties如下（=附近可以有空格，也可以有空行）</p>
+
+<pre><code>MYSQL_URL = jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=gbk
+MYSQL_USER = root
+MYSQL_PASS = 
+</code></pre>
+
+<p>执行下面的脚本后就相当于</p>
+
+<pre><code>export MYSQL_URL=&quot;//localhost:3306/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=gbk&quot;
+export MYSQL_USER=&quot;root&quot;
+export MYSQL_PASS=&quot;&quot; 
+</code></pre>
+
+<p>env.sh脚本代码</p>
+
+<pre><code>#!/bin/bash
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2013/02/25/Java%20properties%20to%20enviorment%20variables.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2012/new-born.html">我的第一篇博客</a> <span class="date">2012-12-22</span></h1>
+
+        <h1>感谢使用Gor编写博客</h1>
+
+<h2>本文位于 posts/first-blog.md , 你可以任何删掉,修改这个文件</h2>
+
+<p>文件开头是当前文章的元数据</p>
+
+<ol>
+<li>date为自动生成, 当然,你可以修改,这是你的自由</li>
+<li>permalink 可以是固定地址,也可以由gor为你自动生成</li>
+<li>categories 就是分类, 可以多个</li>
+<li>tags 同理,多个标签也是很常见的</li>
+</ol>
+
+<p>请确保文件使用UTF8 without BOM编码</p>
+
+<h2>你可以通过执行下面的语句来新建一篇博客:</h2>
+
+<pre><code>gor post 文章标题
+</code></pre>
+
+
+        <div class="more">
+          <a href="/2012/new-born.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+
+    <div class="pagination">
+      <ul>
+      
+        
+        
+          <li><a href="/posts/1/">1</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/2/">2</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/3/">3</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/4/">4</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/5/">5</a></li>
+        
+      
+        
+        
+          <li><a href="/posts/6/">6</a></li>
+        
+      
+        
+          <li class="active"><a href="/posts/7/">7</a></li>
+        
+        
+      
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

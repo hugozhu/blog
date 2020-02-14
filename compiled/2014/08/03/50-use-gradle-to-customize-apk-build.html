@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>使用Gradle生成一个App的不同版本，且可以同时安装在一个手机上 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Customizing your Android App build with Gradle 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>使用Gradle生成一个App的不同版本，且可以同时安装在一个手机上 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">背景</a></li>
+<li><a href="#toc_1">解决方案</a>
+<ul>
+<li><a href="#toc_2">修改debug版的包名</a></li>
+<li><a href="#toc_3">修正资源文件里的包名</a></li>
+<li><a href="#toc_4">定制APK的应用名称</a></li>
+<li><a href="#toc_5">修改ContentProvider Authority</a></li>
+</ul></li>
+<li><a href="#toc_6">参考链接</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">背景</h1>
+
+<p>开发一个App一般会生成内测版和正式版，甚至还会有不同渠道的版本，不同版本的配置可能会不一样，比如内测版会需要记录完整的日志。</p>
+
+<p>Android手机对于同样的Application Id的App只能安装一个版本，如果我们需要同时安装内测版和正式版，就必须修改其中一个版本的Application Id。</p>
+
+<h1 id="toc_1">解决方案</h1>
+
+<p>Gradle支持buildTypes和productFlavors两种定制方法，这里只介绍通过buildType的解决方案。通过productFlavors则可有效解决渠道包，arm，x86等分平台以及付费版和广告版的打包问题。</p>
+
+<h2 id="toc_2">修改debug版的包名</h2>
+
+<p>配置如下：</p>
+
+<pre><code>android {
+    buildTypes {
+        release {
+            ...
+        }
+
+        debug {
+            applicationIdSuffix '.debug'
+            ...
+        }
+    }
+}
+</code></pre>
+
+<h2 id="toc_3">修正资源文件里的包名</h2>
+
+<p>如果你的项目里使用了自定义的View，且有自定义的属性时，会需要修正一下xml命名空间里的包名。</p>
+
+<pre><code>android.applicationVariants.all { variant -&gt;
+    def buildType = variant.buildType
+    def encoding = java.nio.charset.Charset.defaultCharset().toString()
+    if (buildType.applicationIdSuffix) {
+        def defaultPackageId = variant.packageName.replaceAll(buildType.applicationIdSuffix,'')
+        variant.mergeResources.doLast {
+            def dir = file(&quot;${buildDir}/intermediates/res/${variant.dirName}/layout&quot;)
+            dir.listFiles().each { f-&gt;
+                String content = f.getText(encoding)
+                content = content.replaceAll(&quot;res/&quot;+defaultPackageId, &quot;res/&quot;+variant.packageName)
+                f.write(content, encoding)
+            }
+        }
+    }
+}
+</code></pre>
+
+<h2 id="toc_4">定制APK的应用名称</h2>
+
+<p>如果同时安装两个版本，那么最好能从应用名称上来区别一下，一般我们在<code>AndroidManifest.xml</code>中使用String resource来命名，如下：</p>
+
+<pre><code>    &lt;application
+        ...
+        android:label=&quot;@string/app_name&quot; &gt;
+</code></pre>
+
+<p>在<code>build.gradle</code>里增加下面的代码就可以为debug版一个特殊的命名了</p>
+
+<pre><code>android.applicationVariants.all { variant -&gt;
+    def buildType = variant.buildType
+    def encoding = java.nio.charset.Charset.defaultCharset().toString()
+    if (buildType.applicationIdSuffix) {
+        def defaultPackageId = variant.packageName.replaceAll(buildType.applicationIdSuffix,'')
+        variant.mergeResources.doLast {
+            def f = file(&quot;${buildDir}/intermediates/res/${variant.dirName}/values/values.xml&quot;)
+            String content = f.getText(encoding)
+            content = content.replaceAll('来往','来往Beta')
+            f.write(content,encoding)
+        }
+    }
+}
+</code></pre>
+
+<h2 id="toc_5">修改ContentProvider Authority</h2>
+
+<p>如果你的应用里还提供ContentProvider的话，如下：</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+   package=&quot;com.example.android.app&quot;
+   android:versionCode=&quot;1&quot;
+   android:versionName=&quot;1&quot;&gt;
+
+   &lt;application&gt;
+
+       &lt;provider
+           android:name=&quot;.provider.Provider1&quot;
+           android:authorities=&quot;com.example.android.app.debug.provider&quot;
+           android:exported=&quot;false&quot; /&gt;
+
+   &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<p>也可以用类似的方法修改。</p>
+
+<p>通过在<code>build.gradle</code>里增加上面的方法后，可以在<code>gradle build</code>后生成debug和release两个包，且可以同时安装到一个手机上。</p>
+
+<h1 id="toc_6">参考链接</h1>
+
+<ol>
+<li><a href="http://toastdroid.com/2014/03/28/customizing-your-build-with-gradle/">http://toastdroid.com/2014/03/28/customizing-your-build-with-gradle/</a></li>
+<li><a href="http://stackoverflow.com/questions/16777534/using-build-types-in-gradle-to-run-same-app-that-uses-contentprovider-on-one-dev">http://stackoverflow.com/questions/16777534/using-build-types-in-gradle-to-run-same-app-that-uses-contentprovider-on-one-dev</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2014/08/27/49-fast-sync-between-mobile-phone-and-server.html" title="简单手机应用同步协议设计和实现">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2014/07/26/48-install-3rd-party-app-on-tv-box.html" title="安装第三方App到电视盒子">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2014-08-03</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>67</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Android-ref">Android <span>9</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+
+<a href="http://s.click.taobao.com/t?e=m%3D2%26s%3D9DKPd4ZJgCocQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAuRj1MpVirn6yTS32oZobhotyCA8kPsK20DQUmvVyfKQaZdJdwyDgalbY%2Bzpq8pT0%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLZ%2FNxlvga2vCGHCdjJcucegWK9VBnTRuNlDnA5T%2FnLesYOae24fhW0"><img src="https://img.alicdn.com/tps/TB1wJ_DMXXXXXXLapXXXXXXXXXX-300-100.jpg"/></a>
+
+<br/>
+</div>
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

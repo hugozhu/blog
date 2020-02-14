@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>在Raspberry Pi上安装ArchLinux - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Setup ArchLinux On Raspberry Pi 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>在Raspberry Pi上安装ArchLinux </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">介绍</a></li>
+<li><a href="#toc_1">增加sudo用户</a></li>
+<li><a href="#toc_2">USB盘</a></li>
+<li><a href="#toc_3">Pacman</a></li>
+<li><a href="#toc_4">UnixBench</a></li>
+<li><a href="#toc_5">无线网络</a></li>
+<li><a href="#toc_6">Samba</a></li>
+<li><a href="#toc_7">注意事项</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">介绍</h1>
+
+<p>之前买的Raspberry Pi因为要跑<a href="http://hugozhu.myalert.info">这个网站</a>，不能经常拔下来玩别的，所以又买了一个，这次安装的是<a href="https://www.archlinux.org">Arch Linux</a>。这个发行版安装好后非常基础，占用的空间也只有600M不到，比较合适已有Linux基础的同学玩。初学者可以玩官方推荐的<a href="http://www.raspbian.org">Raspbian</a>。</p>
+
+<p>Arch Linux特点：</p>
+
+<ol>
+<li>启动快，上电后只要3s完成启动</li>
+<li>安装完没有图形界面，干净</li>
+<li>面向开发者的系统</li>
+<li>包管理系统pacman很好用，一个命令就可以完成各种操作</li>
+<li>ArchLinux缺省账号和密码是root/root，弄好了后要记得修改root密码</li>
+<li>从中国用下载包很快，比Raspbian的源快多了</li>
+</ol>
+
+<h1 id="toc_1">增加sudo用户</h1>
+
+<pre><code>   useradd hugo
+   passwd hugo
+   mkdir /home/hugo
+   chown hugo:hugo /home/hugo   
+   pacman -S sudo
+   visudo   
+   
+</code></pre>
+
+<p>执行<code>visudo</code>把新用户设置成管理员（增加sudo权限），最后面增加下面一行：</p>
+
+<pre><code>    hugo ALL=(ALL) NOPASSWD: ALL
+</code></pre>
+
+<h1 id="toc_2">USB盘</h1>
+
+<p>插上USB盘后，ArchLinux并不会自动mount，手动mount的过程如下:
+插上USB前后执行两次 <code>lsblk -o name,kname,uuid</code>，那么输出上多出的那行就是该USB的设备名，或UUID，找到该行后就可以执行mount命令了（注意sda这个符号不同机器可能不一样）</p>
+
+<pre><code>    [root@raspberrypi2 ~]# lsblk -o name,kname,uuid   
+    NAME        KNAME     UUID
+    sda         sda       001B-9622
+    mmcblk0     mmcblk0   
+    ├─mmcblk0p1 mmcblk0p1 44C8-CEF1
+    └─mmcblk0p2 mmcblk0p2 fcee8534-f5f0-42ee-83ac-f943f878ee67
+    
+    mkdir /mnt/usb
+    mount /dev/sda /mnt/usb 
+    或 
+    mount -U 001B-9622 /mnt/usb
+</code></pre>
+
+<p>格式化整个USB盘可以用<code>mkfs.ext4 /dev/sda</code>
+然后在/etc/fstab里增加一行，以后重启就会自动mount了：</p>
+
+<pre><code>/dev/sda       /mnt/usb        ext4    defaults,noatime  0       0
+</code></pre>
+
+<p>还可以测试一下SD卡和USB盘的读写性能：</p>
+
+<pre><code>[root@raspberrypi2 ~]# hdparm -Tt /dev/mmcblk0
+
+/dev/mmcblk0:
+ Timing cached reads:   292 MB in  2.00 seconds = 145.73 MB/sec
+ Timing buffered disk reads:  48 MB in  3.12 seconds =  15.38 MB/sec
+
+[root@raspberrypi2 ~]# hdparm  -Tt /dev/sda
+
+/dev/sda:
+ Timing cached reads:   280 MB in  2.00 seconds = 139.80 MB/sec
+ Timing buffered disk reads:  50 MB in  3.01 seconds =  16.61 MB/sec
+</code></pre>
+
+<p>等多信息可参考<a href="https://wiki.archlinux.org/index.php/USB_Storage_Devices#Auto-mounting_with_udev">Wiki</a></p>
+
+<h1 id="toc_3">Pacman</h1>
+
+<p>ArchLinux的包管理软件是pacman，类似apt-get, yum等，这里有所有的包：<a href="http://archlinuxarm.org/packages">http://archlinuxarm.org/packages</a></p>
+
+<p><a href="https://wiki.archlinux.org/index.php/Pacman">使用方法</a></p>
+
+<ol>
+<li>pacman -Syu &amp;&amp; sync #更新整个系统，<strong>新安装好要运行一次</strong></li>
+<li>pacman -S gcc make git #安装gcc, make等，作为程序员必须的</li>
+<li>pacman -R package_name &ndash;nosave #删除干净某个包</li>
+<li>pacman -Scc #完全清理包缓存</li>
+</ol>
+
+<h1 id="toc_4">UnixBench</h1>
+
+<p>了解一下性能基准测试非常有必要。</p>
+
+<pre><code>curl http://byte-unixbench.googlecode.com/files/unixbench-5.1.2.tar.gz -o unixbench-5.1.2.tar.gz
+tar zxvf unixbench-5.1.2.tar.gz
+cd unixbench-5.1.2
+make
+./Run
+</code></pre>
+
+<p>如果没有X，要在Makefile里注释掉X的测试，结果如下：</p>
+
+<pre><code>========================================================================
+   BYTE UNIX Benchmarks (Version 5.1.2)
+
+   System: raspberrypi: GNU/Linux
+   OS: GNU/Linux -- 3.2.27+ -- #250 PREEMPT Thu Oct 18 19:03:02 BST 2012
+   Machine: armv6l (unknown)
+   Language: en_US.utf8 (charmap=&quot;ANSI_X3.4-1968&quot;, collate=&quot;ANSI_X3.4-1968&quot;)
+   23:12:18 up 63 days, 22:35,  2 users,  load average: 0.27, 0.28, 0.23; runlevel 2
+
+------------------------------------------------------------------------
+Benchmark Run: Sat Mar 09 2013 23:12:18 - 23:41:57
+0 CPUs in system; running 1 parallel copy of tests
+
+Dhrystone 2 using register variables        1686980.7 lps   (10.0 s, 7 samples)
+Double-Precision Whetstone                      269.9 MWIPS (10.0 s, 7 samples)
+Execl Throughput                                256.8 lps   (29.7 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks         43489.0 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks           14568.0 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks         96518.7 KBps  (30.0 s, 2 samples)
+Pipe Throughput                              172158.1 lps   (10.0 s, 7 samples)
+Pipe-based Context Switching                  24098.7 lps   (10.0 s, 7 samples)
+Process Creation                                772.2 lps   (30.0 s, 2 samples)
+Shell Scripts (1 concurrent)                    462.6 lpm   (60.1 s, 2 samples)
+Shell Scripts (8 concurrent)                     59.0 lpm   (60.5 s, 2 samples)
+System Call Overhead                         396466.7 lps   (10.0 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0    1686980.7    144.6
+Double-Precision Whetstone                       55.0        269.9     49.1
+Execl Throughput                                 43.0        256.8     59.7
+File Copy 1024 bufsize 2000 maxblocks          3960.0      43489.0    109.8
+File Copy 256 bufsize 500 maxblocks            1655.0      14568.0     88.0
+File Copy 4096 bufsize 8000 maxblocks          5800.0      96518.7    166.4
+Pipe Throughput                               12440.0     172158.1    138.4
+Pipe-based Context Switching                   4000.0      24098.7     60.2
+Process Creation                                126.0        772.2     61.3
+Shell Scripts (1 concurrent)                     42.4        462.6    109.1
+Shell Scripts (8 concurrent)                      6.0         59.0     98.3
+System Call Overhead                          15000.0     396466.7    264.3
+                                                                   ========
+System Benchmarks Index Score                                          99.9
+
+
+========================================================================
+   BYTE UNIX Bench  marks (Version 5.1.2)
+
+   System: raspberrypi2: GNU/Linux
+   OS: GNU/Linux -- 3.6.11-8-ARCH+ -- #1 PREEMPT Sat Mar 9 00:38:58 UTC 2013
+   Machine: armv6l (unknown)
+   Language: en_US.utf8 (charmap=&quot;UTF-8&quot;, collate=&quot;ANSI_X3.4-1968&quot;)
+   23:11:34 up 40 min,  2 users,  load average: 0.32, 0.56, 0.40; runlevel 5
+
+------------------------------------------------------------------------
+Benchmark Run: Sat Mar 09 2013 23:11:34 - 23:40:13
+0 CPUs in system; running 1 parallel copy of tests
+
+Dhrystone 2 using register variables        1686859.5 lps   (10.1 s, 7 samples)
+Double-Precision Whetstone                      240.0 MWIPS (10.0 s, 7 samples)
+Execl Throughput                                235.9 lps   (29.8 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks         36862.7 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks           11351.7 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks         79915.7 KBps  (30.0 s, 2 samples)
+Pipe Throughput                              127650.5 lps   (10.1 s, 7 samples)
+Pipe-based Context Switching                  18840.9 lps   (10.1 s, 7 samples)
+Process Creation                                779.2 lps   (30.1 s, 2 samples)
+Shell Scripts (1 concurrent)                    193.1 lpm   (60.3 s, 2 samples)
+Shell Scripts (8 concurrent)                     26.7 lpm   (60.7 s, 2 samples)
+System Call Overhead                         314659.8 lps   (10.1 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0    1686859.5    144.5
+Double-Precision Whetstone                       55.0        240.0     43.6
+Execl Throughput                                 43.0        235.9     54.9
+File Copy 1024 bufsize 2000 maxblocks          3960.0      36862.7     93.1
+File Copy 256 bufsize 500 maxblocks            1655.0      11351.7     68.6
+File Copy 4096 bufsize 8000 maxblocks          5800.0      79915.7    137.8
+Pipe Throughput                               12440.0     127650.5    102.6
+Pipe-based Context Switching                   4000.0      18840.9     47.1
+Process Creation                                126.0        779.2     61.8
+Shell Scripts (1 concurrent)                     42.4        193.1     45.6
+Shell Scripts (8 concurrent)                      6.0         26.7     44.5
+System Call Overhead                          15000.0     314659.8    209.8
+                                                                   ========
+System Benchmarks Index Score                                          76.3
+
+</code></pre>
+
+<p>看上去ArchLinux性能差了一节，看来官方推荐Raspian确实做了不少优化，我觉得介绍一下系统方面的优化，也是非常不错的内容。</p>
+
+<h1 id="toc_5">无线网络</h1>
+
+<p>我买的是基于RT5370芯片组的腾达W311MI，Raspberry Pi支持的很好。</p>
+
+<ol>
+<li><p>确认系统已经识别USB网卡，如下<code>RT5370 Wireless Adapter</code>就代表已经识别成功</p>
+
+<pre><code>[root@raspberrypi2 ~]# lsusb
+Bus 001 Device 002: ID 0424:9512 Standard Microsystems Corp. LAN9500 Ethernet 10/100 Adapter
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 003: ID 0424:ec00 Standard Microsystems Corp. 
+Bus 001 Device 004: ID 148f:5370 Ralink Technology, Corp. RT5370 Wireless Adapter
+</code></pre></li>
+
+<li><p>安装无线工具</p>
+
+<pre><code>pacman -S wireless_tools
+</code></pre></li>
+
+<li><p>设置开机启动无线网络</p>
+
+<p>使用<code>wifi-menu</code>手动连上wifi ap，可以连多个，相应的输入会保存在：/etc/netctl/，在下面的文件里输入相应的文件名</p>
+
+<p>执行一下命令在重启时自动连上wifi
+<code>
+netctl enable wlan0-&lt;YOUR_AP_NAME&gt;
+</code></p></li>
+
+<li><p>有条件的可以在路由器里设置好根据MAC地址总是分配同一个ip给Pi，这样就可以拔掉网线的束缚了~</p></li>
+
+<li><p>测试了断开后可以自动重连</p></li>
+
+<li><p>用scp测试从Mac通过无线传大文件到Raspberry Pi，传输速度只有1.6MB/s，如果通过网线传则有4MB/s</p></li>
+</ol>
+
+<h1 id="toc_6">Samba</h1>
+
+<ol>
+<li>安装相关包： <code>pacman -S samba</code></li>
+<li>生成一个配置文件： <code>cp /etc/samba/smb.conf.default /etc/samba/smb.conf</code></li>
+<li>加到启动脚本里： <code>systemctl enable smbd.service</code></li>
+<li>增加一个samba用户： <code>smbpasswd -a hugo</code></li>
+</ol>
+
+<h1 id="toc_7">注意事项</h1>
+
+<ol>
+<li>因为Pi没有实时时钟，ntpd 或 openntpd在无线网络下可能先于wifi开始工作启动，造成服务不工作，系统日期未初始化成功。我的解决方案是系统启动完成后延时10s执行ntpdate设置时间（期望这个时候wifi已经工作了），并且重启samba服务（好像日期不正常samba也不正常，这块还没仔细研究）</li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/03/13/vistor-on-homepage-led-indicator.html" title="如何在Raspberry Pi上用LED闪烁提示网站首页新访客">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/03/08/block_failed_ssh_attempts_with_iptable.html" title="如何封杀尝试Raspberry Pi SSH密码的来源IP">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-03-09</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>67</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Raspberry-Pi-ref">Raspberry Pi <span>27</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+
+<a href="http://s.click.taobao.com/t?e=m%3D2%26s%3D9DKPd4ZJgCocQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAuRj1MpVirn6yTS32oZobhotyCA8kPsK20DQUmvVyfKQaZdJdwyDgalbY%2Bzpq8pT0%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLZ%2FNxlvga2vCGHCdjJcucegWK9VBnTRuNlDnA5T%2FnLesYOae24fhW0"><img src="https://img.alicdn.com/tps/TB1wJ_DMXXXXXXLapXXXXXXXXXX-300-100.jpg"/></a>
+
+<br/>
+</div>
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

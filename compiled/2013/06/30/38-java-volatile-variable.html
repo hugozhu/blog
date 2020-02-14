@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Java并发中正确使用volatile - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="Use volatile for safe publication 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>Java并发中正确使用volatile </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p>前几天并发编程群里有同学对volatile的用法提出了疑问，刚好我记得Twitter有关实时搜索的这个<a href="http://2011.lucene-eurocon.org/attachments/0002/8787/Busch_twitter_realtime_search_eurocon_11.pdf">PPT</a>对这个问题解释的很清晰并有一个实际的应用场景，于是周末把这个问题摘录了一些和并发相关的内容如下：</p>
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">并发 - 定义</a>
+<ul>
+<li><a href="#toc_1">悲观锁 - Pressimistic locking</a></li>
+<li><a href="#toc_2">乐观锁 - Optimistic locking</a></li>
+<li><a href="#toc_3">非阻塞算法 - Non-blocking algorithm</a></li>
+<li><a href="#toc_4">无锁算法 - Lock-free algorithm</a></li>
+<li><a href="#toc_5">无等待算法 - Wait-free algorithm</a></li>
+</ul></li>
+<li><a href="#toc_6">Java的并发</a></li>
+<li><a href="#toc_7">Java内存模型</a>
+<ul>
+<li><a href="#toc_8">代码顺序规则</a></li>
+<li><a href="#toc_9">volatile变量规则</a></li>
+<li><a href="#toc_10">传递性</a></li>
+</ul></li>
+<li><a href="#toc_11">Safe publication案例</a></li>
+<li><a href="#toc_12">JSR-133</a></li>
+<li><a href="#toc_13">参考链接</a></li>
+</ul>
+</nav></p>
+
+<h1 id="toc_0">并发 - 定义</h1>
+
+<h2 id="toc_1">悲观锁 - Pressimistic locking</h2>
+
+<ol>
+<li>一个线性在执行一个操作时持有对一个资源的独占锁。（互斥）</li>
+<li>一般用在冲突比较可能发生的场景下</li>
+</ol>
+
+<h2 id="toc_2">乐观锁 - Optimistic locking</h2>
+
+<ol>
+<li>尝试采用原子操作，而不需要持有锁；冲突可被检测，如果发生冲突，具有相应的重试逻辑</li>
+<li>通常用在冲突较少发生的场景下</li>
+</ol>
+
+<h2 id="toc_3">非阻塞算法 - Non-blocking algorithm</h2>
+
+<ol>
+<li>算法确保对线程间竞争共享资源时候，不会因为互斥而使任一线程的执行无限延迟；</li>
+</ol>
+
+<h2 id="toc_4">无锁算法 - Lock-free algorithm</h2>
+
+<ol>
+<li>如果系统整个流程的执行是无阻塞的(系统某一部分可能被短暂阻塞)，这种非阻塞算法就是无锁的。</li>
+<li>无锁算法比传统的基于锁的算法对系统的开销更小，且更容易在多核多CPU处理器上扩展；</li>
+<li>在实时系统中可以避免锁带来的延迟；</li>
+<li>CAS (compare and swap)或LL/SC(load linked/store conditional)，以及内存屏障相关的指令经常被用在算法实现中。</li>
+</ol>
+
+<h2 id="toc_5">无等待算法 - Wait-free algorithm</h2>
+
+<ol>
+<li>如果每个线程的执行都是无阻塞的，这种非阻塞算法就是无等待的（比无锁算法更好）</li>
+</ol>
+
+<h1 id="toc_6">Java的并发</h1>
+
+<ol>
+<li>Java的内存模型并不保证一个线程可以一直以程序执行的顺序看到另一个线程对变量的修改，除非两个线程都跨越了同一个内存屏障。（Safe publication）</li>
+</ol>
+
+<h1 id="toc_7">Java内存模型</h1>
+
+<h2 id="toc_8">代码顺序规则</h2>
+
+<ol>
+<li>一个线程内的每个动作 happens-before 同一个线程内在代码顺序上在其后的所有动作</li>
+</ol>
+
+<h2 id="toc_9">volatile变量规则</h2>
+
+<ol>
+<li>对一个volatile变量的读，总是能看到（任意线程）对这个volatile变量最后的写入</li>
+</ol>
+
+<h2 id="toc_10">传递性</h2>
+
+<ol>
+<li>如果A happens-before B, B happens-before C，那 A happens-before C</li>
+</ol>
+
+<h1 id="toc_11">Safe publication案例</h1>
+
+<pre><code>class VolatileExample {
+    int x = 0;
+    volatile int b = 0;
+
+    private void write() {
+        x = 5;
+        b = 1;
+    }
+
+    private void read() {
+        int dummy = b;
+        while (x!=5) {
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        final VolatileExample example = new VolatileExample();
+        Thread thread1 = new Thread(new Runnable() {
+            public void run() {
+                example.write();
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            public void run() {
+                example.read();
+            }
+        });
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+    }
+}
+</code></pre>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/569ae14f-957d-4ca0-97d7-72f66479d298/b4fb554c924ec7c2356d3ca94d7be61a/deep/0/Screenshot%206/30/13%2010:48%20AM.png"/></p>
+
+<p>x并不需要定义为<code>volatile</code>, 程序里可以有需要类似x的变量，我们只需要一个volatile变量b来确保线程a能看到线程1对x的修改：</p>
+
+<ol>
+<li>根据代码顺序规则，线程1的<code>x=5;</code> happens-before <code>b=1;</code>; 线程2的<code>int dummy = b;</code>  happens-before <code>while(x!=5);</code></li>
+<li>根据volatile变量规则，线程2的<code>b=1;</code> happens-before <code>int dummy=b;</code></li>
+<li>根据传递性，<code>x=5;</code> happens-before <code>while(x!=5);</code></li>
+</ol>
+
+<h1 id="toc_12">JSR-133</h1>
+
+<p>在JSR-133之前的旧Java内存模型中，虽然不允许volatile变量之间重排序，但旧的Java内存模型仍然会允许volatile变量与普通变量之间重排序。JSR-133则增强了volatile的内存语义：严格限制编译器（在编译器）和处理器（在运行期）对volatile变量与普通变量的重排序，确保volatile的写-读和监视器的释放-获取一样，具有相同的内存语义。</p>
+
+<p>延伸阅读： <a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf">JSR-133: JavaTM Memory Model and Thread Specification</a>， <a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">The JSR-133 Cookbook for Compiler Writers</a></p>
+
+<h1 id="toc_13">参考链接</h1>
+
+<ol>
+<li><a href="http://2011.lucene-eurocon.org/attachments/0002/8787/Busch_twitter_realtime_search_eurocon_11.pdf">http://2011.lucene-eurocon.org/attachments/0002/8787/Busch_twitter_realtime_search_eurocon_11.pdf</a></li>
+<li><a href="http://www.rossbencina.com/code/lockfree">http://www.rossbencina.com/code/lockfree</a></li>
+<li><a href="http://rethinkdb.com/blog/lock-free-vs-wait-free-concurrency/">http://rethinkdb.com/blog/lock-free-vs-wait-free-concurrency/</a></li>
+<li><a href="http://www.infoq.com/cn/articles/java-memory-model-4">http://www.infoq.com/cn/articles/java-memory-model-4</a></li>
+<li><a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf">JSR-133: JavaTM Memory Model and Thread Specification</a></li>
+<li><a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">The JSR-133 Cookbook for Compiler Writers</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2013/07/11/40-try-out-sublime-3-beta-on-mac.html" title="在Mac上使用Sublime 3写Go代码">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2013/06/24/37-tcpdump_on_android.html" title="在Android上使用tcpdump">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2013-06-30</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>67</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Concurrency-ref">Concurrency <span>1</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+
+<a href="http://s.click.taobao.com/t?e=m%3D2%26s%3D9DKPd4ZJgCocQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAuRj1MpVirn6yTS32oZobhotyCA8kPsK20DQUmvVyfKQaZdJdwyDgalbY%2Bzpq8pT0%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLZ%2FNxlvga2vCGHCdjJcucegWK9VBnTRuNlDnA5T%2FnLesYOae24fhW0"><img src="https://img.alicdn.com/tps/TB1wJ_DMXXXXXXLapXXXXXXXXXX-300-100.jpg"/></a>
+
+<br/>
+</div>
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>

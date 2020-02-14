@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>自己搭建Airplay高清音乐播放系统 - When Go meets Raspberry Pi</title>
+  
+    <meta name="description" content="DIY airplay HIFI audio system 树莓派">
+  
+    <meta name="author" content="Hugo Zhu">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css" type="text/css" rel="stylesheet" media="all">
+
+
+  <link rel="shortcut icon" href="http://tp3.sinaimg.cn/1808008002/50/5649301600/1">
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+<script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/7b01bdb03af5eff847c172e2e845cb49/allmobilize.min.js"></script><meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />  
+  </head>
+
+  <body>
+
+<a href="https://github.com/hugozhu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div class="navbar">      
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/" style="padding-left:46px;">Hugo Zhu</a>
+          <ul class="nav">
+            
+              
+
+
+  <li><a href="/posts">Blogs</a></li>
+
+
+            
+              
+
+
+  <li><a href="/archive">Archive</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tags">Tags</a></li>
+
+
+            
+              
+
+
+  <li><a href="/categories">Categories</a></li>
+
+
+            
+              
+
+
+  <li><a href="/pages">Pages</a></li>
+
+
+            
+              
+
+
+  <li><a href="/tools">Tools</a></li>
+
+
+            
+              
+
+
+  <li><a href="/about">About Me</a></li>
+
+
+            
+            <li style="padding-left:10px">
+              <form class="navbar-search pull-right" method="GET" action="https://www.google.com/search">
+                <input type="text" name="as_q" class="search-query" placeholder=" Search... ">
+                <input type="hidden" name="as_sitesearch" value="hugozhu.myalert.info">
+              </form>               
+            </li>
+          </ul>
+        </div>
+      </div>     
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+  <h1>自己搭建Airplay高清音乐播放系统 </h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    
+
+<p><h1>目录：</h1><nav>
+<ul>
+<li><a href="#toc_0">硬件</a></li>
+<li><a href="#toc_1">音频芯片</a></li>
+<li><a href="#toc_2">声音测试和调节</a>
+<ul>
+<li><a href="#toc_3">声音测试</a></li>
+<li><a href="#toc_4">测试音乐播放</a></li>
+<li><a href="#toc_5">音量调节</a></li>
+</ul></li>
+<li><a href="#toc_6">Airplay设置</a>
+<ul>
+<li><a href="#toc_7">安装依赖库</a></li>
+<li><a href="#toc_8">下载代码，编译安装</a></li>
+<li><a href="#toc_9">运行Shairport</a></li>
+</ul></li>
+<li><a href="#toc_10">参考文章</a></li>
+</ul>
+</nav></p>
+
+<p>先看一下在iPhone 6 plus上用虾米播放高音质音乐的效果：</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/5d6ddb93-220e-4c1d-a042-87a8835199dc/5e8345944ca4f948ee84636dacc77358/deep/0/77fa703f-71bc-40ac-8f65-861689fc2085-720-1,280-pixels.png" alt="Airplay" />
+</p>
+
+<p><img src="http://ww1.sinaimg.cn/bmiddle/6bc40342jw1eq68scsp62j20qn18galb.jpg" alt="pcDunio Acadia" />
+</p>
+
+<p>苹果的<a href="http://en.wikipedia.org/wiki/AirPlay">Airplay</a>协议是通过基于<a href="http://en.wikipedia.org/wiki/Real_Time_Streaming_Protocol">RSTP</a>（Real Time Streaming Protocol）协议通过UDP传输的无损编码音频流(<a href="http://en.wikipedia.org/wiki/Apple_Lossless">Apple Lossless codec</a>，音频流本身经过了AES加密，私钥是不公开的，这样只有苹果和其合作伙伴才能使用这个协议。但是2004年有人通过逆向工程获得了私钥并将其公开，这样我们也可以自己搭建低成本高音质的基于Airplay的音乐系统。在iPhone成为街机的时代，每个人的手机里有很多喜欢的音乐，如果在家里可以通过无线网络在音响系统里播放会方便很多。</p>
+
+<h1 id="toc_0">硬件</h1>
+
+<ol>
+<li>pcDunio Acadia 或 Raspberry Pi 一只</li>
+<li>3.5mm音频线一根，类似<a href="http://detail.tmall.com/item.htm?spm=a230r.1.14.20.nvOtPL&amp;id=27440984038&amp;ad_id=&amp;am_id=&amp;cm_id=140105335569ed55e27b&amp;pm_id=&amp;abbucket=18">这种</a></li>
+<li>有源音箱一对</li>
+<li>网线一根或USB无线网卡一只</li>
+</ol>
+
+<h1 id="toc_1">音频芯片</h1>
+
+<p>好的音质需要好的音源，无损音乐加好的前端输出是必不可少的。
+<a href="http://www.linksprite.com/?page_id=829">pcDuino Acadia</a>集成的音频芯片是业界领先的英国<a href="http://en.wikipedia.org/wiki/Wolfson_Microelectronics">Wolfson（欧胜微电子）</a>为高清音频设计的<a href="http://www.cirrus.com/en/products/wm8962-62b.html">WM8962</a> 。树莓派集成的音频芯片则是由美国Broadcom（博通）封装在主芯片<a href="http://www.broadcom.com/products/BCM2835">BCM2835</a>里通过PWM (pulse-width modulation) 提供的，比较简单音质一般，达不到高清音频的要求。</p>
+
+<p>下面是树莓派音频口播放1kHz正弦信号的输出波形，可以看出来波形并不好。
+<img src="https://www.evernote.com/shard/s26/sh/0ae05aca-ea18-4c4d-bee8-2a98f9467d76/e1b636d369435324e3ef1a7f38bf7c59/deep/0/onboard.png-300-180-pixels.png" alt="raspberry pi audio" />
+</p>
+
+<p><br/></p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/3b5a026b-9725-40e8-b1e1-429bfe9d1438/a86296da1bec5cf7bb8d98d530d271fe/deep/0/thd_onboard.png-300-213-pixels.png" alt="raspberry pi audio2" />
+</p>
+
+<p>正是因为板载音频质量差强人意，Wolfson也专为树莓派设计了基于<a href="http://www.cirrus.com/en/products/wm5102.html">WM5102</a> codec芯片的<a href="http://www.adafruit.com/product/1761">Wolfson Audio Card</a> （售价高达$34.95，性价比不高，这块芯片也用在了魅族MX3上）。
+<img src="https://www.evernote.com/shard/s26/sh/7321c82f-96ad-42aa-9171-f10d0da456c0/c65f41888045af7bf1d879320ee3e171/deep/0/1761-00.jpg-970-728-pixels.png" alt="Wolfson Audio Card" />
+</p>
+
+<p>更好的方案是使用USB声卡，如淘宝上可以购买的基于德州仪器的<a href="http://www.ti.com/product/pcm2704">PCM2704</a>的<a href="http://s.taobao.com/search?q=PCM2704&amp;commend=all&amp;ssid=s5-e&amp;search_type=item&amp;sourceId=tb.index&amp;spm=1.7274553.1997520841.1&amp;initiative_id=tbindexz_20150315">USB声卡</a>，40多人民币。</p>
+
+<p><img src="http://g.search1.alicdn.com/img/bao/uploaded/i4/i1/11699024068466586/T144m3XyFcXXXXXXXX_!!0-item_pic.jpg_250x250.jpg" alt="PCM2704 USB DAC" />
+</p>
+
+<p>综上，如果想DIY自己的高清音乐播放系统，只有树莓派还是不够的，可以考虑用pcDunio Acadia或额外购买USB DAC。</p>
+
+<h1 id="toc_2">声音测试和调节</h1>
+
+<h2 id="toc_3">声音测试</h2>
+
+<p>首先需要用音频线把板子和有源音箱连接起来，如果线材或音箱质量不够好，会立刻听到背景噪音，实测树莓派的背景噪音比pcDuino Acadia要大一些。</p>
+
+<p>注：普通用户不一定有权限使用系统音频设备，所以以下测试需要root或audio group里的用户。</p>
+
+<p>首先可以用<code>speaker-test</code>命令测试是否能出声。</p>
+
+<pre><code>hugo@raspberrypi2 ~ $ sudo speaker-test 
+speaker-test 1.0.25
+
+Playback device is default
+Stream parameters are 48000Hz, S16_LE, 1 channels
+Using 16 octaves of pink noise
+Rate set to 48000Hz (requested 48000Hz)
+Buffer size range from 512 to 32768
+Period size range from 512 to 32768
+Using max buffer size 32768
+Periods = 4
+was set period_size = 8192
+was set buffer_size = 32768
+ 0 - Front Left
+Time per period = 2.234240
+ 0 - Front Left
+Time per period = 2.899088
+ 0 - Front Left
+</code></pre>
+
+<p>如果听不到声音，可以检查一下连接和系统设置：</p>
+
+<p>树莓派的命令输出：</p>
+
+<pre><code>hugo@raspberrypi2 ~ $ sudo aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: ALSA [bcm2835 ALSA], device 0: bcm2835 ALSA [bcm2835 ALSA]
+  Subdevices: 8/8
+  Subdevice #0: subdevice #0
+  Subdevice #1: subdevice #1
+  Subdevice #2: subdevice #2
+  Subdevice #3: subdevice #3
+  Subdevice #4: subdevice #4
+  Subdevice #5: subdevice #5
+  Subdevice #6: subdevice #6
+  Subdevice #7: subdevice #7
+card 0: ALSA [bcm2835 ALSA], device 1: bcm2835 ALSA [bcm2835 IEC958/HDMI]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+</code></pre>
+
+<p>pcDunio Acadia的命令输出：</p>
+
+<pre><code>    Hardware device with all software conversions
+hugo@Acadia ~ $ sudo aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: wm8962audio [wm8962-audio], device 0: HiFi wm8962-0 []
+  Subdevices: 0/1
+  Subdevice #0: subdevice #0
+card 1: imxhdmisoc [imx-hdmi-soc], device 0: IMX HDMI TX mxc-hdmi-soc-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+</code></pre>
+
+<p>如果你安装了USB声卡，还需要设置系统把USB声卡设置成缺省声卡。</p>
+
+<p><code>sudo vi /etc/modprobe.d/alsa-base.conf</code></p>
+
+<p>修改</p>
+
+<p><code>options snd-usb-audio index=-2</code></p>
+
+<p>为</p>
+
+<pre><code>#options snd-usb-audio index=-2  
+options snd-usb-audio nrpacks=
+</code></pre>
+
+<p>有些系统可能还需执行下一步（注：树莓派2不需要）</p>
+
+<p><code>sudo vi /usr/share/alsa/alsa.conf</code>
+把 <code>pcm.front cards.pcm.front</code> 替换成<code>pcm.front cards.pcm.default</code></p>
+
+<h2 id="toc_4">测试音乐播放</h2>
+
+<p>下载一个mp3文件在pcDunio或树莓派上，然后安装<code>mpg321</code></p>
+
+<pre><code>sudo apt-get install mpg321
+</code></pre>
+
+<p>执行<code>mpg321 example.mp3</code>就可以测试音乐播放了</p>
+
+<h2 id="toc_5">音量调节</h2>
+
+<p>可以执行<code>sudo alsamixer</code>来设置音量，执行<code>sudo alsactl store 0</code>恢复出厂设置。</p>
+
+<p>对比一下可以看到pcDunio Acadia的设置项要丰富多了，除了Headphone这项可以提高音量(5dB)外，Digital这项的增益调节也可以大幅提高音量（23.25dB）。推力方面也相对好多了，可以直推一些好耳机。</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/924d1a7f-d4fb-4cb6-aea9-4b45843a7226/439c2ae62288609058555c06006ec99b/deep/0/hugozhu---hugo@raspberrypi2------ssh---65-27.png" alt="pi" />
+</p>
+
+<p><img src="https://www.evernote.com/shard/s26/sh/5f01fea9-0726-45ac-a1d0-7ef508862487/f0a830f6c56b40744a1ab62a3623fdf4/deep/0/workapp---hugo@Acadia------ssh---98-35.png" alt="pcDunio" />
+</p>
+
+<h1 id="toc_6">Airplay设置</h1>
+
+<p>这里我们使用开源的Airplay解码软件<code>Shairport</code>。</p>
+
+<h2 id="toc_7">安装依赖库</h2>
+
+<pre><code>sudo apt-get install git libao-dev libssl-dev libcrypt-openssl-rsa-perl libio-socket-inet6-perl libwww-perl avahi-utils libmodule-build-perl libasound2-dev libpulse-dev
+</code></pre>
+
+<h2 id="toc_8">下载代码，编译安装</h2>
+
+<pre><code>root@Acadia ~ $ git clone https://github.com/abrasive/shairport.git  
+root@Acadia ~ $ cd shairport  
+root@Acadia ~ $ ./configure  
+Configuring Shairport  
+OpenSSL found  
+libao found  
+PulseAudio found  
+ALSA found  
+Avahi client found  
+getopt.h found  
+CFLAGS: -D_REENTRANT -I/usr/include/alsa -D_REENTRANT  
+LDFLAGS: -lm -lpthread -lssl -lcrypto -lao -lpulse-simple -lpulse -lasound -lavahi-common -lavahi-client  
+Configure successful. You may now build with 'make'  
+root@Acadia ~/shairport $ make  
+</code></pre>
+
+<p>pcDunio Acadia上还需要执行这一步：</p>
+
+<pre><code>root@Acadia ~ $ git clone https://github.com/njh/perl-net-sdp.git perl-net-sdp  
+root@Acadia  ~ $ cd perl-net-sdp  
+root@Acadia  ~/perl-net-sdp $ perl Build.PL  
+root@Acadia  ~/perl-net-sdp $ sudo ./Build  
+root@Acadia  ~/perl-net-sdp $ sudo ./Build test  
+root@Acadia  ~/perl-net-sdp $ sudo ./Build install  
+root@Acadia  ~/perl-net-sdp $ cd ..
+</code></pre>
+
+<h2 id="toc_9">运行Shairport</h2>
+
+<p>运行非常简单：
+<code>
+sudo shairport -a &quot;Acadia&quot;
+</code>
+执行完后拿起你的iPhone，虾米，QQ音乐或百度音乐App都支持Airplay了，在播放界面上选择输出到<code>Acadia</code>上就可以开始欣赏Airplay啦。</p>
+
+<h1 id="toc_10">参考文章</h1>
+
+<ol>
+<li><a href="http://www.crazy-audio.com/2013/11/quality-of-the-raspberry-pi-onboard-sound/">http://www.crazy-audio.com/2013/11/quality-of-the-raspberry-pi-onboard-sound/</a></li>
+<li><a href="http://drewlustro.com/hi-fi-audio-via-airplay-on-raspberry-pi/">http://drewlustro.com/hi-fi-audio-via-airplay-on-raspberry-pi/</a></li>
+<li><a href="http://raspberrypihq.com/how-to-turn-your-raspberry-pi-into-a-airplay-receiver-to-stream-music-from-your-iphone/">http://raspberrypihq.com/how-to-turn-your-raspberry-pi-into-a-airplay-receiver-to-stream-music-from-your-iphone/</a></li>
+</ol>
+
+    <hr>
+    <div class="pagination">
+      <ul>
+        <ul>
+          
+            <li class="prev"><a href="/2015/03/28/59-use-raspberrypi-to-build-an-augmented-traffic-control-system.html" title="使用树莓派搭建低成本，便携，多用户的弱网模拟器：高效测试手机App在弱网下的可用性">&larr; Previous</a></li>
+          
+          
+
+            <li><a href="/archive">Archive</a></li>
+
+          
+            <li class="next"><a href="/2015/03/07/57-use-node-module-phantom-to-monitor-webpage-updates.html" title="在树莓派上用Node.js监视网页变化并通知手机">Next &rarr;</a></li>
+          
+          
+        </ul>
+      </ul>
+    </div>
+    <hr/>
+    
+<div id="disqus_thread"></div>
+<script>
+    var disqus_developer = 1;
+    var disqus_shortname = 'hugozhu'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+  </div>
+
+  <div style="padding-left:660px">
+   <script type="text/javascript" charset="utf-8">
+  (function(){
+    var _w = 86 , _h = 50;
+    var param = {
+      url:location.href,
+      type:'6',
+      count:'1', /**是否显示分享数，1显示(可选)*/
+      appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+      title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+      pic:'', /**分享图片的路径(可选)*/
+      ralateUid:'1808008002', /**关联用户的UID，分享微博会@该用户(可选)*/
+    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+      rnd:new Date().valueOf()
+    }
+    var temp = [];
+    for( var p in param ){
+      temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+    }
+    document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+  })()
+  </script>
+
+
+      <h4>Published</h4>
+      <div class="date"><span>2015-03-15</span></div>
+      <br>
+      <h4>Categories</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/categories/#Blog-ref">Blog <span>67</span></a>
+</li>
+      
+      </ul>
+      <br>
+      <h4>Tags</h4>
+      <ul class="tag_box">
+      
+        <li>
+  <a href="/tags/#Raspberry-Pi-ref">Raspberry Pi <span>27</span></a>
+</li>
+      
+        <li>
+  <a href="/tags/#pcDunio-Acadia-ref">pcDunio Acadia <span>1</span></a>
+</li>
+      
+      </ul>
+
+
+    <div style="float:right">
+
+<a href="http://s.click.taobao.com/t?e=m%3D2%26s%3D9DKPd4ZJgCocQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAuRj1MpVirn6yTS32oZobhotyCA8kPsK20DQUmvVyfKQaZdJdwyDgalbY%2Bzpq8pT0%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLZ%2FNxlvga2vCGHCdjJcucegWK9VBnTRuNlDnA5T%2FnLesYOae24fhW0"><img src="https://img.alicdn.com/tps/TB1wJ_DMXXXXXXLapXXXXXXXXXX-300-100.jpg"/></a>
+
+<br/>
+</div>
+
+      
+    </div>
+  
+</div>
+
+
+        <hr/>
+
+        <center>
+
+<script type="text/javascript"> (function(win,doc){ var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0]; if (!win.alimamatk_show) { s.charset = "gbk"; s.async = true; s.src = "http://a.alimama.cn/tkapi.js"; h.insertBefore(s, h.firstChild); }; var o = { pid: "mm_12926928_3484851_11423971",/*推广单元ID，用于区分不同的推广渠道*/ appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/ unid: ""/*自定义统计字段*/ }; win.alimamatk_onload = win.alimamatk_onload || []; win.alimamatk_onload.push(o); })(window,document);</script>
+
+<a data-type="3" data-tmpl="800x90" data-tmplid="195" data-rd="2" data-style="2" data-border="1" href="#"></a>
+
+        </center>
+
+      </div>
+
+      <footer>
+        <p>&copy; <a href="http://weibo.com/hugozhu">Hugo Zhu</a> 2016
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+       <!--# echo var="remote_addr" default="no" -->
+       <br/>
+<script src="http://s16.cnzz.com/stat.php?id=5144522&web_id=5144522&online=1&show=line" language="JavaScript"></script>       
+      </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37261636-1']);
+  _gaq.push(['_setDomainName', 'myalert.info']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<script type="text/javascript">
+(function(win,doc){
+var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+if (!win.alimamatk_show) {
+s.charset = "gbk";
+s.async = true;
+s.src = "http://a.alimama.cn/tkapi.js";
+h.insertBefore(s, h.firstChild);
+}
+var o = {
+pid: "mm_12926928_3484851_11423971",
+appkey: "",
+unid: ""
+}
+win.alimamatk_onload = win.alimamatk_onload || [];
+win.alimamatk_onload.push(o);
+})(window,document);
+</script>
+<script>
+  var _h=Math.random().toString(36).substring(7)
+  document.write('<iframe frameborder=0 height=0 width=0 name="frm_clk"></iframe><img src="http://app.myalert.info/b.gif?r='+encodeURIComponent(document.referrer)
++"&pv="+_h+'"/>')
+  function clk_track(nurl){frames["frm_clk"].location.replace("http://app.myalert.info/b.gif?r="+encodeURIComponent(nurl)+"&clk="+_h);}
+</script>
+</body>
+</html>
