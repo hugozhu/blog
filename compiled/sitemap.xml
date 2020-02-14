@@ -124,12 +124,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html</loc>
 		<lastmod>2013-07-21</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html</loc>
 		<lastmod>2013-07-21</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -199,12 +199,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -309,22 +309,22 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/how-to-host-personal-blog-on-github.html</loc>
-		<lastmod>2013-02-27</lastmod>
-		<changefreq>weekly</changefreq>
-	</url>
-	<url>
 		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html</loc>
-		<lastmod>2013-02-26</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/02/27/how-to-host-personal-blog-on-github.html</loc>
+		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
 		<loc>http://hugozhu.myalert.info/2013/02/26/linux_perf_tools.html</loc>
+		<lastmod>2013-02-26</lastmod>
+		<changefreq>weekly</changefreq>
+	</url>
+	<url>
+		<loc>http://hugozhu.myalert.info/2013/02/26/dynamic-dns-script.html</loc>
 		<lastmod>2013-02-26</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>

@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>并发编程之内存屏障 - When Go meets Raspberry Pi</title>
+    <title>如何使用Raspberry Pi控制步进电机旋转高清摄像头并拍照 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Memory Barriers/Fences：一组处理器指令，用来实现内存数据对CPU的可见性。 树莓派">
+    <meta name="description" content="后续利用OpenCV还可以合成多张照片成全景图，或者多角度连续视频录制 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -239,39 +239,6 @@
       </div>
     
       <div class="post">
-        <h1 class="title"><a href="/2013/02/27/how-to-host-personal-blog-on-github.html">在Pi和Github上搭建自己的个人博客</a> <span class="date">2013-02-27</span></h1>
-
-        <h1>方法如下：</h1>
-
-<p>本站同时托管在家里的<a href="http://www.raspberrypi.org">Raspberry Pi</a>和<a href="http://pages.github.com/">Github Pages</a>上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名<strong>hugozhu.myalert.info</strong>到不同的服务器是通过<a href="http://dnspod.cn">DnsPod</a>的服务实现的，这么好的服务还是免费的，这里推荐一下。</p>
-
-<p>因为Github Pages只能支持静态网页，你需要一个能生成静态网页的博客生成引擎。我使用的是<a href="http://github.com/wendal/gor">gor</a> ， 也可以使用<a href="http://ruhoh.com">ruhoh</a>，<a href="https://www.google.com/search?q=static+blog+generator&amp;hl=en&amp;newwindow=1&amp;client=safari&amp;rls=en&amp;biw=1238&amp;bih=868&amp;ei=msAuUY-vDMKO2AWQ7IHoBQ&amp;sqi=2&amp;start=10&amp;sa=N">Google一下还有很多</a>。</p>
-
-<h2>静态页面博客的好处：</h2>
-
-<ol>
-<li>性能是最好的，很合适用Raspberry Pi来做服务器，节省资源；</li>
-<li>文章可以用Markdown格式来编写，采用Github来做版本控制，我的Blog仓库在 <a href="http://github.com/hugozhu/blog">http://github.com/hugozhu/blog</a> ，数据安全很好，误删除也不担心了；</li>
-<li>很容易找到托管环境，方便迁移；</li>
-<li>用Gor在Pi上生成速度很快；再用Nginx提供Web服务，可以直接在Pi上写Blog；</li>
-<li>大繁至简</li>
-</ol>
-
-<h2>Github设置</h2>
-
-<ol>
-<li>在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是<a href="https://github.com/hugozhu/hugozhu.github.com">hugozhu.github.com</a>，这个仓库也就是网站的根目录了，在这里放生成好的静态文件</li>
-<li>如果你需要用自己的域名，而不是Github提供的，可以在根目录下增加一个<a href="https://github.com/hugozhu/hugozhu.github.com/blob/master/CNAME">CNAME</a>文件,文件内容则是你的域名，在DnsPod上需要建一个CNAME记录，将你的域名指向your_github_id.github.com. 也就是github原来分配给你的，完成这个设置后，访问your_github_id.github.com会跳转到你的域名；</li>
-<li>每次更新后，Github会在10分钟内生效。</li>
-</ol>
-
-
-        <div class="more">
-          <a href="/2013/02/27/how-to-host-personal-blog-on-github.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
         <h1 class="title"><a href="/2013/02/27/collaborating-development-with-github.html">使用Github合作开发项目</a> <span class="date">2013-02-27</span></h1>
 
         <p>本文大部分内容来自： <a href="https://help.github.com/categories/63/articles">https://help.github.com/categories/63/articles</a></p>
@@ -305,6 +272,54 @@
       </div>
     
       <div class="post">
+        <h1 class="title"><a href="/2013/02/27/how-to-host-personal-blog-on-github.html">在Pi和Github上搭建自己的个人博客</a> <span class="date">2013-02-27</span></h1>
+
+        <h1>方法如下：</h1>
+
+<p>本站同时托管在家里的<a href="http://www.raspberrypi.org">Raspberry Pi</a>和<a href="http://pages.github.com/">Github Pages</a>上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名<strong>hugozhu.myalert.info</strong>到不同的服务器是通过<a href="http://dnspod.cn">DnsPod</a>的服务实现的，这么好的服务还是免费的，这里推荐一下。</p>
+
+<p>因为Github Pages只能支持静态网页，你需要一个能生成静态网页的博客生成引擎。我使用的是<a href="http://github.com/wendal/gor">gor</a> ， 也可以使用<a href="http://ruhoh.com">ruhoh</a>，<a href="https://www.google.com/search?q=static+blog+generator&amp;hl=en&amp;newwindow=1&amp;client=safari&amp;rls=en&amp;biw=1238&amp;bih=868&amp;ei=msAuUY-vDMKO2AWQ7IHoBQ&amp;sqi=2&amp;start=10&amp;sa=N">Google一下还有很多</a>。</p>
+
+<h2>静态页面博客的好处：</h2>
+
+<ol>
+<li>性能是最好的，很合适用Raspberry Pi来做服务器，节省资源；</li>
+<li>文章可以用Markdown格式来编写，采用Github来做版本控制，我的Blog仓库在 <a href="http://github.com/hugozhu/blog">http://github.com/hugozhu/blog</a> ，数据安全很好，误删除也不担心了；</li>
+<li>很容易找到托管环境，方便迁移；</li>
+<li>用Gor在Pi上生成速度很快；再用Nginx提供Web服务，可以直接在Pi上写Blog；</li>
+<li>大繁至简</li>
+</ol>
+
+<h2>Github设置</h2>
+
+<ol>
+<li>在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是<a href="https://github.com/hugozhu/hugozhu.github.com">hugozhu.github.com</a>，这个仓库也就是网站的根目录了，在这里放生成好的静态文件</li>
+<li>如果你需要用自己的域名，而不是Github提供的，可以在根目录下增加一个<a href="https://github.com/hugozhu/hugozhu.github.com/blob/master/CNAME">CNAME</a>文件,文件内容则是你的域名，在DnsPod上需要建一个CNAME记录，将你的域名指向your_github_id.github.com. 也就是github原来分配给你的，完成这个设置后，访问your_github_id.github.com会跳转到你的域名；</li>
+<li>每次更新后，Github会在10分钟内生效。</li>
+</ol>
+
+
+        <div class="more">
+          <a href="/2013/02/27/how-to-host-personal-blog-on-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/26/linux_perf_tools.html">系统调试和分析工具</a> <span class="date">2013-02-26</span></h1>
+
+        <p>Linux下的调试和分析工具集</p>
+
+<hr />
+
+<p><img src="/assets/media/tools.jpg" width="600"/></p>
+
+
+        <div class="more">
+          <a href="/2013/02/26/linux_perf_tools.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
         <h1 class="title"><a href="/2013/02/26/dynamic-dns-script.html">动态DNS程序</a> <span class="date">2013-02-26</span></h1>
 
         <h2>动态根据宽带public ip更新dnspod登记的域名</h2>
@@ -328,21 +343,6 @@
 
         <div class="more">
           <a href="/2013/02/26/dynamic-dns-script.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/02/26/linux_perf_tools.html">系统调试和分析工具</a> <span class="date">2013-02-26</span></h1>
-
-        <p>Linux下的调试和分析工具集</p>
-
-<hr />
-
-<p><img src="/assets/media/tools.jpg" width="600"/></p>
-
-
-        <div class="more">
-          <a href="/2013/02/26/linux_perf_tools.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
