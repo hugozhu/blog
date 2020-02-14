@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>提高Android开发效率的小贴士 - When Go meets Raspberry Pi</title>
+    <title>并发编程之内存屏障 - When Go meets Raspberry Pi</title>
   
-    <meta name="description" content="Android development productivity tips 树莓派">
+    <meta name="description" content="Memory Barriers/Fences：一组处理器指令，用来实现内存数据对CPU的可见性。 树莓派">
   
     <meta name="author" content="Hugo Zhu">
 
@@ -157,66 +157,84 @@
 
     
       <div class="post">
-        <h1 class="title"><a href="/2013/02/28/the-evolution-of-online-advertsing-system.html">在线广告系统架构变迁</a> <span class="date">2013-02-28</span></h1>
+        <h1 class="title"><a href="/2013/02/28/logging-in-java.html">Java程序的日志</a> <span class="date">2013-02-28</span></h1>
 
-        <h1><a style="display: block;" name="overview" href="#overview"></a>Overview</h1>
+        <h2><a style="display: block;" name="overview" href="#overview"></a>Overview</h2>
 
-<p><strong><em>（未完）</em></strong></p>
+<p>一个在生产环境里运行的程序如果没有日志是很让维护者提心吊胆的，有太多杂乱又无意义的日志也是令人伤神。程序出现问题时候，从日志里如果发现不了问题可能的原因是很令人受挫的。本文想讨论的是如何在Java程序里写好日志。大多数的Web服务器（如Apache，Nginx）都有access日志和error日志，分别记录在不同的文件内；我们使用的服务器操作系统Linux有Syslog日志, /var/log目录下也有很多基础应用和服务的日志文件；桌面Windows有事件查看器, Mac有Console应用可以查看和管理日志；这些成熟的系统及工具方法都值得我们学习并在自己的项目中应用。</p>
 
-<p>广告按业务划分有以下几类：</p>
-
-<ol>
-<li>展示广告（Banner广告）</li>
-<li>搜索广告（关键词广告）</li>
-</ol>
-
-<p>按计费模式有：</p>
+<p>一般来说日志分为两种：业务日志和异常日志。使用日志我们希望能达到以下目标：</p>
 
 <ol>
-<li>CPT: 按有效广告展示天数计费，可定价或竞价；</li>
-<li>CPM: 按有效广告展现次数计费，可定价或竞价；</li>
-<li>CPC: 按有效点击次数计费；</li>
-<li>CPS: 按效果计费，如，按成交订单额，按流量带来的有效下载或安装次数计费；</li>
+<li>对程序运行情况的记录和监控；</li>
+<li>在必要时可详细了解程序内部的运行状态；</li>
+<li>对系统性能的影响尽量小；</li>
 </ol>
 
-<p>广告系统按结构可划分为以下子系统：</p>
+<h2><a style="display: block;" name="日志规范" href="#日志规范"></a>日志规范</h2>
+
+<p>程序框架应该提供统一的日志记录接口，日志格式也需要有一定的规范，方便利用日志工具来分析日志。
+首先我们有必要了解一下Linux普遍使用的<a href="http://en.wikipedia.org/wiki/Syslog">Syslog</a>标准协议，协议规定日志中应包含产生日志的模块(Facility)，严重性（Severity Level），时间，主机名或IP，进程名，进程ID和日志内容，根据模块和严重性可以配置相应的动作：是否需要记录，日志存储路径（文件或网络）。</p>
+
+<p>下面是部分常见的Syslog模块类型：</p>
+
+<table>
+<thead>
+<tr>
+<td><strong>模块ID</strong></td>
+<td><strong>关键词</strong></td>
+<td><strong>描述</strong></td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>kern</td>
+<td>内核消息</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>user</td>
+<td>用户级别消息</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>mail</td>
+<td>邮件系统</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>daemon</td>
+<td>系统后台守护程序</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>auth</td>
+<td>安全/鉴权消息</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>syslog</td>
+<td>syslogd内部产生的日志消息</td>
+</tr>
+
+<tr>
+<td>…</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
         <div class="more">
-          <a href="/2013/02/28/the-evolution-of-online-advertsing-system.html" class="btn btn-small">阅读全文</a>
-        </div>
-      </div>
-    
-      <div class="post">
-        <h1 class="title"><a href="/2013/02/27/collaborating-development-with-github.html">使用Github合作开发项目</a> <span class="date">2013-02-27</span></h1>
-
-        <p>本文大部分内容来自： <a href="https://help.github.com/categories/63/articles">https://help.github.com/categories/63/articles</a></p>
-
-<p>Github上合作开发最好的方式是“<strong>Fork + Pull Request</strong>”。比如我最近需要一个静态Blog生成器，市面上有很多Ruby实现的，但我想要一个Go语言的实现，Github上找到了一个 <a href="https://github.com/wendal/gor">https://github.com/wendal/gor</a> ，测试了一下已有的功能基本能满足了，就用上了。</p>
-
-<p>但实际使用过程中发现了一个问题，如果在URL中有中文，生成的URL如下没有做URL安全编码：</p>
-
-<pre><code>http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html
-</code></pre>
-
-<p>还有一种情况是如果URL中有空格，如：</p>
-
-<pre><code>http://hugozhu.myalert.info//2013//02/25/Java properties to enviorment variables.html
-</code></pre>
-
-<p>浏览器遇到这种URL时，会主动进行编码，但这里有两个问题：</p>
-
-<ol>
-<li>遇到中文时，浏览器是用GBK还是UTF-8还是其它字符集编码后再发送给服务器呢？</li>
-<li>遇到空格时，编码成+还是%20呢？
-不同浏览器实现可能不一样，在不同操作系统上也可能不一样（可能和用户设置的缺省语言有关），这样有些用户可能会遭遇404错误了，实际上我在服务器的错误日志上的确看到这样的错误</li>
-</ol>
-
-<p>日志：</p>
-
-
-        <div class="more">
-          <a href="/2013/02/27/collaborating-development-with-github.html" class="btn btn-small">阅读全文</a>
+          <a href="/2013/02/28/logging-in-java.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     
@@ -250,6 +268,39 @@
 
         <div class="more">
           <a href="/2013/02/27/how-to-host-personal-blog-on-github.html" class="btn btn-small">阅读全文</a>
+        </div>
+      </div>
+    
+      <div class="post">
+        <h1 class="title"><a href="/2013/02/27/collaborating-development-with-github.html">使用Github合作开发项目</a> <span class="date">2013-02-27</span></h1>
+
+        <p>本文大部分内容来自： <a href="https://help.github.com/categories/63/articles">https://help.github.com/categories/63/articles</a></p>
+
+<p>Github上合作开发最好的方式是“<strong>Fork + Pull Request</strong>”。比如我最近需要一个静态Blog生成器，市面上有很多Ruby实现的，但我想要一个Go语言的实现，Github上找到了一个 <a href="https://github.com/wendal/gor">https://github.com/wendal/gor</a> ，测试了一下已有的功能基本能满足了，就用上了。</p>
+
+<p>但实际使用过程中发现了一个问题，如果在URL中有中文，生成的URL如下没有做URL安全编码：</p>
+
+<pre><code>http://hugozhu.myalert.info/2013/02/27/在Pi和Github上搭建自己的个人博客.html
+</code></pre>
+
+<p>还有一种情况是如果URL中有空格，如：</p>
+
+<pre><code>http://hugozhu.myalert.info//2013//02/25/Java properties to enviorment variables.html
+</code></pre>
+
+<p>浏览器遇到这种URL时，会主动进行编码，但这里有两个问题：</p>
+
+<ol>
+<li>遇到中文时，浏览器是用GBK还是UTF-8还是其它字符集编码后再发送给服务器呢？</li>
+<li>遇到空格时，编码成+还是%20呢？
+不同浏览器实现可能不一样，在不同操作系统上也可能不一样（可能和用户设置的缺省语言有关），这样有些用户可能会遭遇404错误了，实际上我在服务器的错误日志上的确看到这样的错误</li>
+</ol>
+
+<p>日志：</p>
+
+
+        <div class="more">
+          <a href="/2013/02/27/collaborating-development-with-github.html" class="btn btn-small">阅读全文</a>
         </div>
       </div>
     

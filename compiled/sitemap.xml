@@ -199,12 +199,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/04/08/27-interrupts-with-gpio-pins.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/04/08/26-backup-raspberry-pi.html</loc>
 		<lastmod>2013-04-08</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -219,12 +219,12 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/28/23-arduino-1st-day.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html</loc>
 		<lastmod>2013-03-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/28/22-memory-barriers-or-fences.html</loc>
+		<loc>http://hugozhu.myalert.info/2013/03/28/23-arduino-1st-day.html</loc>
 		<lastmod>2013-03-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -289,18 +289,13 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/01/resource-management-in-java.html</loc>
-		<lastmod>2013-03-01</lastmod>
-		<changefreq>weekly</changefreq>
-	</url>
-	<url>
 		<loc>http://hugozhu.myalert.info/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html</loc>
 		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/28/logging-in-java.html</loc>
-		<lastmod>2013-02-28</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/03/01/resource-management-in-java.html</loc>
+		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
@@ -309,12 +304,17 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
-		<lastmod>2013-02-27</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/02/28/logging-in-java.html</loc>
+		<lastmod>2013-02-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
 		<loc>http://hugozhu.myalert.info/2013/02/27/how-to-host-personal-blog-on-github.html</loc>
+		<lastmod>2013-02-27</lastmod>
+		<changefreq>weekly</changefreq>
+	</url>
+	<url>
+		<loc>http://hugozhu.myalert.info/2013/02/27/collaborating-development-with-github.html</loc>
 		<lastmod>2013-02-27</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
