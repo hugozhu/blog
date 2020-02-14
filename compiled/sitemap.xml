@@ -124,22 +124,22 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html</loc>
-		<lastmod>2013-07-21</lastmod>
-		<changefreq>weekly</changefreq>
-	</url>
-	<url>
 		<loc>http://hugozhu.myalert.info/2013/07/21/41-use-phantomjs-on-raspberry-pi-to-login-weibo.html</loc>
 		<lastmod>2013-07-21</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/07/11/39-replace-usb-disk-on-raspberry-pi.html</loc>
-		<lastmod>2013-07-11</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/07/21/42-sharp-GP2Y1010AU0F-optical-dust-sensor.html</loc>
+		<lastmod>2013-07-21</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
 		<loc>http://hugozhu.myalert.info/2013/07/11/40-try-out-sublime-3-beta-on-mac.html</loc>
+		<lastmod>2013-07-11</lastmod>
+		<changefreq>weekly</changefreq>
+	</url>
+	<url>
+		<loc>http://hugozhu.myalert.info/2013/07/11/39-replace-usb-disk-on-raspberry-pi.html</loc>
 		<lastmod>2013-07-11</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
@@ -289,22 +289,22 @@
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html</loc>
-		<lastmod>2013-03-01</lastmod>
-		<changefreq>weekly</changefreq>
-	</url>
-	<url>
 		<loc>http://hugozhu.myalert.info/2013/03/01/resource-management-in-java.html</loc>
 		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
-		<loc>http://hugozhu.myalert.info/2013/02/28/the-evolution-of-online-advertsing-system.html</loc>
-		<lastmod>2013-02-28</lastmod>
+		<loc>http://hugozhu.myalert.info/2013/03/01/setup-l2tp-pptp-openvpn-on-ubuntu.html</loc>
+		<lastmod>2013-03-01</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
 	<url>
 		<loc>http://hugozhu.myalert.info/2013/02/28/logging-in-java.html</loc>
+		<lastmod>2013-02-28</lastmod>
+		<changefreq>weekly</changefreq>
+	</url>
+	<url>
+		<loc>http://hugozhu.myalert.info/2013/02/28/the-evolution-of-online-advertsing-system.html</loc>
 		<lastmod>2013-02-28</lastmod>
 		<changefreq>weekly</changefreq>
 	</url>
