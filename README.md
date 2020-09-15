@@ -15,7 +15,7 @@ README：
 
 Github设置
 --------- 
-1. 在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是[hugozhu.github.com](https://github.com/hugozhu/hugozhu.github.com)，这个仓库也就是网站的根目录了，在这里放生成好的静态文件
+1. 在你的仓库里增加一个your_github_id.github.com，比如我的github ID是hugozhu，相应的仓库名就是[hugozhu.github.com](https://github.com/hugozhu/hugozhu.github.com)，这个仓库也就是网站的根目录了，在这里放生成好的静态文件;
 2. 如果你需要用自己的域名，而不是Github提供的，可以在根目录下增加一个[CNAME](https://github.com/hugozhu/hugozhu.github.com/blob/master/CNAME)文件,文件内容则是你的域名，在DnsPod上需要建一个CNAME记录，将你的域名指向your_github_id.github.com. 也就是github原来分配给你的，完成这个设置后，访问your_github_id.github.com会跳转到你的域名；
 3. 每次更新后，Github会在10分钟内生效。
 
