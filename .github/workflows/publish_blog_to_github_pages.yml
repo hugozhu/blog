@@ -13,3 +13,8 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.16
+    - name: Install gor
+      run: |
+        go version
+        go get -u github.com/hugozhu/gor
+        
