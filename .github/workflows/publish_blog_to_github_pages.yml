@@ -32,8 +32,9 @@ jobs:
         git status
         git config --global user.name "Hugo Zhu"
         git config --global user.email "hugozhu@gmail.com"
+        git remote set-url origin https://x-access-token:${{ secrets.TOKEN }}@github.com/$GITHUB_REPOSITORY        
         git add *
-        git commit -m "Updated" .
-      
+        git commit -m "Updated ${{ env.GITHUB_RUN_ID }}" .
+        git push origin
     
         
