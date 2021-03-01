@@ -22,7 +22,7 @@ jobs:
     - name: Clone blog
       run: |
         mkdir compiled
-        git clone https://hugozhu:${{ secrets.TOKEN }}@github.com/hugozhu/hugozhu.github.com compiled
+        git clone https://github.com/hugozhu/hugozhu.github.com compiled
     - name: Compile blog
       run: |
         gor compile
@@ -32,7 +32,7 @@ jobs:
         git status
         git config --global user.name "Hugo Zhu"
         git config --global user.email "hugozhu@gmail.com"
-        git remote set-url origin https://x-access-token:${{ secrets.TOKEN }}@github.com/$GITHUB_REPOSITORY        
+        git remote set-url origin https://x-access-token:${{ secrets.TOKEN }}@github.com/hugozhu/hugozhu.github.com        
         git add *
         git commit -m "Updated ${{ env.GITHUB_RUN_ID }}" .
         git push origin
