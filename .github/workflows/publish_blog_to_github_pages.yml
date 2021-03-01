@@ -26,9 +26,8 @@ jobs:
         gor compile
     - name: Publish blog
       run: |
-        cd compile
-        git status     
-      
+        cd compiled
+        git status
       
       
     
