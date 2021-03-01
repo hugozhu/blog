@@ -18,6 +18,7 @@ jobs:
         go version
         go install github.com/hugozhu/gor/gor@latest
     - name: Clone blog
+      run: |
         mkdir compiled
         git clone https://github.com/hugozhu/hugozhu.github.com -o compiled
     - name: Compile blog
@@ -25,7 +26,8 @@ jobs:
         gor compile
     - name: Publish blog
       run: |
-        cd compile; git status     
+        cd compile
+        git status     
       
       
       
