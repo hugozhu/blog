@@ -1,19 +1,15 @@
-name: Go
+name: Blog of hugozhu.myalert.info
 
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
 jobs:
-  build:
+  checks:
+    name: run
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15
-    - name: Compile Blog
-      run: bash go run github.com/hugozhu/gor/gor compile
+        go-version: 1.16
