@@ -15,3 +15,5 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.15
+    - name: Compile Blog
+      run: bash go run github.com/hugozhu/gor/gor compile
