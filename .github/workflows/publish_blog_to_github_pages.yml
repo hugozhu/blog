@@ -1,0 +1,34 @@
+name: Blog of hugozhu.myalert.info
+
+on:
+  push:
+    branches: [ master ]
+jobs:
+  checks:
+    name: run
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+    - name: Install gor
+      run: |
+        go version
+        go install github.com/hugozhu/gor/gor@latest
+    - name: Clone blog
+      run: |
+        mkdir compiled
+        git clone https://github.com/hugozhu/hugozhu.github.com -o compiled
+    - name: Compile blog
+      run: |
+        gor compile
+    - name: Publish blog
+      run: |
+        cd compiled
+        git status
+      
+      
+    
+        
