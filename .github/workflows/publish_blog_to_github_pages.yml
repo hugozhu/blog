@@ -28,10 +28,11 @@ jobs:
       run: |
         cd compiled
         git status
+        git config --global user.name "Hugo Zhu"
+        git config --global user.email "hugozhu@gmail.com"
         git add *
         git commit -m "Updated" .
         git push origin
-      
       
     
         
