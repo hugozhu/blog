@@ -20,7 +20,7 @@ jobs:
     - name: Clone blog
       run: |
         mkdir compiled
-        git clone https://github.com/hugozhu/hugozhu.github.com -o compiled
+        git clone https://github.com/hugozhu/hugozhu.github.com compiled
     - name: Compile blog
       run: |
         gor compile
