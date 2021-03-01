@@ -16,5 +16,13 @@ jobs:
     - name: Install gor
       run: |
         go version
-        go get -u github.com/hugozhu/gor
+        go install github.com/hugozhu/gor/gor
+    - name: Compile blog
+      run: |
+        gor compile
+      
+      
+      
+      
+    
         
