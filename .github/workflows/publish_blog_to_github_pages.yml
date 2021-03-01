@@ -17,10 +17,15 @@ jobs:
       run: |
         go version
         go install github.com/hugozhu/gor/gor@latest
+    - name: Clone blog
+        mkdir compiled
+        git clone https://github.com/hugozhu/hugozhu.github.com -o compiled
     - name: Compile blog
       run: |
         gor compile
-      
+    - name: Publish blog
+      run: |
+        cd compile; git status     
       
       
       
