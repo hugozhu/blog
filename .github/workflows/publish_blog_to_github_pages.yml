@@ -32,7 +32,6 @@ jobs:
         git config --global user.email "hugozhu@gmail.com"
         git add *
         git commit -m "Updated" .
-        git push origin
       
     
         
