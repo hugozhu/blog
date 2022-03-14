@@ -62,7 +62,7 @@ GA4内置了近500种事件，包含了电商网站，游戏App，旅游网站�
 
 * 推荐的事件 https://support.google.com/analytics/answer/9267735?hl=zh-Hans&ref_topic=9756175
 
-** 如果以上的事件和事件参数还无法满足跟踪需求，那么你还可以采用自定义事件（尽量少用）**
+**如果以上的事件和事件参数还无法满足跟踪需求，那么你还可以采用自定义事件（尽量少用）**
 
 * 自定义事件 https://support.google.com/analytics/answer/11262438?hl=zh-Hans&ref_topic=9756175
 
@@ -94,7 +94,7 @@ Google Analytics（分析）报告使用 3 种归因模型：
 * 网页价值
 * 网站搜索归因
 
-# GA4 和 GTM 事件跟踪使用流程
+# GA4 和 GTM 事件跟踪使用指南
 
 **重要！！！请工程师阅读并完成一次流程，从GA4报表数据确认配置正确** 
 
@@ -146,3 +146,8 @@ function logEvent(name, params) {
 }
 
 ```
+
+# 电子商务 (GA4) 开发者指南
+**重要！！！** 
+https://developers.google.com/tag-manager/ecommerce-ga4
+
