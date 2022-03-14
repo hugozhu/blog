@@ -19,18 +19,24 @@ Analytics 还集成了 Firebase 的一些其他功能。例如，它自动记录
 
 Analytics 可帮助您了解用户的行为方式，以便您就如何推广您的应用制定明智的决策。您可以查看您的广告系列在自然渠道和付费渠道的效果，以了解哪些方法对于吸引高价值用户最为有效。如果您需要执行自定义分析或者将您的数据与其他源数据联接，您可以将自己的 Analytics 数据关联到 BigQuery，从而进行更复杂的分析，例如查询大型数据集以及联接多个数据源。
 
-# 网站和App的用户行为跟踪技术：从 UA （Google Universal Analytics, GA3) -> GA4（Google  Analytics 4)，三种实现方案：analytics.js -> gtag.js -> GTM (Google Tag Manager)
+# 网站和App用户行为跟踪技术的演进
+UA （Google Universal Analytics, GA3) -> GA4（Google  Analytics 4)
 https://support.google.com/analytics/answer/10270783?hl=zh-Hans
 
 GA4是UA（GA3）的一次全新的升级，测量模型从以传统的基于会话（Session）转变为事件（Event）驱动，GA3专注于在一次会话中收集和处理用户的各种行为数据（如页面展现，事件，交易），在GA4中，一次页面展现（Pageview）也被认为是一个事件，而页面的标题（Page Title）和路径（Page Path）则是事件的参数。
 
-UA（GA3）只有一种跟踪代码类型，但GA4有两种代码类型：GA4配置代码和GA4事件代码，其中GA4配置代码的作用域范围是页面全局，用户在页面上所有交互事件共享相同的配置。运行期GA4配置代码要在事件代码触发前执行。
+三种实现方案：analytics.js -> gtag.js -> GTM (Google Tag Manager)
 
+analytics.js已不被推荐使用，GTM是目前的最佳实践。
+
+GTM的三个优势：
 1. 可以填入第三方追踪代码，例如 Facebook/Tiktok Pixel
 2. 追踪事件 (转化) 或其他项目时候，不用工程师改代码
 3. 有代码预览，审核发布流程，适合团队协作
 
-如果网站页面上即有gtag.js，又有GTM跟踪代码，理论上这并不会产生问题，但要注意GTM重复配置事件触发可能导致多次同一事件多次触发；另外，gtag.js的事件参数如 “cookie_prefix”, or “allow_ad_personalization_signals”会传递到GTM里配置的GA4事件。
+UA（GA3）只有一种跟踪代码类型，但GA4有两种代码类型：GA4配置代码和GA4事件代码，其中GA4配置代码的作用域范围是页面全局，用户在页面上所有交互事件共享相同的配置。运行期GA4配置代码要在事件代码触发前执行。
+
+如果网站页面上既有gtag.js，又有GTM跟踪代码，理论上这并不会产生问题，但要注意GTM重复配置事件触发可能导致多次同一事件多次触发；另外，gtag.js的事件参数如 “cookie_prefix”, or “allow_ad_personalization_signals”会传递到GTM里配置的GA4事件。
 
 # 重要概念
 
