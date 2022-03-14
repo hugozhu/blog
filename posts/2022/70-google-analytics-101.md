@@ -95,7 +95,9 @@ Google Analytics（分析）报告使用 3 种归因模型：
 * 网站搜索归因
 
 # GA4 和 GTM 事件跟踪使用流程
-** 重要！！！请工程师阅读并完成一次流程，从GA4报表数据确认配置正确 ** 
+
+**重要！！！请工程师阅读并完成一次流程，从GA4报表数据确认配置正确** 
+
 https://www.optimizesmart.com/event-tracking-in-google-tag-manager-v2-complete-guide/
 
 ## DataLayer
