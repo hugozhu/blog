@@ -38,7 +38,7 @@ jobs:
         git push origin        
     - uses: hugozhu/dingtalk-github-action@v1
       with:
-        token: ${{ secrets.TOKEN }}
+        token: ${{ secrets.DINGTALK_TOKEN }}
         title: 'Blog updated from Github action'
         type: text
         content: |
