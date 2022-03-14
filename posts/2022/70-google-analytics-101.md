@@ -1,7 +1,7 @@
 ---
 date: 2022-03-10
 layout: post
-title: Google Analytics 101
+title: Google Analytics 4 简介
 description: How to use Google Analytics to measure shopping app
 categories:
 - Blog
@@ -12,7 +12,7 @@ tags:
 
 {:toc}
 
-# Google Analytics 4 介绍
+# Google Analytics 4 简介
 Google Analytics（分析）可帮助您了解人们使用您的 Web、Apple 或 Android 应用的方式。SDK 会自动收集大量事件和用户属性，您也可以定义自定义事件，以便衡量对您的业务有特殊影响的因素。收集到数据后，可通过 Firebase 控制台到信息中心中查看。通过此信息中心，您可以深入、详细地了解您的数据，包括摘要数据（如活跃用户和受众特征）和更详细的数据（如识别您最畅销的商品）。
 
 Analytics 还集成了 Firebase 的一些其他功能。例如，它自动记录与通过通知编辑器发送的通知消息相对应的事件，并就每个广告系列的影响提供报告。
@@ -27,7 +27,7 @@ GA4是UA（GA3）的一次全新的升级，测量模型从以传统的基于会
 
 三种实现方案：analytics.js -> gtag.js -> GTM (Google Tag Manager)
 
-analytics.js已不被推荐使用，GTM是目前的最佳实践。
+analytics.js已不被推荐使用，*GTM*是目前的最佳实践。
 
 GTM的三个优势：
 
@@ -41,8 +41,8 @@ UA（GA3）只有一种跟踪代码类型，但GA4有两种代码类型：GA4配
 
 # 重要概念
 
-## Segments（受众群体）
-建立起产品受众分层是产品精准营销的基础。受众群体的分层是产品用户的具体分类，可根据地区，访问设备，年龄等用户属性来分类，每一个产品都有一个目标获取的受众群体，具体的营销活动应该根据目标受众的喜好来追求ROI最大化，用户增长首先要找到最容易获取的受众群体。
+## Segments（受众）
+建立起产品受众分层是产品精准营销的基础。受众分层是使用产品用户的具体分类，可根据地区，访问设备，年龄等用户属性来分类，每一个产品都有一个目标获取的受众群体，具体的营销活动应该根据目标受众的喜好来追求ROI最大化，用户增长首先要找到最易获取的受众群体。
 
 Segment示例：
 
@@ -95,13 +95,12 @@ Google Analytics（分析）报告使用 3 种归因模型：
 * 网站搜索归因
 
 # GA4 和 GTM 事件跟踪使用流程
-** 重要！！！请工程师阅读并完整完成一次流程，从GA4报表数据确认配置正确 ** 
+** 重要！！！请工程师阅读并完成一次流程，从GA4报表数据确认配置正确 ** 
 https://www.optimizesmart.com/event-tracking-in-google-tag-manager-v2-complete-guide/
 
 ## DataLayer
 用于传递Event数据给GTM的一个Javascript对象。
 https://support.google.com/tagmanager/answer/6164391?hl=zh-Hans#:~:text=A%20data%20layer%20is%20a,developer%20documentation%20for%20more%20information.
-
 
 ## Set User Properties 设置用户属性
 https://firebase.google.com/docs/analytics/user-properties?platform=android
@@ -123,7 +122,7 @@ logEvent({
 
 用户页面互动自定义打点：
 logEvent({
-  name: "hho_login_view",
+  name: "login_view",
   params: {
     click : "tab_signin | tab_register | btn_signin | btn_register | link_forget_password | link_bottom_privacy | link_bottom_service",
     input: "email ｜ password"
