@@ -63,15 +63,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
 
       <footer>
-        <p>&copy; <a href="http://github.com/hugozhu">{{ site.author.name }}</a> 2022
-          Powered by <a href="http://www.raspberrypi.org" target="_blank"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
-          with help from <a href="http://github.com/wendal/gor" target="_blank" title="Gor -- Fast Blog">Gor</a>
+        <p>&copy; <a href="http://github.com/hugozhu" onclick="logEvent('hho_login_view', {'click': 'github'})">{{ site.author.name }}</a> 2022
+          Powered by <a href="http://www.raspberrypi.org" target="_blank"  onclick="logEvent('hho_login_view', {'click': 'raspberrypi'})"><img src="http://retroburngames.com/bytrix/media/images/28_icon.jpg"/> Raspberry Pi</a>
+          with help from <a href="http://github.com/wendal/gor" onclick="logEvent('hho_login_view', {'click': 'gor'})" target="_blank" title="Gor -- Fast Blog">Gor</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
 		  and Idea from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
         </p>
       </footer>
     </div> <!-- /container -->
 
-    {{{ google_prettify }}} 
+    {{{ google_prettify }}}
+
+<script type="text/javascript">
+  function logEvent(name, params) {      
+    params["event"] = name
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(params)
+  }  
+</script>     
 </body>
 </html>

@@ -131,7 +131,7 @@ logEvent({
   }
 })
 
-在部署了gtag.js中页面中logEvent的实现如下：
+在部署了gtag.js的页面中logEvent的实现如下：
 function logEvent(name, params) {
   gtag("event", name, params)
 }
