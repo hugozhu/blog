@@ -1,5 +1,5 @@
 ---
-date: 2021-03-10
+date: 2022-03-10
 layout: post
 title: Google Analytics 101
 description: How to use Google Analytics to measure shopping app
@@ -48,8 +48,7 @@ Segment示例：
 
 * (客层/年龄：18-24)「AND」(客层/性别：女性)
 * 行为：工作阶段 > 1「AND」行为：每位使用者交易次数 > 1
-* 电子商务：每位使用者收益 > 10「AND」
-* 电子商务：产品 = T恤
+* 电子商务：每位使用者收益 > 10「AND」电子商务：产品 = T恤
 
 ## Event（事件）
 https://support.google.com/analytics/answer/9322688?hl=zh-Hans&ref_topic=9756175
@@ -63,7 +62,7 @@ GA4内置了近500种事件，包含了电商网站，游戏App，旅游网站�
 
 * 推荐的事件 https://support.google.com/analytics/answer/9267735?hl=zh-Hans&ref_topic=9756175
 
-如果以上的事件和事件参数还无法满足跟踪需求，那么你还可以采用自定义事件：
+** 如果以上的事件和事件参数还无法满足跟踪需求，那么你还可以采用自定义事件（尽量少用）**
 
 * 自定义事件 https://support.google.com/analytics/answer/11262438?hl=zh-Hans&ref_topic=9756175
 
@@ -81,10 +80,11 @@ https://support.google.com/google-ads/answer/6095821?hl=zh-Hans
 https://support.google.com/analytics/answer/1033861?hl=zh-Hans#AttributionModels&zippy=%2C%E6%9C%AC%E6%96%87%E5%8C%85%E5%90%AB%E7%9A%84%E4%B8%BB%E9%A2%98
 
 为了解答有关用户行为的各种网站分析问题，Google Analytics（分析）会使用各种计算类型或归因模型来得出您在报告中看到的数据。请将每份 Google Analytics（分析）报告视为对某类用户分析问题的解答。通常，这些问题可以划分为以下几类：
-内容：特定网页被浏览的次数。
-目标：哪些网页网址对目标转化率的贡献最大。
-电子商务：给定网页为交易贡献多少价值。
-内部搜索：哪些内部搜索字词促成了交易。
+
+* 内容：特定网页被浏览的次数。
+* 目标：哪些网页网址对目标转化率的贡献最大。
+* 电子商务：给定网页为交易贡献多少价值。
+* 内部搜索：哪些内部搜索字词促成了交易。
 
 对于以上各种主要类别及其包含的报告，Google Analytics（分析）会使用不同的归因模型。由于每种归因模型都是专为计算一组已知指标而设计的，您可能会注意到某些指标（例如，网页浏览量）只在某些报告中显示而不在其他报告中显示。这是由该报告所使用的归因模型决定的。
 
@@ -94,12 +94,14 @@ Google Analytics（分析）报告使用 3 种归因模型：
 * 网页价值
 * 网站搜索归因
 
+# GA4 和 GTM 事件跟踪使用流程
+** 重要！！！请工程师阅读并完整完成一次流程，从GA4报表数据确认配置正确 ** 
+https://www.optimizesmart.com/event-tracking-in-google-tag-manager-v2-complete-guide/
+
 ## DataLayer
 用于传递Event数据给GTM的一个Javascript对象。
 https://support.google.com/tagmanager/answer/6164391?hl=zh-Hans#:~:text=A%20data%20layer%20is%20a,developer%20documentation%20for%20more%20information.
 
-# GA4 和 GTM 事件跟踪使用流程
-https://www.optimizesmart.com/event-tracking-in-google-tag-manager-v2-complete-guide/
 
 ## Set User Properties 设置用户属性
 https://firebase.google.com/docs/analytics/user-properties?platform=android
