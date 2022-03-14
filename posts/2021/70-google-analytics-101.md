@@ -30,9 +30,9 @@ GA4是UA（GA3）的一次全新的升级，测量模型从以传统的基于会
 analytics.js已不被推荐使用，GTM是目前的最佳实践。
 
 GTM的三个优势：
-1. 可以填入第三方追踪代码，例如 Facebook/Tiktok Pixel
-2. 追踪事件 (转化) 或其他项目时候，不用工程师改代码
-3. 有代码预览，审核发布流程，适合团队协作
+* 可以填入第三方追踪代码，例如 Facebook/Tiktok Pixel
+* 追踪事件 (转化) 或其他项目时候，不用工程师改代码
+* 有代码预览，审核发布流程，适合团队协作
 
 UA（GA3）只有一种跟踪代码类型，但GA4有两种代码类型：GA4配置代码和GA4事件代码，其中GA4配置代码的作用域范围是页面全局，用户在页面上所有交互事件共享相同的配置。运行期GA4配置代码要在事件代码触发前执行。
 
@@ -55,15 +55,15 @@ https://support.google.com/analytics/answer/9322688?hl=zh-Hans&ref_topic=9756175
 
 GA4内置了近500种事件，包含了电商网站，游戏App，旅游网站，视频网站等常见的事件类型，其中增强型衡量事件需要通过配置打开来生效，推荐的事件需要工程师编写代码来实现（注：事件名称和事件参数和参数值的规范要符合GA4的数据模型）
 
-1. 自动收集的事件 https://support.google.com/analytics/answer/9234069?hl=zh-Hans&ref_topic=9756175
+* 自动收集的事件 https://support.google.com/analytics/answer/9234069?hl=zh-Hans&ref_topic=9756175
 
-2. 增强型衡量事件 https://support.google.com/analytics/answer/9216061?hl=zh-Hans&ref_topic=9756175
+* 增强型衡量事件 https://support.google.com/analytics/answer/9216061?hl=zh-Hans&ref_topic=9756175
 
-3. 推荐的事件 https://support.google.com/analytics/answer/9267735?hl=zh-Hans&ref_topic=9756175
+* 推荐的事件 https://support.google.com/analytics/answer/9267735?hl=zh-Hans&ref_topic=9756175
 
 如果以上的事件和事件参数还无法满足跟踪需求，那么你还可以采用自定义事件：
 
-4. 自定义事件 https://support.google.com/analytics/answer/11262438?hl=zh-Hans&ref_topic=9756175
+* 自定义事件 https://support.google.com/analytics/answer/11262438?hl=zh-Hans&ref_topic=9756175
 
 ## Dimension （维度）
 通过用户在你的网站或App中触发的各种事件（Event）收集而来的数据的属性或特征，如UserId，日期，流量来源，用户所属地域，用户使用的设备等
@@ -87,9 +87,9 @@ https://support.google.com/analytics/answer/1033861?hl=zh-Hans#AttributionModels
 对于以上各种主要类别及其包含的报告，Google Analytics（分析）会使用不同的归因模型。由于每种归因模型都是专为计算一组已知指标而设计的，您可能会注意到某些指标（例如，网页浏览量）只在某些报告中显示而不在其他报告中显示。这是由该报告所使用的归因模型决定的。
 
 Google Analytics（分析）报告使用 3 种归因模型：
-1. 依据请求
-2. 网页价值
-3. 网站搜索归因
+* 依据请求
+* 网页价值
+* 网站搜索归因
 
 ## DataLayer
 用于传递Event数据给GTM的一个Javascript对象。
