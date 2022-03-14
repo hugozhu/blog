@@ -35,6 +35,12 @@ jobs:
         git remote set-url origin https://x-access-token:${{ secrets.TOKEN }}@github.com/hugozhu/hugozhu.github.com        
         git add *
         git commit -m "Updated ${{ env.GITHUB_RUN_ID }}" .
-        git push origin
-    
-        
+        git push origin        
+    - uses: hugozhu/dingtalk-github-action@v1
+      with:
+        token: ${{ secrets.TOKEN }}
+        title: 'Blog updated from Github action'
+        type: text
+        content: |
+          ## Blog just updated!
+          > from github action message
