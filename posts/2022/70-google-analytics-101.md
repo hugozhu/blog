@@ -148,11 +148,14 @@ function logEvent(name, params) {
 ```
 
 # 电子商务 (GA4) 开发者指南
-**重要！！！** 
+**重要！！！，工程师和产品经理必看**
+
 https://developers.google.com/tag-manager/ecommerce-ga4
 
 # 页面预加载请求如何打点
+
 https://support.google.com/analytics/answer/1033068#NonInteractionEvents&zippy=%2Cin-this-article
+
 
 ```
 gtag('event', 'video_auto_play_start', {
