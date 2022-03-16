@@ -169,3 +169,16 @@ GTM同样可以标记非交互事件。
 # 导出GA4数据到Google BigQuery
 导出后可以看到打点的原始数据，免费可以有100万条事件：
 https://support.google.com/analytics/answer/7029846?hl=en
+
+
+导出一天的event日志成json文件后就可以用 **jq** 命令快速过滤分析:
+
+```
+cat results-20220316-111605.json | jq -r '
+.[] | [ 
+  .event_timestamp, 
+  .event_name, 
+  (.event_params | .[] | select (.key == "click") | .value.string_value) 
+] | @csv'
+
+```
