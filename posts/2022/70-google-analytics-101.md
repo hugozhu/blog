@@ -151,3 +151,18 @@ function logEvent(name, params) {
 **重要！！！** 
 https://developers.google.com/tag-manager/ecommerce-ga4
 
+# 页面预加载请求如何打点
+https://support.google.com/analytics/answer/1033068#NonInteractionEvents&zippy=%2Cin-this-article
+
+```
+gtag('event', 'video_auto_play_start', {
+  'event_label': 'My promotional video',
+  'event_category': 'video_auto_play',
+  'non_interaction': true
+});
+```
+GTM同样可以标记非交互事件。
+
+# 导出GA4数据到Google BigQuery
+导出后可以看到打点的原始数据，免费可以有100万条事件：
+https://support.google.com/analytics/answer/7029846?hl=en
