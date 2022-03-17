@@ -27,7 +27,7 @@ GA4是UA（GA3）的一次全新的升级，测量模型从以传统的基于会
 
 三种实现方案：analytics.js -> gtag.js -> GTM (Google Tag Manager)
 
-analytics.js已不被推荐使用，*GTM*是目前的最佳实践。
+analytics.js已不被推荐使用，**GTM**是目前的最佳实践。
 
 GTM的三个优势：
 
@@ -169,7 +169,7 @@ gtag('event', 'video_auto_play_start', {
 GTM同样可以标记非交互事件。
 
 # 导出GA4数据到Google BigQuery
-导出后可以看到打点的原始数据，免费每天可以有100万条事件：
+GA3不能导出原始数据是最大的诟病，好在GA4支持导出了，免费额度每天有100万条事件：
 
 GA4事件原始表结构：https://support.google.com/analytics/answer/7029846?hl=en
 
@@ -185,7 +185,8 @@ cat results-20220316-111605.json | jq -r '
 
 ```
 
-同步GA4 Event Logs到自己的数据仓库
+同步GA4 Event Logs到自己的数据仓库的步骤：
+
 * 配置好 Google BigQuery API 访问权限
 * 调用Export接口，将数据导出到Google Cloud Storage（类似Aliyun OSS的服务）
 * 调用Storage API下载到Aliyun OSS，再通过ODPS倒入数据仓库
@@ -195,4 +196,6 @@ cat results-20220316-111605.json | jq -r '
 
 https://support.google.com/analytics/answer/6367342?hl=en#zippy=%2Cin-this-article
 
-安装演示账号后可以体验GA4内建的电商网站的流量获取渠道效率，成交转化漏斗等报表和数据洞察，这是最大的业务价值。**实现这个价值的前提是规范的使用GA打点。**
+安装GA4演示账号后可以体验GA4内建的电商网站的流量获取渠道效率，成交转化漏斗等报表和数据洞察，这是最大的业务价值。
+
+**实现这个价值的前提是规范的使用GA打点。**
