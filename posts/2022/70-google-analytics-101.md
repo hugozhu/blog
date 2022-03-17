@@ -152,6 +152,8 @@ function logEvent(name, params) {
 
 https://developers.google.com/tag-manager/ecommerce-ga4
 
+电商网站iOS，Android App和H5 Web应用打点的event_name和event_parameter一定要按上面的指南来实施，切忌不规范的打点造成数据异常，分析困难效率低，得不出有效结论。
+
 # 页面预加载请求如何打点
 
 https://support.google.com/analytics/answer/1033068#NonInteractionEvents&zippy=%2Cin-this-article
@@ -167,11 +169,11 @@ gtag('event', 'video_auto_play_start', {
 GTM同样可以标记非交互事件。
 
 # 导出GA4数据到Google BigQuery
-导出后可以看到打点的原始数据，免费可以有100万条事件：
-https://support.google.com/analytics/answer/7029846?hl=en
+导出后可以看到打点的原始数据，免费每天可以有100万条事件：
 
+GA4事件原始表结构：https://support.google.com/analytics/answer/7029846?hl=en
 
-导出一天的event日志成json文件后就可以用 **jq** 命令快速过滤分析:
+导出一天的event日志成json文件后就可以用 **jq** （https://stedolan.github.io/jq/manual/#Basicfilters） 命令快速过滤分析:
 
 ```
 cat results-20220316-111605.json | jq -r '
@@ -182,3 +184,15 @@ cat results-20220316-111605.json | jq -r '
 ] | @csv'
 
 ```
+
+同步GA4 Event Logs到自己的数据仓库
+* 配置好 Google BigQuery API 访问权限
+* 调用Export接口，将数据导出到Google Cloud Storage（类似Aliyun OSS的服务）
+* 调用Storage API下载到Aliyun OSS，再通过ODPS倒入数据仓库
+* 如果需要实时数据，也可以定时Query GA4每天的实时表同步到MongoDB等数据库。
+
+# GA4 演示账号
+
+https://support.google.com/analytics/answer/6367342?hl=en#zippy=%2Cin-this-article
+
+安装演示账号后可以体验GA4内建的电商网站的流量获取渠道效率，成交转化漏斗等报表和数据洞察，这是最大的业务价值。**实现这个价值的前提是规范的使用GA打点。**
