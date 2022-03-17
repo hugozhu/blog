@@ -169,7 +169,7 @@ gtag('event', 'video_auto_play_start', {
 GTM同样可以标记非交互事件。
 
 # 导出GA4数据到Google BigQuery
-GA3不能导出原始数据是最大的诟病，好在GA4支持导出了，免费额度每天有100万条事件：
+GA3不能导出原始数据是最大的诟病，好在GA4支持导出了，免费额度每天有100万条事件。
 
 GA4事件原始表结构：https://support.google.com/analytics/answer/7029846?hl=en
 
