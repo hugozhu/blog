@@ -199,3 +199,12 @@ https://support.google.com/analytics/answer/6367342?hl=en#zippy=%2Cin-this-artic
 安装GA4演示账号后可以体验GA4内建的电商网站的流量获取渠道效率，成交转化漏斗等报表和数据洞察，这是最大的业务价值。
 
 **实现这个价值的前提是规范的使用GA打点。**
+
+
+# A/B Test最小样本量
+
+用这个工具计算： https://www.evanmiller.org/ab-testing/sample-size.html
+
+原理见：
+https://zhuanlan.zhihu.com/p/40919260
+https://guessthetest.com/calculating-sample-size-in-a-b-testing-everything-you-need-to-know/#:~:text=A%20general%20rule%20of%20thumb,a%20high%20level%20of%20confidence.
