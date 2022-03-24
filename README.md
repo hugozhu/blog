@@ -11,7 +11,7 @@ README：
 2. 文章可以用Markdown格式来编写，采用Github来做版本控制，我的Blog仓库在 http://github.com/hugozhu/blog ，数据安全很好，误删除也不担心了；
 3. 很容易找到托管环境，方便迁移；
 4. 用Gor在Pi上生成速度很快；再用Nginx提供Web服务，可以直接在Pi上写Blog；
-5. 大繁至简
+5. 大繁至简。
 
 Github设置
 --------- 
