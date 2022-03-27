@@ -3,7 +3,7 @@
 
 RuhohSpec: '1.0'
 theme : twitter
-production_url : http://hugozhu.myalert.info
+production_url : http://blog.hugozhu.site
 
 posts:
   permalink: /:year/:month/:day/:filename.html
@@ -16,10 +16,7 @@ pages:
 paginator:
   layout: 'paginator'
   per_page: 10
-  namespace: '/posts/'
+  namespace: 'posts/'
 
 markdown:
   toc_title: '<h1>目录：</h1>'
-
-
-
