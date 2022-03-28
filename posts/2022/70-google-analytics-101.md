@@ -72,6 +72,9 @@ GA4内置了近500种事件，包含了电商网站，游戏App，旅游网站�
 ## Metrics （指标）
 指标是量化可衡量的，通过指标你可以知道什么事件发生了多少次，
 
+这里有一份常用的术语和指标:
+https://www.niaogebiji.com/article-16403-1.html
+
 ## Conversion （转化）
 Conversion是高价值的事件（Event），借助转化跟踪，你可以了解你投放的广告获得的点击是否有效转化为你网站上有价值的客户活动，例如购买、注册，喜欢，加购等，不同的事件有不同的价值。
 https://support.google.com/google-ads/answer/6095821?hl=zh-Hans
