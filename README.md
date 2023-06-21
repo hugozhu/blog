@@ -1,7 +1,7 @@
 README：
 =======
 
-本站[http://hugozhu.myalert.info](http://hugozhu.myalert.info)同时托管在家里的[Raspberry Pi](http://www.raspberrypi.org)和[Github Pages](http://pages.github.com/)上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名 **hugozhu.myalert.info** 到不同的服务器是通过[DnsPod](http://dnspod.cn)的服务实现的，这么好的服务还是免费的，这里推荐一下。
+本站[http://hugozhu.site](http://hugozhu.site)同时托管在家里的[Raspberry Pi](http://www.raspberrypi.org)和[Github Pages](http://pages.github.com/)上，并同步保持更新，海外用户会访问Github，国内用户则会访问Pi，不同线路解析域名 **hugozhu.myalert.info** 到不同的服务器是通过[DnsPod](http://dnspod.cn)的服务实现的，这么好的服务还是免费的，这里推荐一下。
 
 因为Github Pages只能支持静态网页，你需要一个能生成静态网页的博客生成引擎。我使用的是[gor](http://github.com/wendal/gor)，我fork了一个在[http://github.com/hugozhu/gor](http://github.com/hugozhu/gor)， 也可以使用[ruhoh](http://ruhoh.com)，[Google一下还有很多](https://www.google.com/search?q=static+blog+generator&hl=en&newwindow=1&client=safari&rls=en&biw=1238&bih=868&ei=msAuUY-vDMKO2AWQ7IHoBQ&sqi=2&start=10&sa=N)。
 
