@@ -79,6 +79,17 @@ sudo sysctl -p
 iptables -t nat -I POSTROUTING -j MASQUERADE
 ```
 
+设置r2s的wifi无线网卡IP地址和路由规则
+```
+# set wifi ip address 
+ip addr add 192.168.3.1 dev wlxe84e066f6aa3
+ip route add 192.168.3.0/24 dev wlxe84e066f6aa3
+
+#make wifi client use openwrt as router for internet 
+ip rule add from 192.168.3.1/24 table 1
+ip route add default via 192.168.1.11 table 1
+```
+
 hostapd容器的docker-compose
 ```
 version: '2.4'
