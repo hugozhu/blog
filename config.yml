@@ -3,7 +3,7 @@
 
 RuhohSpec: '1.0'
 theme : twitter
-production_url : http://blog.hugozhu.site
+production_url : https://blog.hugozhu.site
 
 posts:
   permalink: /:year/:month/:day/:filename.html
